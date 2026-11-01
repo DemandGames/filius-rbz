@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>CFBundleName</key><string>Filius RBZ</string>
+  <key>CFBundleDisplayName</key><string>Filius (RBZ Wirtschaft Kiel Version)</string>
+  <key>CFBundleIdentifier</key><string>de.rbz-wirtschaft-kiel.filius</string>
+  <key>CFBundleVersion</key><string>__VERSION__.__STANDNR__</string>
+  <key>CFBundleShortVersionString</key><string>__VERSION__</string>
+  <key>CFBundleGetInfoString</key><string>Filius (RBZ Wirtschaft Kiel Version) __VERSION__ (__STAND__)</string>
+  <key>CFBundleExecutable</key><string>filius</string>
+  <key>CFBundleIconFile</key><string>Filius.icns</string>
+  <key>CFBundlePackageType</key><string>APPL</string>
+  <key>CFBundleSignature</key><string>????</string>
+  <key>CFBundleInfoDictionaryVersion</key><string>6.0</string>
+  <key>LSMinimumSystemVersion</key><string>11.0</string>
+  <key>LSApplicationCategoryType</key><string>public.app-category.education</string>
+  <key>NSHighResolutionCapable</key><true/>
+  <key>NSHumanReadableCopyright</key><string>GPL v2/v3 - Filius: Universität Siegen u. a.; RBZ-Version: Thorben Demand</string>
+  <key>CFBundleDocumentTypes</key>
+  <array>
+    <dict>
+      <key>CFBundleTypeName</key><string>Filius-Projekt</string>
+      <key>CFBundleTypeRole</key><string>Editor</string>
+      <key>CFBundleTypeIconFile</key><string>Projekt.icns</string>
+      <key>LSHandlerRank</key><string>Owner</string>
+      <key>LSItemContentTypes</key><array><string>de.rbz-wirtschaft-kiel.filius.projekt</string></array>
+    </dict>
+  </array>
+  <key>UTExportedTypeDeclarations</key>
+  <array>
+    <dict>
+      <key>UTTypeIdentifier</key><string>de.rbz-wirtschaft-kiel.filius.projekt</string>
+      <key>UTTypeDescription</key><string>Filius-Projekt</string>
+      <key>UTTypeConformsTo</key><array><string>public.data</string><string>public.archive</string></array>
+      <key>UTTypeTagSpecification</key>
+      <dict>
+        <key>public.filename-extension</key><array><string>fls</string></array>
+      </dict>
+    </dict>
+  </array>
+</dict>
+</plist>

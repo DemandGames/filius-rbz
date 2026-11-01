@@ -1,0 +1,232 @@
+# A local network with a switch
+Goal: Your two laptops become the school network with four laptops on one switch. You learn about MAC addresses and ARP, and you label your network for the first time.
+
+## Read
+
+### More than two devices
+A cable always connects exactly two devices. For more devices you need a **switch**: every device gets its own cable to the switch.
+
+[Picture: k02-stern.png | The school network: four laptops on one switch]
+
+All cables go to the middle, so this layout is called a **star topology**. All devices on the switch together form a local network, a **LAN**.
+
+### Two addresses for each device
+Every network card (NIC) has a **MAC address**. It is built in and fixed, like a serial number, for example 0A:3F:5C:12:9B:44. The IPv4 address is different: you give it to the device yourself, like a postal address.
+
+[Picture: k02-mac.png | MAC address and IPv4 address in the settings]
+
+The switch only works with MAC addresses. In its **switch table** it remembers which MAC address is connected to which port.
+
+### Who belongs to my network?
+With the netmask 255.255.255.0, the IPv4 address 192.168.10.11 has two parts:
+
+- **Network part** 192.168.10 – the same for all devices in the network
+- **Host part** 11 – different for each device (a host is an end device)
+
+[Picture: k02-netzmaske.png | The netmask splits the IPv4 address into network part and host part]
+
+A laptop sends messages to devices with the same network part directly through the switch. If a device has another network part, it is in another network, even if it is connected to the same switch.
+
+[Picture: k02-anderes-netz.png | 192.168.10.14 and 192.168.20.14: different network part, different network]
+
+### "Who has 192.168.10.14?"
+Before Laptop-1 can send to 192.168.10.14, it needs the MAC address of this device. So it uses **ARP** to ask all devices in the network at the same time. A message to everyone like this is called a **broadcast**. Only the device with that IPv4 address answers.
+
+[Picture: k02-arp.png | ARP request and ARP reply in the data exchange]
+
+The laptop saves the replies in its ARP table. You can see the table with the command `arp`.
+
+### Labeling the network
+A network with many devices can quickly get confusing. In **Documentation mode** (yellow) you add labels to it. This way you create a **network plan**: a labelled drawing of all networks with their devices and addresses. With the network plan everybody quickly understands how your network is built, and faults are easier to find. You complete it in every chapter.
+
+In the bar on the left you find the **structure field** and the text field. In our network plan, every network looks the same:
+
+- A structure field lies around all devices of the network. You change its size by dragging its edge with the mouse.
+- At the top left of the field there is the label. It gives the name of the network and its network address, for example "School network 192.168.10.0/24".
+
+The quickest way to write the label is the small "+" at the top left of the structure field: click it and type the name of the network directly into the field. The label then belongs to the field and moves with it. You can also drag a new text field from the bar to the top left of the field for the label. You add all other labels with text fields.
+
+[Picture: k02-etikett.png | The school network with structure field and label]
+
+The **/24** is a short form of the netmask: the first 24 bits, so the first three numbers, form the network part. 192.168.10.0/24 means the same as 192.168.10.0 with 255.255.255.0.
+
+> Note: In Documentation mode, the simulation does not run. To continue building, switch back to Design mode.
+
+## Practice
+
+### 2.1
+Rebuild the network:
+- Remove the cable between Laptop-1 and Laptop-2.
+- Add a switch with the name "School switch".
+Tip: To delete a cable, right-click one of the connected devices.
+
+### 2.2
+Connect Laptop-1 and Laptop-2 to the switch.
+Tip: Each device needs its own cable to the switch.
+
+### 2.3
+Add two laptops and connect them to the School switch, both with the netmask 255.255.255.0:
+| Device | IPv4 address |
+|---|---|
+| Laptop-3 | 192.168.10.13 |
+| Laptop-4 | 192.168.10.14 |
+Tip: Drag two more laptops from the bar.
+
+### 2.4
+From Laptop-1, test `ping 192.168.10.14`.
+Tip: Don't forget to start the simulation.
+
+### 2.5
+On Laptop-1, enter the command `arp`.
+Question: What is the MAC address of Laptop-4?
+Input: MAC address
+Tip: The table gives a MAC address for each IPv4 address.
+
+### 2.6
+In Simulation mode, click on the switch. Its table opens.
+Question: Which port is Laptop-4 connected to?
+Input: Number
+Tip: The switch only adds a device to the table after this device has sent something. If you need to, ping again.
+
+### 2.7
+In the data exchange of Laptop-1, find the ARP request and click on it.
+Question: Which MAC address is the ARP request sent to?
+- To the MAC address of Laptop-4
+- To the MAC address of the switch
+- ✓ To FF:FF:FF:FF:FF:FF
+- To 00:00:00:00:00:00
+Tip: At the bottom, look at the Network access layer, in the "Destination" column.
+
+### 2.8
+Start the network plan: in Documentation mode, put a structure field around the whole school network:
+- The field contains all laptops and the School switch.
+- The label "School network 192.168.10.0/24" is at the top left of the field.
+Tip: Click the yellow "Documentation" button at the top. Drag the structure field from the bar onto the work area and drag its edge until all laptops and the switch are inside. Then click the "+" at the top left of the field and type the label (or drag a text field to the top left of the field). The /24 after the network address is important.
+
+## Quiz
+
+### What does a switch do with an incoming packet?
+- ✓ It sends it to the port that leads to the destination MAC address
+- It always sends it to all ports
+Wrong: That is how a hub works. A switch only sends to all ports if it does not know the destination yet or if it is a broadcast.
+- It sends it to the port with the destination IPv4 address
+Wrong: A switch does not read IPv4 addresses at all. It only works with MAC addresses.
+- It sends it to the next router
+Wrong: A packet only goes to a router if the destination is in another network. The sender decides that, not the switch.
+Explanation: In its table, the switch remembers which MAC address is connected to which port. It does not look at IPv4 addresses.
+
+### How does a switch know which port a device is connected to?
+- ✓ From the source MAC addresses of incoming packets
+- From the destination IPv4 addresses of the packets
+Wrong: A switch does not look at IPv4 addresses. Also, the destination of a packet does not tell where the sender is connected.
+- From a list that someone enters by hand
+Wrong: You do not have to set up a switch: it learns its table by itself while packets pass through.
+- From the replies of the DNS server
+Wrong: DNS translates names into IPv4 addresses. It has nothing to do with the ports of a switch.
+Explanation: This is why a device only appears in the switch table after it has sent something itself.
+
+### What is a MAC address?
+- ✓ A fixed address of the network card
+- An address that the user can choose freely
+Wrong: The IPv4 address is the one you choose freely. The network card has its MAC address from the factory.
+- The address of the network that a device belongs to
+Wrong: That would be the network address, for example 192.168.10.0. A MAC address belongs to exactly one network card, not to a network.
+- The name that is shown for a device
+Wrong: The name is a label for people. The MAC address is a number in hexadecimal notation, for example 0A:1B:2C:3D:4E:5F.
+Explanation: The MAC address belongs to the network card, like a serial number. The IPv4 address is given to the device.
+
+### What is ARP used for?
+- ✓ To find the MAC address for an IPv4 address in your own network
+- To find the IPv4 address for a name
+Wrong: That is what DNS does (chapter 6). ARP works one level lower: from the IPv4 address to the MAC address.
+- To give a device an IPv4 address
+Wrong: That is what DHCP does (chapter 7). ARP does not hand out addresses, it only asks.
+- To find the way into another network
+Wrong: Routers find the way into other networks with their forwarding table. ARP only works in your own network.
+Explanation: In the local network, packets are sent to MAC addresses. So before Laptop-1 can send to 192.168.10.14, it uses ARP to ask for the matching MAC address.
+
+### Who is an ARP request sent to?
+- ✓ To all devices in the local network
+- Only to the device it is looking for
+Wrong: For that the sender would need the MAC address of the destination, and that is exactly what it is looking for.
+- To the switch, which answers it
+Wrong: The switch does not answer ARP requests. It only passes the broadcast on to all ports.
+- To the default gateway
+Wrong: The gateway is only responsible for destinations in other networks. The ARP request asks all devices in your own network.
+Explanation: The sender does not know the MAC address of the destination yet. That is why it asks everyone.
+
+### Which destination MAC address does a broadcast have?
+- ✓ FF:FF:FF:FF:FF:FF
+- 00:00:00:00:00:00
+Wrong: All zeros stand for an address that is not known yet, for example in the ARP request in the field for the MAC address that is looked for. It does not mean "to all".
+- 192.168.10.255
+Wrong: This is an IPv4 address, not a MAC address. MAC addresses consist of six pairs of hexadecimal characters.
+- 01:00:00:00:00:00
+Wrong: This is not an address for all devices. The broadcast MAC address consists of all Fs.
+Explanation: FF:FF:FF:FF:FF:FF is the broadcast address: all Fs mean "to everybody in the network". Every device in the local network accepts such a message.
+
+### With netmask 255.255.255.0, which two addresses are in the same network?
+- ✓ 192.168.10.11 and 192.168.10.200
+- 192.168.10.11 and 192.168.11.11
+Wrong: The third number is different (10 and 11). So the addresses are in two different networks.
+- 10.0.0.1 and 10.0.1.1
+Wrong: With 255.255.255.0 the first three numbers count: 10.0.0 and 10.0.1 are different.
+- 192.168.10.11 and 192.169.10.11
+Wrong: The second number is different (168 and 169). That alone makes two different networks.
+Explanation: With 255.255.255.0, the first three numbers are the network part. 192.168.10.11 and 192.168.10.200 both have 192.168.10 and only differ in the host part, so they are in the same network.
+
+### What is the host part of 192.168.10.14 with netmask 255.255.255.0?
+- ✓ 14
+- 192.168.10
+Wrong: This is the network part, the part that all devices in the network have in common.
+- 10.14
+Wrong: The 10 still belongs to the network part. With 255.255.255.0 only the last number is the host part.
+- 255
+Wrong: 255 is in the netmask, not in the address. The mask only shows where the network part and the host part are.
+Explanation: The network part is 192.168.10. The host part is the last number.
+
+### Which topology do you get when all devices are connected to one switch?
+- ✓ Star
+- Ring
+Wrong: In a ring every device is connected to two neighbors, and everything forms a circle. On a switch every device has only one cable to the center.
+- Bus
+Wrong: In a bus all devices are connected to one shared line. On a switch every device has its own cable.
+- Tree
+Wrong: A tree only appears when several switches are connected one after the other. One switch with its devices is a star.
+Explanation: All cables go to the switch in the middle, like the rays of a star.
+
+### What does the arp command show?
+- ✓ The pairs of IPv4 address and MAC address that the device already knows
+- All devices that are connected to the switch
+Wrong: What is connected to the switch is shown in the table of the switch. arp only shows what the device itself already knows.
+- The MAC addresses of all devices in the network
+Wrong: The ARP table only contains devices that the device has already been in contact with. Devices it never talked to are missing.
+- The forwarding table of the device
+Wrong: The forwarding table shows routes into networks (command route). arp shows pairs of IPv4 address and MAC address.
+Explanation: arp shows the ARP table of your own device. It fills up with every answered ARP request, so it only contains devices it has already been in contact with.
+
+### What is a network plan?
+- ✓ A labelled drawing of all networks with their devices and addresses
+- A list of all passwords in the network
+Wrong: Passwords never belong in a network plan. It shows how the network is built.
+- The table of the switch
+Wrong: The switch table only shows MAC addresses and ports of one switch. The network plan shows all networks.
+- The data exchange of a laptop
+Wrong: The data exchange shows messages that a device has sent and received, not a drawing of the network.
+Explanation: In Documentation mode every network gets a structure field with a label. This way you create the network plan that you complete in every chapter.
+
+## Glossary
+
+- **Switch** – connects the devices of a network and sends each packet to the right port, based on the MAC address. Each device gets its own cable to the switch. The switch learns by itself which device is connected to which port, from the packets that pass through. It does not work with IPv4 addresses, so it cannot connect different networks.
+- **Star topology** – each device has its own connection to one central device. In our school network this is the School switch. If one cable fails, only that one device is affected, and the others keep working. But if the switch in the center fails, the whole network stops.
+- **LAN** – local area network, for example all devices in a classroom. The devices of a LAN are close to each other and usually belong to one network with the same network part. The opposite is the WAN, which covers long distances (chapter 8).
+- **MAC address** – fixed hardware address of a network card. It consists of six pairs of hexadecimal characters, for example 0A:1B:2C:3D:4E:5F. Unlike the IPv4 address, it is not assigned, it belongs to the card like a serial number. Switches forward packets in the local network based on the MAC address.
+- **Switch table** – list in which the switch remembers which MAC address is connected to which port. It adds a device as soon as the device has sent something, using its source MAC address. If the switch does not know a destination yet, it sends the packet to all ports. In Filius, clicking the switch in Simulation mode opens this table.
+- **Network part** – front part of the IPv4 address that names the network. With the netmask 255.255.255.0 it is the first three numbers. All devices of a network have the same network part, in the school network it is 192.168.10. If the network parts of sender and destination are different, the destination is in another network.
+- **Host part** – back part of the IPv4 address that names the device (the host, which means the end device) in the network. For 192.168.10.14 with the netmask 255.255.255.0, it is the 14. Inside a network, each device must have a different host part. The host part 0 stands for the network itself and is not given to any device.
+- **ARP** – protocol that finds the MAC address for an IPv4 address in your own network. The replies are stored in the ARP table, which the command arp shows. A device asks with a broadcast: "Who has 192.168.10.14?" Only that device answers with its MAC address, and only then can the actual message be sent.
+- **Broadcast** – message to all devices in the local network. Its destination MAC address is FF:FF:FF:FF:FF:FF. It is used when the receiver is not known yet, for example with ARP or DHCP. Routers do not forward broadcasts, so they stay in their own network.
+- **Documentation mode** – mode in which you label the network with structure fields and text fields. The simulation does not run in this mode. You get there with the yellow "Documentation" button in the header. This way you create a network plan that helps others understand your network quickly.
+- **Network plan** – labelled drawing of all networks with their devices and addresses. In Filius it is made in Documentation mode from structure fields and labels. Every network gets a field with name and network address, routers are between the fields. You complete it in every chapter, and when you look for faults it is your most important tool.
+- **Structure field** – field in Documentation mode that contains all devices of a network. At its top left is the label with name and network address, which you write with the "+" of the field. You drag it from the bar onto the work area and drag its edge until all devices of the network are inside. Routers belong to two networks and stay between the fields.
+- **/24** – short form of the netmask: the first 24 bits belong to the network part. This is the same as 255.255.255.0. An IPv4 address has 32 bits, and each of the four numbers stands for 8 bits. So 24 bits are exactly the first three numbers, and the school network can be written as 192.168.10.0/24.

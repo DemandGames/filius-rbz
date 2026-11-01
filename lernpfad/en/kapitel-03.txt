@@ -1,0 +1,223 @@
+# Web server and your own website
+Goal: A PC in the school network becomes the school's web server. You change the website and see in the data exchange how TCP and HTTP work together.
+
+## Read
+
+### Who offers, who asks?
+In a network there are two roles: a **server** offers a service, a **client** uses it. The web browser is a client, the web server is a server.
+
+[Picture: k03-client-server.png | The client asks, the server answers]
+
+[Picture: k03-etiketten.png | Software Installation shows the role of each program]
+
+Server and client are roles of programs. In our network, servers run on PCs and clients run on laptops.
+
+### Starting the web server
+Install the software "Webserver" on the PC and open it. When you click "Start", the server accepts requests.
+
+[Picture: k03-webserver.png | The window of the Webserver]
+
+The pages are on the PC in the folder `webserver`. Web pages are written in **HTML**, a language that describes headings, texts, pictures and links. The start page is called `index.html`. You edit it with the "Text editor".
+
+### The page in the browser
+On a laptop, you install the "Webbrowser". In the address bar, you type the **URL**, for example `http://192.168.10.10/kontakt.html`.
+
+[Picture: k03-browser.png | The start page in the browser of a laptop]
+
+[Picture: k03-url.png | The three parts of a URL]
+
+- `http` is the protocol,
+- `192.168.10.10` is the server,
+- `/kontakt.html` is the file on the server. If the file name is missing, the server sends `index.html`.
+
+### What happens in the network
+First, the browser uses **TCP** to set up a connection to the server. So that a message reaches the right program on the server, it carries a number, the **port**. A web server waits on port 80. In the data exchange you first see the connection being set up, then the request and the response.
+
+[Picture: k03-handschlag.png | Handshake, request and response in the data exchange]
+
+### The three-way handshake
+TCP sets up every connection in three steps, the **three-way handshake**. Only then does data flow:
+
+1. SYN: The browser asks the server: "I would like a connection to port 80." SYN comes from synchronize.
+2. SYN-ACK: The server answers: "Agreed, and I would like a connection to you too." ACK stands for acknowledge, that is confirmed.
+3. ACK: The browser confirms the answer. Now the connection is up in both directions.
+
+[Picture: k03-drei-wege.png | The three-way handshake between Laptop-1 and the web server]
+
+Why three steps? Both sides want to be sure that the other one can be reached and answers before they send data. They also agree on start numbers with which they count all further messages. This way TCP notices when a message is missing and sends it again.
+
+When the connection is up, the browser sends the **HTTP** request `GET /kontakt.html`. The server answers with a **status code**: `200` means "OK", `404` means "not found".
+
+### Layers
+Every message is made of layers. The **TCP/IP model** has four: Application (HTTP), Transport (TCP), Internet (IP) and Network access (Ethernet).
+
+[Picture: k03-schichten.png | An HTTP message in the OSI model]
+
+In the top right corner of the data exchange window, you can switch to the **OSI model** with seven layers. There, the transport layer is layer 4, and the application is in layers 5 to 7.
+
+## Practice
+
+### 3.1
+Set up the web server:
+- a PC with the name "Web server"
+- IPv4 address 192.168.10.10, netmask 255.255.255.0
+- connected to the School switch
+Tip: In our network, servers are PCs. Their fixed addresses are lower than the addresses of the laptops.
+
+### 3.2
+Install the software "Webserver" on the PC "Web server" and start it in the simulation.
+Tip: The program has a "Start" button.
+
+### 3.3
+Install the Webbrowser on Laptop-2 and open http://192.168.10.10.
+Tip: Type the address into the address bar at the top of the browser.
+
+### 3.4
+Give the start page your own heading:
+- Install the Text editor on the Web server.
+- Open `webserver/index.html`.
+- Replace the heading "Welcome to RBZ Wirtschaft . Kiel" with your own heading.
+- Save the file.
+Tip: Only change the text between `<h1>` and `</h1>`. Press Ctrl+F and type "h1" to find the place quickly.
+
+### 3.5
+Reload the page in the browser of Laptop-2 so that your new heading appears.
+Tip: Use the reload button next to the address bar, or open the address again.
+
+### 3.6
+Create a second page:
+- the file `webserver/kontakt.html` with a heading and one sentence about your class
+- a link on the start page that leads to `kontakt.html`
+Then open the contact page in the browser of Laptop-2.
+Tip: A link looks like this: `<a href="kontakt.html">Contact</a>`. To create a new file in the Text editor, use "Save as".
+
+### 3.7
+Open http://192.168.10.10/gibtsnicht.html on purpose ("gibtsnicht" is German for "does not exist").
+Question: Which status code does the server send back?
+Input: Status code
+Tip: You find the code in the data exchange, in the HTTP line.
+
+### 3.8
+Open the data exchange of Laptop-2, switch to OSI in the top right corner and look for the connection setup before an HTTP request.
+Question: In which order do the three TCP messages come?
+- SYN, ACK, SYN-ACK
+- ✓ SYN, SYN-ACK, ACK
+- ACK, SYN, SYN-ACK
+- SYN-ACK, SYN, ACK
+Tip: In the second message, SYN and ACK appear together in the Comment column.
+
+## Quiz
+
+### What is a server?
+- ✓ A program that offers a service to others
+- A device with a lot of computing power
+Wrong: In everyday life, powerful computers are also called servers. Here it means the role: a server offers a service, and that can also be a normal PC.
+- A program that uses the services of others
+Wrong: That is exactly the opposite: a program that uses services is a client, for example the Webbrowser.
+- A device that connects several networks
+Wrong: Networks are connected by a router. That has nothing to do with the role of a server.
+Explanation: Server and client are roles of software. In Software Installation, the tags show this.
+
+### Which tag does the Webbrowser have in Software Installation?
+- ✓ Client
+- Server
+Wrong: The browser does not offer anything, it requests pages. The server is the web server that delivers the pages.
+- Peer-to-peer
+Wrong: With peer-to-peer all programs are equal: they offer and use at the same time. The browser only requests.
+- Tool
+Wrong: Tools like the Command Line or the Text editor help you work on the device. The browser uses a service in the network.
+Explanation: The browser uses a service: it requests a page, and the web server delivers it. Programs that use a service are clients.
+
+### Which port belongs to HTTP by default?
+- ✓ 80
+- 25
+Wrong: Port 25 belongs to SMTP, which sends emails (chapter 9).
+- 53
+Wrong: Port 53 belongs to DNS, which resolves names (chapter 6).
+- 143
+Wrong: Port 143 belongs to IMAP, which reads emails in the mailbox (chapter 9).
+Explanation: By default, web servers wait for HTTP requests on port 80. The port helps a request find the right program on the server.
+
+### In which order does TCP set up a connection?
+- ✓ SYN, SYN-ACK, ACK
+- SYN, ACK, SYN-ACK
+Wrong: After the SYN, the server answers first. This answer is the SYN-ACK, and the ACK of the client only comes after it.
+- ACK, SYN, SYN-ACK
+Wrong: An ACK confirms something. At the start there is nothing to confirm yet: the setup always begins with SYN.
+- SYN-ACK, SYN, ACK
+Wrong: The SYN-ACK is the server's answer. It cannot come before the client's request (SYN).
+Explanation: This is the three-way handshake. Only after it does the browser send its HTTP request.
+
+### What does the browser send to request a page?
+- ✓ An HTTP request with GET
+- An HTTP response with 200
+Wrong: The response with 200 is sent back by the web server after the browser has asked.
+- A DNS request with the file name
+Wrong: DNS asks for the IPv4 address of a name. DNS does not know file names.
+- A TCP message with FIN
+Wrong: FIN ends a TCP connection. You do not request a page with it.
+Explanation: The browser requests a page with an HTTP request. GET /kontakt.html means: please send me this file.
+
+### What does the status code 404 mean?
+- ✓ The requested file does not exist
+- The server cannot be reached
+Wrong: Then no reply would come at all, so there would be no status code either. A 404 is sent by the server itself.
+- Access is not allowed
+Wrong: There is the code 403 (Forbidden) for that. 404 only means: this file does not exist.
+- An error happened in the server
+Wrong: An error in the server has the code 500. With 404 the problem is the requested address.
+Explanation: 404 means "Not Found". A server that cannot be reached could not send any code at all.
+
+### What does the status code 200 mean?
+- ✓ The request was successful
+- The TCP connection is set up
+Wrong: TCP sets up the connection with SYN, SYN-ACK and ACK. Status codes belong to HTTP.
+- The page was redirected
+Wrong: Redirects have codes that start with 3, for example 301 or 302.
+- The request is still being processed
+Wrong: Codes that start with 1 report intermediate states. The 200 comes with the finished response.
+Explanation: 200 means "OK", and the response contains the page. TCP sets up the connection before that.
+
+### Which file does the web server send if you only open http://192.168.10.10/?
+- ✓ index.html
+- start.html
+Wrong: The web server only sends a file with this name if you ask for it directly. For the folder itself it looks for index.html.
+- default.html
+Wrong: Some other web servers use names like this. The web server in Filius looks for index.html.
+- home.html
+Wrong: The web server only sends this file if you ask for it directly. The start page of a folder is called index.html.
+Explanation: Without a file name, the web server sends the start page of the folder, and that is called index.html.
+
+### Which layer of the TCP/IP model does HTTP belong to?
+- ✓ Application layer
+- Transport layer
+Wrong: TCP works there and takes care of the connection. HTTP uses TCP but is above it.
+- Internet layer
+Wrong: IP works there with the IPv4 addresses. HTTP deals with pages and requests, not with routes.
+- Network access layer
+Wrong: That layer is about MAC addresses and cables. HTTP is at the very top with the programs.
+Explanation: HTTP controls what the browser and the web server say to each other. TCP below it takes care of the connection.
+
+### Which OSI layer matches the transport layer with TCP?
+- ✓ Layer 4
+- Layer 3
+Wrong: Layer 3 is the network layer with IP. TCP is one layer above it.
+- Layer 5
+Wrong: Layer 5 is the session layer. In the TCP/IP model it already belongs to the application layer.
+- Layer 7
+Wrong: Layer 7 is the application layer, for example with HTTP. TCP is further down.
+Explanation: In the OSI model, the transport layer is layer 4. The application is in layers 5 to 7.
+
+## Glossary
+
+- **Server** – A program that offers a service, for example the web server. It waits for requests and answers them. The PC that a server runs on is often called a server, too; in our network these are PCs with a fixed address. One PC can also run several server programs at the same time.
+- **Client** – A program that uses a service, for example the web browser. The client sends requests, and the server answers them. In Filius, the tag in Software Installation shows which programs are clients. The email program is a client, too.
+- **HTML** – The language that web pages are written in. With tags like <h1> or <p>, HTML describes what is a heading and what is a paragraph. The web server sends the HTML file, and the browser turns it into the page you see. The start page of the web server is the file index.html.
+- **URL** – The full address of a resource, for example http://192.168.10.10/kontakt.html. It consists of the protocol (http), the server (address or name) and the path to the file. If the path is missing, the web server sends the start page index.html. Instead of the IPv4 address, there can also be a name (chapter 6).
+- **TCP** – A transport protocol that sets up a connection and makes sure that everything arrives completely. It numbers the data, has the receipt confirmed and sends lost parts again. Before data flows, there is the three-way handshake. HTTP and the email protocols use TCP.
+- **Port** – A number that helps a message reach the right program on a device. Web servers wait on port 80. The IPv4 address leads to the device, the port leads to the program, like a house number and a flat number. More examples: DNS uses port 53, SMTP port 25.
+- **Three-way handshake** – How TCP sets up a connection: with SYN, SYN-ACK and ACK. The client asks with SYN, the server answers with SYN-ACK, and the client confirms with ACK. After that, both know that the connection is set up. Only then does the browser, for example, send its HTTP request.
+- **HTTP** – The protocol that browsers use to request web pages and that web servers use to deliver them. The browser sends a request like GET /kontakt.html, and the server answers with a status code and the file. HTTP is in the application layer and uses TCP for transport. The default port is 80.
+- **Status code** – A three-digit number in the HTTP response, for example 200 (OK) or 404 (not found). The first digit shows the kind: 2 means success, 3 redirect, 4 an error in the request, 5 an error in the server. You find the code in the data exchange, in the HTTP line. It helps with troubleshooting because it tells you what went wrong.
+- **TCP/IP model** – Layer model of the internet with four layers: application, transport, internet and network access. Each layer has its own task and uses the layer below it. Example: HTTP (application) uses TCP (transport), TCP uses IP (internet), and IP uses Ethernet with MAC addresses (network access). In the data exchange you see these layers for every message.
+- **OSI model** – Layer model with seven layers. There, the transport layer is layer 4, and the application is in layers 5 to 7. It divides the same tasks more finely than the TCP/IP model, for example it splits network access into the physical layer (layer 1) and the data link layer (layer 2). In the data exchange you can switch to OSI in the top right corner.

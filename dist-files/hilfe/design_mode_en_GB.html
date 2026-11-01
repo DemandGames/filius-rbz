@@ -1,0 +1,51 @@
+<html><head><meta charset="UTF-8"><style type="text/css">
+body { font-family: 'Atkinson Hyperlegible', sans-serif; font-size: 13pt; color: #1C2B3A; margin-top: 8px; margin-left: 6px; margin-right: 6px; margin-bottom: 30px; }
+p { margin-top: 0px; margin-bottom: 10px; }
+h1 { font-size: 21pt; color: #1C2B3A; margin-top: 10px; margin-bottom: 4px; }
+h2 { font-size: 15pt; color: #1C2B3A; margin-top: 22px; margin-bottom: 8px; border-left-width: 4px; border-left-style: solid; border-left-color: #2E6BD8; padding-left: 8px; }
+p.lead { color: #4A5B6C; font-size: 13.5pt; margin-bottom: 2px; }
+td.chip { color: #FFFFFF; font-size: 11pt; font-weight: bold; }
+td.shot { border-width: 1px; border-style: solid; border-color: #DDE4EB; }
+p.cap { color: #8796A5; font-size: 11.5pt; text-align: center; margin-top: 5px; margin-bottom: 16px; }
+p.gap { margin-top: 0px; margin-bottom: 12px; }
+td.tip { color: #1C2B3A; }
+p.ic { margin-top: 2px; margin-right: 10px; margin-bottom: 0px; }
+p.it { margin-top: 0px; margin-bottom: 14px; }
+p.mi { margin-top: 0px; margin-right: 10px; margin-bottom: 10px; }
+p.mt { margin-top: 0px; margin-bottom: 10px; }
+span.key { font-family: 'JetBrains Mono', monospace; font-size: 11pt; background-color: #EAEFF4; }
+span.name { font-weight: bold; }
+span.tg-server { color: #6B3FC2; background-color: #EFEAF8; font-weight: bold; font-size: 11pt; }
+span.tg-client { color: #2A5FC4; background-color: #E8EDF9; font-weight: bold; font-size: 11pt; }
+span.tg-p2p { color: #0A6C66; background-color: #E3EEED; font-weight: bold; font-size: 11pt; }
+span.tg-tool { color: #4A5B6C; background-color: #EBEDEF; font-weight: bold; font-size: 11pt; }
+</style></head><body>
+<table cellspacing="0" cellpadding="4" border="0"><tr><td class="chip" bgcolor="#2E6BD8">&nbsp;DESIGN&nbsp;</td></tr></table><h1>Design Mode</h1><p class="lead">Here you build your network and configure the devices.</p>
+<h2>Adding devices</h2>
+<p>Drag a component with the mouse from the bar on the left onto the workspace.</p>
+<table width="100%" cellspacing="0" cellpadding="0" border="0"><tr><td align="center" class="shot"><img src="hilfe/gfx/draganddrop_en_GB.gif" width="300" height="150" border="0"></td></tr></table><p class="cap">Dragging a PC onto the workspace</p>
+<p>Delete a device with its context menu (right mouse button on the device) or with the <span class="key">&nbsp;Del&nbsp;</span> key while it is selected.</p>
+<table width="100%" cellspacing="0" cellpadding="10" border="0"><tr><td align="center" bgcolor="#F2F5F8"><img src="hilfe/gfx/kontextmenue_entwurf_en_GB.png" width="220" height="120" border="0"></td></tr></table><p class="cap">Context menu of a device</p>
+<h2>Connecting devices</h2>
+<p>Select <b>Connection</b> in the bar (click or <span class="key">&nbsp;Alt + 1&nbsp;</span>) and then click the two devices one after the other.</p>
+<table width="100%" cellspacing="0" cellpadding="0" border="0"><tr><td align="center" class="shot"><img src="hilfe/gfx/verkabeln_en_GB.png" width="300" height="150" border="0"></td></tr></table><p class="cap">The connection follows the mouse to the second device.</p>
+<p>Remove a connection with the context menu of a connected device (<b>Remove cable</b>).</p>
+<p>Wireless works too: set the PC or laptop to <b>Wireless (Wi-Fi)</b> and choose the network name (SSID) of a Switch / Wi-Fi.</p>
+<h2>Configuring devices</h2>
+<p>Double-click a device to open its settings at the bottom. You can choose any name; it does not change the network. All other settings decide how data flows.</p>
+<table width="100%" cellspacing="0" cellpadding="0" border="0"><tr><td align="center" class="shot"><img src="hilfe/gfx/konfiguration_en_GB.png" width="415" height="224" border="0"></td></tr></table><p class="cap">Settings of a PC</p>
+<table width="100%" cellspacing="0" cellpadding="0" border="0"><tr><td width="58" valign="top"><p class="ic"><img src="hilfe/gfx/bauteil_server.png" width="48" height="40" border="0"></p></td><td valign="top"><p class="it"><span class="name">PC and Laptop</span><br>Need an IPv4 address and a netmask, and a gateway to reach other networks. They can also get their settings by DHCP if a DHCP server is running in the network. In the learning path, laptops are the devices people work and browse on; PCs offer something to others as servers, e.g. web pages.</p></td></tr><tr><td width="58" valign="top"><p class="ic"><img src="hilfe/gfx/bauteil_switch.png" width="48" height="40" border="0"></p></td><td valign="top"><p class="it"><span class="name">Switch / Wi-Fi</span><br>Connects devices in the same network and needs no settings. With a network name (SSID) it is also a Wi-Fi access point. <b>Display as Cloud</b> shows it as a cloud, for example for the internet.</p></td></tr><tr><td width="58" valign="top"><p class="ic"><img src="hilfe/gfx/bauteil_gateway.png" width="48" height="40" border="0"></p></td><td valign="top"><p class="it"><span class="name">Home Router</span><br>Connects a home network (LAN) to the internet (WAN), like the router at home. It translates addresses (NAT), can hand out addresses by DHCP and offers a firewall and port forwarding.</p></td></tr><tr><td width="58" valign="top"><p class="ic"><img src="hilfe/gfx/bauteil_router.png" width="48" height="40" border="0"></p></td><td valign="top"><p class="it"><span class="name">Router</span><br>Connects different networks. Each network card gets an address from its network. The forwarding table decides where packets go: set it by hand or with <b>Automatic Routing</b>. A firewall can be set up here or in simulation mode.</p></td></tr></table>
+<table width="100%" cellspacing="0" cellpadding="0" border="0"><tr><td width="4" bgcolor="#2E6BD8"></td><td bgcolor="#EAF1FC"><table width="100%" cellspacing="0" cellpadding="9" border="0"><tr><td class="tip"><b>Tip:</b> Devices in another network can only be reached if the gateway is set to the address of the router in your own network.</td></tr></table></td></tr></table>
+<h2>Learning path</h2>
+<table width="100%" cellspacing="0" cellpadding="10" border="0"><tr><td align="center" bgcolor="#F2F5F8"><img src="hilfe/gfx/lernpfad_en_GB.png" width="220" height="52" border="0"></td></tr></table><p class="gap"></p>
+<p>The <b>Start learning path</b> button next to the modes opens the learning path. The first time, you choose between <b>Standard</b> (8 chapters) and <b>Advanced</b> (12 chapters, with HTTPS, home network, Wi-Fi, port forwarding, firewall and VPN). Every chapter has reading, practice, quiz and glossary. Filius checks the practice tasks in the running network and ticks them off as soon as they are really done. The ring shows how many chapters you have finished. The progress of both learning paths is saved with your project; when you open the project again, it continues at the same place. In the overview you can switch the learning path.</p>
+<h2>New, Open, Save</h2>
+<table width="100%" cellspacing="0" cellpadding="10" border="0"><tr><td align="center" bgcolor="#F2F5F8"><img src="hilfe/gfx/dateien_en_GB.png" width="150" height="58" border="0"></td></tr></table><p class="gap"></p>
+<p><b>New</b> starts an empty project, and the learning path starts from the beginning. <b>Open</b> opens a saved project (.fls), <b>Save</b> saves your network together with your progress in the learning path. Filius does not keep anything by itself: it always starts empty, and what is not in your .fls file is lost when Filius closes. So Filius asks first when you close it with unsaved changes.</p>
+<h2>Language</h2>
+<table width="100%" cellspacing="0" cellpadding="0" border="0"><tr><td valign="middle" width="98"><p class="mi"><img src="hilfe/gfx/sprache_en_GB.png" width="86" height="40" border="0"></p></td><td valign="middle"><p class="mt">Filius is available in English and German, including the learning path. Click the <b>DE | EN</b> switch at the top right to switch to German: Filius asks first, offers to save unsaved work and restarts.</p></td></tr></table>
+<h2>Light and dark</h2>
+<table width="100%" cellspacing="0" cellpadding="0" border="0"><tr><td valign="middle" width="162"><p class="mi"><img src="hilfe/gfx/dunkelmodus.png" width="150" height="42" border="0"></p></td><td valign="middle"><p class="mt">To the right of <b>DE | EN</b> is the switch with sun and moon. A click toggles between the light and the dark look, without a restart. Filius remembers your choice for the next start. The help and the pictures in the learning path and in the help follow your choice.</p></td></tr></table>
+<h2>Switching modes</h2>
+<table width="100%" cellspacing="0" cellpadding="0" border="0"><tr><td valign="middle" width="141"><p class="mi"><img src="hilfe/gfx/aktionsmodus_en_GB.png" width="129" height="38" border="0"></p></td><td valign="middle"><p class="mt">run the network and try it out</p></td></tr><tr><td valign="middle" width="155"><p class="mi"><img src="hilfe/gfx/dokumodus_en_GB.png" width="143" height="38" border="0"></p></td><td valign="middle"><p class="mt">label the network and export it as an image or report</p></td></tr></table>
+</body></html>

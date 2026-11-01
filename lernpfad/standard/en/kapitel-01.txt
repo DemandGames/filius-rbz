@@ -1,0 +1,181 @@
+# Two laptops, one cable
+Goal: You connect two laptops with a cable, give them addresses and check with ping that they reach each other.
+
+## Read
+
+### What is a network?
+A **network** is a group of devices that are connected and exchange data. It can be one cable between two laptops or the whole internet.
+
+In Filius you build networks yourself. The components are on the left, the work area is in the middle. At the top you switch between three modes: Design (build), Simulation (try out) and Documentation (label).
+
+[Picture: s01-modi.png | The three modes at the top of Filius]
+
+You drag a device with the mouse from the bar onto the work area. With "Connection" you draw a cable between two devices.
+
+[Picture: s01-kabel.png | Two laptops, connected with a cable]
+
+### Every device needs an address
+So that data arrives at the right device, every device needs its own **IPv4 address**. It consists of four numbers with dots in between, for example 192.168.0.10. Each number is between 0 and 255.
+
+[Picture: s01-ip-adresse.png | An IPv4 address consists of four numbers from 0 to 255]
+
+An IPv4 address always comes with a **netmask**. For us it is always 255.255.255.0. You learn what it means exactly in chapter 2.
+
+You enter both at the bottom in the settings of the device. The field is called "IPv4 Address".
+
+[Picture: s01-einstellungen.png | IPv4 address and netmask in the settings of Laptop-1]
+
+> Note: Two devices must never have the same IPv4 address.
+
+### Ping: are you there?
+With **ping** you check whether another device can be reached. Your laptop sends small requests, the other device sends replies. If the replies arrive, the connection is fine.
+
+You type ping into the command line, for example `ping 192.168.0.11`. You install the command line on the desktop of the laptop in the simulation.
+
+[Picture: s01-ping.png | ping in the command line: requests and replies]
+
+### Watching what happens
+The **data exchange** shows every message a device sends or receives. You open it in the simulation with a right click on the device and "Show data exchange".
+
+[Picture: s01-datenaustausch.png | The data exchange of Laptop-1 after a ping]
+
+Each row is one message. You see who sent it (Source) and who it went to (Destination).
+
+## Practice
+
+### 1.1
+In the design mode, add two laptops and name them Laptop-1 and Laptop-2.
+Tip: The components are in the bar on the left. You change the name at the bottom in the settings.
+
+### 1.2
+Connect Laptop-1 and Laptop-2 with a cable.
+Tip: Choose "Connection" in the bar and click on both laptops one after the other.
+
+### 1.3
+Give the laptops their addresses, netmask 255.255.255.0 for both:
+| Device | IPv4 address |
+|---|---|
+| Laptop-1 | 192.168.0.10 |
+| Laptop-2 | 192.168.0.11 |
+Tip: Click on the laptop, the fields are at the bottom in the settings.
+
+### 1.4
+Start the simulation, install the command line on Laptop-1 and test the connection with `ping 192.168.0.11`.
+Tip: A click on Laptop-1 opens its desktop. There you find the Software Installation.
+
+### 1.5
+Look closely at the output of your ping in the command line.
+Question: How many requests did ping send?
+- 1
+- 2
+- ✓ 4
+- 10
+Tip: Count the lines with a reply.
+
+### 1.6
+Open the data exchange of Laptop-1 and ping Laptop-2 again.
+Question: What is in the column "Destination" for the requests?
+- ✓ 192.168.0.11, the address of Laptop-2
+- 192.168.0.10, the address of Laptop-1
+- 255.255.255.0, the netmask
+- The name "Laptop-2"
+Tip: Right click on Laptop-1 in the simulation, then "Show data exchange".
+
+### 1.7
+Experiment: Delete the cable and ping Laptop-2 again. Afterwards connect the laptops with a cable again.
+Question: What does ping show without a cable?
+- ✓ No replies come back
+- Laptop-2 replies anyway
+- Laptop-1 gets a new IPv4 address
+- Filius changes the netmask
+Tip: You delete a cable in the design mode with a right click on one of the laptops.
+
+## Quiz
+
+### What is a network?
+- ✓ Devices that are connected and exchange data
+- One laptop on which many programs run
+Wrong: One device alone is not a network yet. It takes at least two devices that are connected.
+- A cable that has no devices connected to it
+Wrong: The cable alone does not exchange data. The connected devices make the network.
+- Only the internet, smaller connections do not count
+Wrong: The internet is a very large network. But two laptops with one cable are a network as well.
+Explanation: A network exists as soon as devices are connected and exchange data. The smallest one is two laptops with one cable.
+
+### Which IPv4 address is written correctly?
+- ✓ 192.168.0.12
+- 192.168.0.256
+Wrong: Each number can be 255 at most. 256 is too big.
+- 192.168.0
+Wrong: A number is missing. An IPv4 address always has four numbers.
+- 192,168,0,12
+Wrong: There are dots between the numbers, not commas.
+Explanation: An IPv4 address consists of four numbers from 0 to 255, separated by dots.
+
+### Laptop-1 has 192.168.0.10. Which address can Laptop-2 get?
+- ✓ 192.168.0.11
+- 192.168.0.10
+Wrong: Laptop-1 already has this address. Two devices must never have the same IPv4 address.
+- 255.255.255.0
+Wrong: This is the netmask, not an address for a device.
+- 192.168.0.300
+Wrong: 300 is bigger than 255. Such an address does not exist.
+Explanation: Every device needs its own address. 192.168.0.11 is free and written correctly.
+
+### What always goes with the IPv4 address for us?
+- ✓ The netmask 255.255.255.0
+- A password, for example 1234
+Wrong: An IPv4 address does not need a password. You only enter address and netmask.
+- The device name, like Laptop-1
+Wrong: The name helps you to recognise the device in Filius. It does not matter for the address.
+- The colour of the network cable
+Wrong: Cables in Filius have no colour that means something.
+Explanation: An IPv4 address always comes with a netmask. For us it is 255.255.255.0 everywhere.
+
+### What is ping for?
+- ✓ To check whether another device can be reached
+- To open a web page from another device
+Wrong: You open web pages with the web browser. ping only sends small requests.
+- To give another device a new IPv4 address
+Wrong: You enter addresses in the settings. ping only checks whether someone replies.
+- To lay a new cable between two devices
+Wrong: You draw cables in the design mode with "Connection".
+Explanation: ping sends small requests to a device. If replies come back, it can be reached.
+
+### ping shows no replies. What do you check first?
+- ✓ Cables and addresses in the design mode
+- The speed setting of the simulation
+Wrong: The speed only makes the simulation faster or slower. Replies still come if everything is right.
+- The size of the Filius program window
+Wrong: The size of the window has nothing to do with the network.
+- Set the netmask to 0.0.0.0 everywhere
+Wrong: For us the netmask is always 255.255.255.0. A wrong mask makes things worse.
+Explanation: Without a reply, it is usually a missing cable or a wrong address. You see both in the design mode.
+
+### What does the data exchange show?
+- ✓ Every message a device sends or receives
+- Only the messages in which an error occurred
+Wrong: It shows all messages, not only faulty ones.
+- All cables a device is connected with
+Wrong: You see the cables on the work area, not in the data exchange.
+- The device settings like name and netmask
+Wrong: The settings are at the bottom in the design mode. The data exchange shows messages.
+Explanation: In the data exchange every message is a row of its own, with sender (Source) and receiver (Destination).
+
+### How do you open the data exchange of Laptop-1?
+- ✓ In the simulation with a right click on Laptop-1
+- In the design mode with a click in the bar on the left
+Wrong: The bar holds the components for building.
+- With the command exchange in the command line
+Wrong: This command does not exist. The data exchange is a window of its own.
+- In the documentation mode with a double click on Laptop-1
+Wrong: There you label your network. The simulation is paused then.
+Explanation: In the simulation you click the device with the right mouse button and choose "Show data exchange".
+
+## Glossary
+
+- **Network** – devices that are connected and exchange data. The smallest network is two laptops with one cable, the biggest is the internet. In Filius you build networks in the design mode.
+- **IPv4 address** – address of a device in the network, for example 192.168.0.10. It consists of four numbers from 0 to 255. Each IPv4 address may appear only once in the network.
+- **Netmask** – goes with every IPv4 address and shows which devices are in the same network. For us it is always 255.255.255.0. You learn more about it in chapter 2.
+- **Ping** – command that checks whether a device can be reached, for example `ping 192.168.0.11`. It sends small requests, the target replies. If no reply comes, something is wrong, often a cable or an address.
+- **Data exchange** – window in Filius that shows all messages of a device. You open it in the simulation with a right click on the device. Each row is a message with sender (Source) and receiver (Destination).

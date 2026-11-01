@@ -1,0 +1,218 @@
+# Zwei Laptops, ein Kabel
+Ziel: Zwei Laptops direkt verbinden, ihnen Adressen geben und mit ping prüfen, ob sie sich erreichen.
+
+## Lesen
+
+### Filius in drei Modi
+Ein **Netzwerk** (kurz Netz) besteht aus Geräten, die über Kabel oder Funk Daten austauschen. In Filius baust du solche Netze selbst auf und probierst sie aus.
+
+Filius arbeitet in drei Modi. Oben in der Kopfleiste schaltest du zwischen ihnen um.
+
+- „Entwurf“ (blau): Hier baust du dein Netz auf, verbindest Geräte und trägst Adressen ein.
+- „Simulation“ (grün): Jetzt läuft das Netz. Du bedienst die Geräte und installierst Programme.
+- „Dokumentation“ (gelb): Hier beschriftest du dein Netz.
+
+[Bild: k01-modi.png | Die drei Modi in der Kopfleiste]
+
+> Merke: Kabel und Adressen änderst du nur im Entwurfsmodus.
+
+### Geräte aufstellen und verbinden
+Links siehst du die Bauteile-Leiste. Ziehe ein Gerät mit gedrückter Maustaste auf die Arbeitsfläche.
+
+In diesem Lernpfad gilt: Geräte, an denen jemand arbeitet und surft, sind Laptops. Geräte, die anderen etwas anbieten (zum Beispiel Webseiten), sind PCs.
+
+[Bild: k01-ziehen.png | Ein Laptop wird aus der Leiste auf die Fläche gezogen]
+
+Für ein Kabel wählst du in der Leiste „Verbindung“ und klickst nacheinander die beiden Geräte an.
+
+[Bild: k01-kabel.png | Das Kabel folgt der Maus bis zum zweiten Gerät]
+
+### Adressen eintragen
+Ein Klick auf ein Gerät öffnet unten seine Einstellungen. Dort gibst du ihm einen Namen, eine **IPv4-Adresse** und eine **Netzmaske**.
+
+Eine IPv4-Adresse besteht aus vier Zahlen von 0 bis 255, zum Beispiel 192.168.10.11. Sie ist die Anschrift des Geräts im Netz und muss im Netz eindeutig sein.
+
+[Bild: k01-ip-adresse.png | Eine IPv4-Adresse: vier Zahlen von 0 bis 255, getrennt durch Punkte]
+
+[Bild: k01-konfiguration.png | Name, IPv4-Adresse und Netzmaske eines Laptops]
+
+Die Netzmaske 255.255.255.0 bedeutet: Die ersten drei Zahlen bezeichnen das Netz. Zwei Geräte gehören zum selben Netz, wenn diese drei Zahlen gleich sind.
+
+### IPv4 und IPv6
+Das „v4“ steht für Version 4 des Internet-Protokolls. Eine IPv4-Adresse besteht aus vier Zahlen von 0 bis 255. Damit gibt es nur rund 4,3 Milliarden verschiedene Adressen (2 hoch 32). Für alle Handys, Laptops, Server und vernetzten Geräte der Welt reicht das längst nicht mehr.
+
+Darum gibt es **IPv6**. Eine IPv6-Adresse ist 128 Bit lang und wird mit Hexadezimalzahlen geschrieben, zum Beispiel 2001:db8::1. Damit sind rund 340 Sextillionen Adressen möglich (2 hoch 128, eine 34 mit 37 Nullen). Jedes Gerät der Welt kann also mehr als genug eigene Adressen bekommen.
+
+Heute laufen beide Versionen parallel. Die meisten neuen Computer, Handys und Internetanschlüsse können IPv4 und IPv6 gleichzeitig, das nennt man Dual-Stack. Viele ältere Geräte können aber nur IPv4, zum Beispiel alte Router, Netzwerkdrucker, Webcams, Smart-Home-Geräte oder Steuerungen in Maschinen. Auch manche Unternehmensnetze und Internetanschlüsse arbeiten noch nur mit IPv4. Deshalb wird IPv4 noch lange gebraucht.
+
+> Merke: Filius arbeitet nur mit IPv4. Das reicht, um zu verstehen, wozu IP-Adressen da sind: Jedes Gerät bekommt eine Adresse, damit Daten den Weg zu ihm finden. Darum heißt das Feld in Filius auch „IPv4-Adresse“.
+
+### Hallo, bist du da?
+Im Simulationsmodus öffnet ein Klick auf einen Laptop seinen Desktop. Über die „Software-Installation“ installierst du die „Befehlszeile“.
+
+[Bild: k01-befehlszeile.png | ipconfig und ping in der Befehlszeile]
+
+- Der Befehl **ipconfig** zeigt die eigenen Einstellungen, zum Beispiel IPv4-Adresse und Netzmaske.
+- Der Befehl **ping** prüft, ob ein Ziel antwortet: `ping 192.168.10.12` schickt Echo-Anfragen. Kommen Echo-Antworten zurück, ist das Ziel erreichbar.
+
+### Der Datenaustausch
+Was über die Netzwerkkarte eines Geräts läuft, zeigt das Fenster **Datenaustausch**. Du öffnest es im Simulationsmodus mit einem Rechtsklick auf das Gerät.
+
+[Bild: k01-datenaustausch.png | Echo-Anfragen und -Antworten eines ping]
+
+Jede Zeile ist eine Nachricht. Die Spalten zeigen Nummer, Zeit, Quelle (Absender), Ziel (Empfänger), Protokoll, Schicht und Bemerkungen. Ein Klick auf eine Zeile zeigt unten alle Schichten dieser Nachricht.
+
+Ein **Protokoll** legt fest, wie Geräte Nachrichten austauschen, ähnlich einer gemeinsamen Sprache. Die Echo-Anfragen und -Antworten von ping gehören zum Protokoll **ICMP**. Über ICMP melden Geräte auch Fehler, zum Beispiel, dass ein Ziel nicht erreichbar ist.
+
+## Praxis
+
+### 1.1
+Lege im Entwurfsmodus zwei Laptops an und nenne sie Laptop-1 und Laptop-2.
+Tipp: Die Bauteile stehen links in der Leiste. Den Namen änderst du unten in den Einstellungen.
+
+### 1.2
+Verbinde Laptop-1 und Laptop-2 direkt mit einem Kabel.
+Tipp: Wähle in der Leiste „Verbindung“ und klicke nacheinander beide Laptops an.
+
+### 1.3
+Gib den beiden Laptops feste Adressen, Netzmaske jeweils 255.255.255.0:
+| Gerät | IPv4-Adresse |
+|---|---|
+| Laptop-1 | 192.168.10.11 |
+| Laptop-2 | 192.168.10.12 |
+Tipp: Laptop anklicken, die Felder stehen unten in den Einstellungen.
+
+### 1.4
+Starte die Simulation und installiere auf Laptop-1 die Befehlszeile.
+Tipp: Ein Klick auf Laptop-1 öffnet seinen Desktop mit der Software-Installation.
+
+### 1.5
+Prüfe auf Laptop-1 mit `ipconfig` deine Einstellungen.
+Tipp: Befehl eintippen und Enter drücken.
+
+### 1.6
+Teste die Verbindung mit `ping 192.168.10.12`.
+Tipp: Keine Antwort? Prüfe im Entwurfsmodus Kabel und Adressen.
+
+### 1.7
+Öffne den Datenaustausch von Laptop-1 und sieh dir die Nachrichten deines ping an.
+Frage: Zu welchem Protokoll gehören die Echo-Anfragen?
+- TCP
+- ✓ ICMP
+- UDP
+- ARP
+Tipp: Rechtsklick auf Laptop-1 im Simulationsmodus, dann „Datenaustausch anzeigen“. Schau in die Spalte „Protokoll“.
+
+## Quiz
+
+### Wozu braucht ein Gerät im Netzwerk eine IPv4-Adresse?
+- ✓ Damit Nachrichten es gezielt erreichen können
+- Damit seine Netzwerkkarte funktioniert
+Falsch: Die Netzwerkkarte arbeitet auch ohne IPv4-Adresse, sie hat ab Werk ihre MAC-Adresse. Die IPv4-Adresse ist keine Voraussetzung für die Karte, sondern eine Anschrift im Netz.
+- Damit es einen Gerätenamen bekommt
+Falsch: Name und IPv4-Adresse sind zwei verschiedene Dinge. Den Namen eines Geräts legst du in Filius selbst fest, er hat mit der Adresse nichts zu tun.
+- Damit es Daten verschlüsseln kann
+Falsch: Mit Verschlüsselung hat die IPv4-Adresse nichts zu tun. Sie sagt nur, wohin eine Nachricht soll, nicht ob sie geschützt ist.
+Erklärung: Die IPv4-Adresse ist wie eine Postanschrift. Nur mit ihr erreichen Nachrichten das richtige Gerät.
+
+### Welche IPv4-Adresse ist ungültig?
+- ✓ 192.168.10.256
+- 192.168.100.25
+Falsch: Diese Adresse ist gültig: 192, 168, 100 und 25 liegen alle zwischen 0 und 255.
+- 10.0.0.1
+Falsch: Diese Adresse ist gültig: 10, 0, 0 und 1 liegen alle im erlaubten Bereich von 0 bis 255.
+- 172.16.5.4
+Falsch: Diese Adresse ist gültig: Jede der vier Zahlen liegt zwischen 0 und 255.
+Erklärung: 256 ist zu groß: Jede der vier Zahlen einer IPv4-Adresse liegt zwischen 0 und 255, weil sie in 8 Bit gespeichert wird.
+
+### Was macht der Befehl ping?
+- ✓ Er schickt Echo-Anfragen und wartet auf Antworten
+- Er zeigt die eigenen Netzwerkeinstellungen
+Falsch: Das macht ipconfig. ping schaut nicht auf das eigene Gerät, sondern testet, ob ein anderes Gerät antwortet.
+- Er sucht den kürzesten Weg zum Ziel
+Falsch: Wege suchen die Router, den Weg anzeigen kann traceroute. ping prüft nur, ob das Ziel antwortet.
+- Er baut eine dauerhafte Verbindung auf
+Falsch: ping schickt nur einzelne Echo-Anfragen hin und zurück. Eine dauerhafte Verbindung, wie TCP sie aufbaut, entsteht dabei nicht.
+Erklärung: ping schickt Echo-Anfragen an das Ziel und wartet auf Echo-Antworten. Kommt eine Antwort zurück, ist das Ziel erreichbar und der Weg funktioniert in beide Richtungen.
+
+### Mit welchem Befehl siehst du die eigene IPv4-Adresse und Netzmaske?
+- ✓ ipconfig
+- ping
+Falsch: ping testet, ob ein anderes Gerät erreichbar ist. Die eigenen Einstellungen zeigt es nicht an.
+- route
+Falsch: route zeigt die Weiterleitungstabelle, also wohin Pakete geschickt werden, nicht die eigene IPv4-Adresse und Netzmaske.
+- arp
+Falsch: arp zeigt, welche MAC-Adressen zu den IPv4-Adressen anderer Geräte gehören. Die eigenen Einstellungen stehen dort nicht.
+Erklärung: ipconfig zeigt die Netzwerkeinstellungen des Geräts, auf dem die Befehlszeile läuft.
+
+### Zu welchem Protokoll gehören die Nachrichten von ping?
+- ✓ ICMP
+- TCP
+Falsch: TCP baut Verbindungen für Programme wie den Browser auf. ping braucht keine Verbindung und nutzt kein TCP.
+- UDP
+Falsch: UDP transportiert Daten für Programme, zum Beispiel DNS-Anfragen. Echo-Anfrage und Echo-Antwort gehören nicht dazu.
+- ARP
+Falsch: ARP sucht zu einer IPv4-Adresse die MAC-Adresse. Du siehst ARP-Nachrichten oft vor einem ping, sie sind aber nicht der ping selbst.
+Erklärung: ICMP ist das Protokoll für Kontroll- und Fehlermeldungen, dazu gehören Echo-Anfrage und Echo-Antwort.
+
+### Wo änderst du in Filius Kabel und IPv4-Adressen?
+- ✓ Im Entwurfsmodus
+- Im Simulationsmodus
+Falsch: In der Simulation läuft das Netz und du bedienst die Programme. Kabel und Adressen lassen sich dort nicht ändern.
+- Im Dokumentationsmodus
+Falsch: Im Dokumentationsmodus beschriftest du den Netzplan mit Flächen und Texten. Die Geräte selbst änderst du dort nicht.
+- In der Befehlszeile
+Falsch: Die Befehlszeile zeigt Einstellungen an, zum Beispiel mit ipconfig. Kabel oder IPv4-Adressen ändert sie in Filius aber nicht.
+Erklärung: Im Entwurf baust und konfigurierst du das Netz, in der Simulation laufen die Programme.
+
+### Laptop-1 hat 192.168.10.11 mit Netzmaske 255.255.255.0. Welche Adresse kann Laptop-2 bekommen, damit beide im selben Netz sind?
+- ✓ 192.168.10.12
+- 192.168.11.12
+Falsch: Die dritte Zahl ist anders (11 statt 10). Bei der Netzmaske 255.255.255.0 liegt der Laptop damit in einem anderen Netz.
+- 192.168.10.11
+Falsch: Das ist genau die Adresse von Laptop-1. Zwei Geräte dürfen nicht dieselbe Adresse haben.
+- 10.168.10.12
+Falsch: Schon die erste Zahl ist anders (10 statt 192). Das ist ein ganz anderes Netz.
+Erklärung: Bei dieser Netzmaske müssen die ersten drei Zahlen gleich sein und die letzte verschieden.
+
+### Was passiert, wenn zwei Geräte im selben Netz dieselbe IPv4-Adresse haben?
+- ✓ Pakete landen beim falschen Gerät, die Verbindung stört
+- Filius gibt einem der beiden automatisch eine neue Adresse
+Falsch: Weder Filius noch ein echtes Netz korrigieren das von selbst. Doppelte Adressen musst du selbst finden und ändern.
+- Beide Geräte bekommen alle Daten doppelt
+Falsch: Das Netz verteilt keine Kopien an beide Geräte. Meist kommt eine Nachricht nur bei einem der beiden an, oft beim falschen.
+- Das zweite Gerät antwortet nur langsamer
+Falsch: Es geht nicht um Geschwindigkeit: Pakete gehen an das falsche Gerät oder verloren, die Verbindung funktioniert gar nicht richtig.
+Erklärung: IPv4-Adressen müssen in einem Netz eindeutig sein. Gibt es eine Adresse doppelt, wissen die anderen Geräte nicht, welches Gerät gemeint ist, und Pakete landen beim falschen.
+
+### Was legt die Netzmaske 255.255.255.0 fest?
+- ✓ Welcher Teil der IPv4-Adresse das Netz angibt
+- Wie schnell die Verbindung ist
+Falsch: Die Netzmaske sagt nichts über die Geschwindigkeit. Sie teilt die IPv4-Adresse in einen Netzanteil und einen Teil für das Gerät.
+- Welche Geräte Zugriff haben dürfen
+Falsch: Wer zugreifen darf, regelt zum Beispiel eine Firewall. Die Netzmaske ist keine Zugriffskontrolle.
+- Wie viele Kabel angeschlossen sind
+Falsch: Wie viele Kabel angeschlossen sind, hängt vom Gerät oder Switch ab, nicht von der Netzmaske. Die Maske ist nur eine Zahl in den Einstellungen.
+Erklärung: Wo die Maske 255 hat, steht der Netzanteil, wo sie 0 hat, das Gerät.
+
+### Was zeigt das Datenaustausch-Fenster eines Geräts?
+- ✓ Die Nachrichten, die über seine Netzwerkkarte laufen
+- Alle Nachrichten im gesamten Netz
+Falsch: Ein Gerät sieht nur seinen eigenen Verkehr. Für das ganze Netz bräuchtest du die Fenster aller Geräte.
+- Nur die Nachrichten mit Fehlern
+Falsch: Das Fenster zeigt alle Nachrichten, nicht nur fehlerhafte: Anfragen genauso wie Antworten.
+- Die Nachrichten aller Geräte am selben Kabel
+Falsch: Am Switch hat jedes Gerät ein eigenes Kabel. Das Fenster zeigt nur, was über die eigene Netzwerkkarte läuft.
+Erklärung: Jedes Gerät hat sein eigenes Fenster und sieht nur, was über seine Karte läuft.
+
+## Glossar
+
+- **Netzwerk** – Geräte, die über Kabel oder Funk Daten austauschen. Dazu gehören Endgeräte wie Laptops und PCs, aber auch Geräte wie Switches und Router, die die Daten weitergeben. Schon zwei Laptops, die mit einem Kabel verbunden sind, bilden ein kleines Netzwerk. Das Internet ist ein riesiges Netzwerk aus vielen einzelnen Netzen.
+- **IPv4-Adresse** – Adresse eines Geräts im Netz aus vier Zahlen von 0 bis 255, im Netz eindeutig. Sie funktioniert wie eine Postanschrift: Nur mit ihr finden Nachrichten das richtige Gerät. Die IPv4-Adresse wird vergeben, von Hand oder automatisch, und kann sich ändern, wenn das Gerät in ein anderes Netz kommt. Beispiel: Laptop-1 hat 192.168.10.11.
+- **Netzmaske** – legt fest, welcher Teil der IPv4-Adresse das Netz und welcher das Gerät bezeichnet. Wo die Maske 255 hat, steht der Netzanteil, wo sie 0 hat, der Teil für das Gerät. Mit 255.255.255.0 liegen zum Beispiel 192.168.10.11 und 192.168.10.12 im selben Netz. Nur Geräte im selben Netz erreichen sich ohne Router direkt.
+- **IPv6** – neuere Version des Internet-Protokolls mit 128 Bit langen Adressen, zum Beispiel 2001:db8::1. Es gibt rund 340 Sextillionen IPv6-Adressen, aber nur rund 4,3 Milliarden IPv4-Adressen. Weil viele ältere Geräte (alte Router, Drucker, Smart-Home-Geräte) und manche Netze nur IPv4 können, laufen heute beide Versionen parallel (Dual-Stack). Filius arbeitet nur mit IPv4.
+- **ipconfig** – Befehl, der die eigenen Netzwerkeinstellungen zeigt, zum Beispiel IPv4-Adresse und Netzmaske. Du tippst ihn in die Befehlszeile des Geräts, dessen Einstellungen du sehen willst. Später zeigt ipconfig auch Gateway und DNS-Server. Wenn etwas nicht klappt, ist er der erste Schritt: Stimmen meine eigenen Einstellungen?
+- **ping** – Befehl, der mit Echo-Anfragen prüft, ob ein Ziel antwortet. Kommt eine Echo-Antwort zurück, ist das Ziel erreichbar und der Weg hin und zurück funktioniert. Bleibt die Antwort aus, liegt irgendwo auf dem Weg ein Fehler, zum Beispiel ein fehlendes Kabel oder eine falsche Adresse. Beispiel: ping 192.168.10.12.
+- **Datenaustausch** – Fenster in Filius, das alle Nachrichten zeigt, die ein Gerät sendet und empfängt. Du öffnest es im Simulationsmodus mit einem Rechtsklick auf das Gerät. Jede Zeile ist eine Nachricht mit Zeit, Absender, Ziel und Protokoll, ein Klick zeigt ihre Schichten. So kannst du nachverfolgen, was im Netz wirklich passiert.
+- **Protokoll** – feste Regeln, nach denen Geräte Nachrichten austauschen. Ein Protokoll legt fest, wie eine Nachricht aufgebaut ist und wie auf sie geantwortet wird. Nur wenn beide Seiten dasselbe Protokoll verwenden, verstehen sie sich, so wie zwei Menschen mit derselben Sprache. Beispiele sind ICMP, TCP und HTTP.
+- **ICMP** – Protokoll für Kontroll- und Fehlermeldungen, etwa Echo-Anfrage und Echo-Antwort. ping nutzt ICMP, um zu testen, ob ein Ziel erreichbar ist. Router melden mit ICMP auch Fehler an den Absender zurück, zum Beispiel wenn ein Ziel nicht erreichbar ist. Daten von Programmen transportiert ICMP nicht, nur solche Meldungen.

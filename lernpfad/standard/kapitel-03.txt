@@ -1,0 +1,193 @@
+# Webserver und Website
+Ziel: Ein PC im Schulnetz wird zum Webserver. Du öffnest die Schulseite im Browser, änderst sie selbst und siehst, wie Browser und Server miteinander reden.
+
+## Lesen
+
+### Server und Client
+Ein **Server** ist ein Gerät, das etwas für andere bereitstellt, zum Beispiel Webseiten. Ein **Client** ist ein Gerät, das diesen Dienst nutzt, zum Beispiel ein Laptop mit Webbrowser.
+
+[Bild: s03-client-server.png | Der Client fragt, der Server antwortet]
+
+In unserem Netz sind Server PCs und Clients Laptops. Auf dem PC „Webserver“ läuft die Software „Webserver“. Sie muss gestartet sein, sonst antwortet niemand.
+
+[Bild: s03-webserver.png | Die Software Webserver mit dem Knopf „Starten“]
+
+### Client-Programme, Server-Programme und Werkzeuge
+Auch jedes Programm in Filius ist entweder ein **Client-Programm** oder ein **Server-Programm**. Der Webbrowser ist ein Client-Programm: Er fragt nach Webseiten. Der Webserver ist ein Server-Programm: Er stellt die Webseiten bereit. Beide gehören zusammen, wie Frage und Antwort.
+
+In der Software-Installation siehst du bei jedem Programm, was es ist: „Client“, „Server“, „Peer-to-Peer“ oder „Werkzeug“. **Werkzeuge** sind Hilfsprogramme, die du auf dem Gerät selbst benutzt, zum Beispiel die Befehlszeile oder der Text-Editor. Sie bieten anderen Geräten keinen Dienst an.
+
+[Bild: s03-software.png | Die Software-Installation: Jedes Programm ist als Client, Server, Peer-to-Peer oder Werkzeug markiert]
+
+Bei **Peer-to-Peer** gibt es keinen festen Server. Alle Geräte sind gleichberechtigt: Jedes ist zugleich Client und Server. Gnutella ist so ein Programm. Jeder Rechner mit Gnutella bietet anderen seine Dateien an und lädt selbst Dateien von den anderen. Darum ist Gnutella als Peer-to-Peer markiert.
+
+### Die Adresse einer Webseite
+Im Browser tippst du eine **URL** ein, die Adresse einer Webseite. Sie hat mehrere Teile:
+
+[Bild: s03-url.png | Die Teile der URL http://192.168.0.14/index.html]
+
+- http:// sagt, wie Browser und Server miteinander reden,
+- 192.168.0.14 ist der Server,
+- /index.html ist die Datei auf dem Server. Fehlt sie, schickt der Server seine Startseite.
+
+### HTTP und HTML
+Browser und Server reden über **HTTP**. Der Browser schickt eine Anfrage: „Gib mir die Seite.“ Der Server schickt die Seite als Antwort zurück.
+
+Die Seite selbst ist in **HTML** geschrieben. HTML beschreibt mit Befehlen in spitzen Klammern, was auf der Seite steht: `<h1>` ist eine große Überschrift, `<p>` ein Absatz.
+
+[Bild: s03-editor.png | Die Startseite im Text-Editor: HTML mit Überschrift und Absatz]
+
+Die Dateien des Webservers liegen im Ordner `webserver`. Du änderst sie mit dem Text-Editor. Danach lädst du die Seite im Browser neu.
+
+[Bild: s03-browser.png | Die geänderte Schulseite im Browser von Laptop-2]
+
+### TCP bringt alles sicher an
+Damit eine Webseite vollständig ankommt, nutzt HTTP ein Transportprotokoll: **TCP**. TCP baut zuerst eine Verbindung zum Server auf. Dann sorgt es dafür, dass alle Teile ankommen und richtig zusammengesetzt werden.
+
+[Bild: s03-datenaustausch.png | Im Datenaustausch baut zuerst TCP die Verbindung auf, dann folgt HTTP]
+
+> Merke: HTTP ist die Sprache von Browser und Server. TCP ist der Transport, der dafür sorgt, dass alles ankommt.
+
+## Praxis
+
+### 3.1
+Stelle den Webserver auf:
+| Einstellung | Wert |
+|---|---|
+| PC am Switch Schule | „Webserver“ |
+| IPv4-Adresse | 192.168.0.14 |
+| Netzmaske | 255.255.255.0 |
+Tipp: Server sind in unserem Netz PCs. Auch ein neuer PC hat zuerst 192.168.0.10, ändere die Adresse gleich.
+
+### 3.2
+Installiere auf dem Webserver die Software „Webserver“ und starte sie in der Simulation.
+Tipp: Das Programm hat einen Knopf „Starten“.
+
+### 3.3
+Installiere auf Laptop-2 den Webbrowser und rufe http://192.168.0.14 auf.
+Tipp: Die Adresse tippst du oben in die Adresszeile des Browsers.
+
+### 3.4
+Gib der Startseite eine eigene Überschrift:
+- Installiere auf dem Webserver den Text-Editor.
+- Öffne `webserver/index.html`.
+- Drücke Strg+F für die Suche und suche nach dem Tag `<h1>`.
+- Ersetze den Text zwischen `<h1>` und `</h1>` durch eine eigene Überschrift.
+- Speichere die Datei.
+Tipp: Mit F3 springt die Suche zur nächsten Stelle. Gespeichert wird mit dem Knopf „Speichern“ oder Strg+S.
+
+### 3.5
+Schreibe unter die Überschrift einen Absatz, zum Beispiel `<p>Viel Spaß mit Filius.</p>`. Speichere und lade die Seite im Browser von Laptop-2 neu.
+Tipp: Neu laden mit dem Knopf neben der Adresszeile.
+
+### 3.6
+Öffne den Datenaustausch von Laptop-2 und rufe die Seite noch einmal auf.
+Frage: Was passiert, bevor die HTTP-Anfrage losgeht?
+- Der Server schickt die Seite ohne Anfrage
+- ✓ TCP baut eine Verbindung zum Server auf
+- Laptop-2 bekommt eine neue IPv4-Adresse
+- Der Switch prüft die Webseite
+Tipp: Sieh dir die Zeilen über der ersten HTTP-Zeile an. Um die Pakete zu finden, kannst du auch auf die Uhrzeit achten. So findest du heraus, welche Pakete zuerst gesendet wurden.
+
+### 3.7
+Suche im Datenaustausch die HTTP-Antwort mit der Webseite.
+Frage: Von welchem Gerät kommt sie?
+- Von Laptop-2 (192.168.0.11)
+- ✓ Vom Webserver (192.168.0.14)
+- Vom Switch Schule
+- Von Laptop-1 (192.168.0.10)
+Tipp: Schau in die Spalte „Quelle“.
+
+## Quiz
+
+### Was ist ein Server?
+- ✓ Ein Gerät, das einen Dienst für andere bereitstellt, zum Beispiel Webseiten
+- Ein Gerät, das Webseiten nur anzeigt, zum Beispiel ein Laptop mit Webbrowser
+Falsch: Webseiten anzeigen macht der Client mit seinem Browser. Er nutzt den Dienst nur.
+- Ein Kabel, das zwei Geräte verbindet, zum Beispiel Laptop-2 und den Switch
+Falsch: Ein Kabel ist nur eine Verbindung. Ein Server ist ein Gerät mit einem Dienst.
+- Ein anderes Wort für den Switch, der die Geräte im Schulnetz verbindet
+Falsch: Der Switch verbindet Geräte. Ein Server stellt einen Dienst bereit.
+Erklärung: Ein Server stellt etwas bereit, zum Beispiel Webseiten. In unserem Netz sind Server PCs.
+
+### Welches Gerät ist in unserem Netz ein Client?
+- ✓ Laptop-2 mit dem Webbrowser
+- Der PC Webserver mit den Seiten
+Falsch: Der Webserver stellt die Seiten bereit, er ist der Server.
+- Der Switch Schule in der Mitte
+Falsch: Der Switch verbindet nur die Geräte. Er nutzt keinen Dienst.
+- Das Kabel zum PC Webserver
+Falsch: Ein Kabel ist kein Gerät, das einen Dienst nutzt.
+Erklärung: Ein Client nutzt einen Dienst. Laptop-2 fragt mit seinem Browser beim Webserver nach der Seite.
+
+### Welcher Teil der URL http://192.168.0.14/index.html nennt den Server?
+- ✓ Der Teil „192.168.0.14“
+- Der Teil „http://“
+Falsch: http:// sagt, wie Browser und Server reden.
+- Der Teil „/index.html“
+Falsch: Das ist die Datei auf dem Server.
+- Der Teil „.html“
+Falsch: Das ist nur die Endung der Datei. Sie zeigt, dass es eine HTML-Seite ist.
+Erklärung: Nach http:// steht der Server, hier mit seiner IPv4-Adresse. Danach folgt die Datei.
+
+### Was ist HTTP?
+- ✓ Die Regeln, nach denen Browser und Server miteinander reden
+- Die Sprache, in der die Webseite auf dem Server geschrieben ist
+Falsch: Das ist HTML. HTTP regelt das Gespräch zwischen Browser und Server.
+- Die Adresse, unter der der Browser den Webserver im Netz findet
+Falsch: Das ist die IPv4-Adresse des Webservers, hier 192.168.0.14.
+- Ein Werkzeug, mit dem du die Webseiten im Ordner webserver änderst
+Falsch: Das ist der Text-Editor. HTTP ist kein Programm, sondern Regeln.
+Erklärung: Mit HTTP fragt der Browser nach einer Seite, und der Server schickt sie zurück.
+
+### Wofür steht `<h1>` in einer HTML-Seite?
+- ✓ Für eine große Überschrift auf der Seite
+- Für einen Absatz mit Text auf der Seite
+Falsch: Ein Absatz steht zwischen `<p>` und `</p>`.
+- Für einen Link zu einer anderen Seite
+Falsch: Ein Link beginnt mit `<a`.
+- Für die IPv4-Adresse des Servers
+Falsch: Die Adresse des Servers steht in der URL, nicht in der Seite.
+Erklärung: HTML beschreibt mit Befehlen in spitzen Klammern, was auf der Seite steht. `<h1>` ist die große Überschrift.
+
+### Wozu braucht HTTP das Protokoll TCP?
+- ✓ Damit alle Teile der Seite vollständig und in der richtigen Reihenfolge ankommen
+- Damit Überschriften und Absätze der Seite im Browser schöner aussehen
+Falsch: Das Aussehen bestimmt HTML. TCP kümmert sich um den Transport.
+- Damit Laptop-2 beim Aufruf der Seite automatisch eine IPv4-Adresse bekommt
+Falsch: Die IPv4-Adresse trägst du in den Einstellungen ein. TCP transportiert Daten.
+- Damit der Switch Schule die MAC-Adressen von Laptop-2 und Webserver kennt
+Falsch: Die MAC-Adressen lernt der Switch selbst. Mit TCP hat das nichts zu tun.
+Erklärung: TCP baut erst eine Verbindung auf und sorgt dann dafür, dass alles ankommt. HTTP nutzt TCP als Transport.
+
+### Wo liegen die Dateien der Schulseite?
+- ✓ Im Ordner webserver auf dem PC Webserver
+- Auf Laptop-2, der die Schulseite anzeigt
+Falsch: Laptop-2 zeigt die Seite nur an. Die Dateien liegen auf dem Server.
+- Auf dem Switch Schule, der alle Geräte verbindet
+Falsch: Ein Switch verbindet nur die Geräte. Er speichert keine Dateien.
+- Im Webbrowser, mit dem du die Seite aufrufst
+Falsch: Der Browser ist ein Client-Programm. Er holt die Seite nur ab.
+Erklärung: Der Webserver schickt die Dateien aus seinem Ordner webserver. Dort änderst du sie mit dem Text-Editor.
+
+### Der PC Webserver antwortet auf ping, aber die Seite lädt nicht. Was prüfst du?
+- ✓ Ob die Software Webserver gestartet ist
+- Ob das Kabel zum Webserver steckt
+Falsch: ping klappt, also stimmt die Verbindung samt Kabel.
+- Ob Laptop-2 eine MAC-Adresse hat
+Falsch: Jede Netzwerkkarte hat eine MAC-Adresse. Das ist nicht das Problem.
+- Ob die Netzmaske 255.255.255.0 ist
+Falsch: Mit falscher Netzmaske würde meist auch ping scheitern.
+Erklärung: Der PC ist erreichbar. Damit eine Seite kommt, muss aber auch die Software Webserver laufen.
+
+## Glossar
+
+- **Server** – Gerät, das einen Dienst für andere bereitstellt, zum Beispiel Webseiten. In unserem Netz sind Server PCs. Auf dem PC Webserver muss die Software Webserver gestartet sein.
+- **Client** – Gerät, das einen Dienst nutzt. Laptop-2 ist mit seinem Webbrowser ein Client. Er fragt beim Server nach einer Seite.
+- **URL** – Adresse einer Webseite, zum Beispiel http://192.168.0.14/index.html. Sie nennt, wie geredet wird (http://), den Server und die Datei. Fehlt die Datei, schickt der Server seine Startseite.
+- **HTTP** – Regeln, nach denen Browser und Server miteinander reden. Der Browser schickt eine Anfrage, der Server schickt die Seite zurück. Im Datenaustausch siehst du beides als HTTP-Zeilen.
+- **HTML** – Sprache, in der Webseiten geschrieben sind. Befehle in spitzen Klammern sagen, was auf der Seite steht, zum Beispiel `<h1>` für eine Überschrift und `<p>` für einen Absatz. Du änderst HTML mit dem Text-Editor.
+- **Client-Programm / Server-Programm** – Jedes Programm ist eines von beiden. Ein Client-Programm wie der Webbrowser fragt nach einem Dienst, ein Server-Programm wie der Webserver stellt ihn bereit. Die Software-Installation zeigt bei jedem Programm, was es ist.
+- **Werkzeug** – Hilfsprogramm, das du auf dem Gerät selbst benutzt, zum Beispiel die Befehlszeile oder der Text-Editor. Ein Werkzeug bietet anderen Geräten keinen Dienst an.
+- **Peer-to-Peer** – Netz ohne festen Server, in dem alle Geräte gleichberechtigt sind: Jedes ist zugleich Client und Server. Ein Beispiel ist Gnutella, mit dem sich Rechner gegenseitig Dateien anbieten und herunterladen.
+- **TCP** – Transportprotokoll, das HTTP nutzt. TCP baut zuerst eine Verbindung zum Server auf. Dann sorgt es dafür, dass alle Teile vollständig und in der richtigen Reihenfolge ankommen.

@@ -1,0 +1,272 @@
+# Netze verbinden: Schule und RGG
+Ziel: Das Schulnetz wird über das Netz eines Providers mit dem Unternehmensnetz der Ravensberger Getränke GmbH (RGG) verbunden. Du baust zwei Vermittlungsrechner ein, lässt sie ihre Wege automatisch lernen und verfolgst den Weg der Pakete.
+
+## Lesen
+
+### Zwei Netze, ein Problem
+Die RGG, unser Schulunternehmen, bekommt ein eigenes Unternehmensnetz mit dem Onlineshop Ravensberger24. Es hat die **Netzadresse** 198.51.100.0, das Schulnetz 192.168.10.0. Dazwischen liegt das Netz eines **Providers** mit 203.0.113.0. Ein Provider ist ein Internetanbieter, also ein Unternehmen, das seine Kunden mit dem Internet verbindet. Hier sind die Schule und die RGG seine Kunden: Pakete zwischen ihnen laufen durch das Netz des Providers.
+
+Die Netzadresse ist die erste Adresse eines Netzes: Ihr Hostanteil ist 0. Sie steht für das ganze Netz und wird keinem Gerät gegeben.
+
+[Bild: k05-drei-netze.png | Schulnetz, Providernetz und RGG-Netz]
+
+Die Netzanteile sind verschieden. Ein Laptop im Schulnetz kann den Shop also nicht direkt erreichen. Ein Switch hilft hier nicht: Er vermittelt nur nach MAC-Adressen innerhalb eines Netzes.
+
+### Der Vermittlungsrechner
+Netze verbindet ein **Vermittlungsrechner**, auch **Router** genannt. Er hat für jedes angeschlossene Netz eine eigene Netzwerkkarte, und jede Karte hat eine Adresse aus ihrem Netz.
+
+[Bild: k05-router.png | R1 hat zwei Netzwerkkarten: eine im Schulnetz, eine im Providernetz]
+
+Beim Aufstellen fragt Filius, wie viele Schnittstellen der Vermittlungsrechner haben soll. In den Einstellungen hat jede Karte einen eigenen Reiter. Dort steht auch, mit welchem Gerät ihr Kabel verbunden ist.
+
+> Merke: Ein Router bekommt in jedem Netz, an dem er hängt, eine eigene IPv4-Adresse.
+
+### Das Standard-Gateway
+Will Laptop-1 an 198.51.100.80 senden, vergleicht er zuerst den Netzanteil. Ist er anders als sein eigener, liegt das Ziel in einem fremden Netz. Dann schickt der Laptop das Paket an sein **Standard-Gateway**: den Router in seinem Netz.
+
+[Bild: k05-weg.png | Der Weg zum Shop: über das Gateway von Laptop-1, R1 und R2]
+
+[Bild: k05-gateway.png | Das Feld Gateway in den Einstellungen eines Laptops]
+
+Ohne Gateway weiß ein Gerät nicht, wohin mit Paketen für fremde Netze, und verwirft sie. Auch Server brauchen ein Gateway, sonst finden ihre Antworten nicht zurück.
+
+### Die Weiterleitungstabelle
+Jeder Router entscheidet mit seiner **Weiterleitungstabelle**, wohin er ein Paket schickt. Ein Eintrag besteht aus Zielnetz, Netzmaske, dem nächsten Router (Gateway) und der eigenen Schnittstelle, über die das Paket hinausgeht.
+
+Netze, an denen der Router direkt hängt, kennt er von selbst. Für alle anderen braucht er einen Eintrag. Wer die Einträge von Hand einträgt, betreibt **statisches Routing**. Das geht in kleinen Netzen, wird aber mit jedem neuen Netz mühsamer.
+
+> Merke: Auch der Rückweg braucht eine Route. Die Antwort des Shops muss den Weg zurück ins Schulnetz finden.
+
+### Automatisches Routing
+Im Internet trägt niemand alle Wege von Hand ein. Die Router teilen sich gegenseitig mit, welche Netze sie kennen, und lernen so die Wege selbst: **automatisches Routing**. Filius nutzt dafür das Protokoll RIP (Routing Information Protocol).
+
+[Bild: k05-rip.png | Das Häkchen „Automatisches Routing“ im Reiter Allgemein eines Vermittlungsrechners]
+
+- Kurz nach dem Start der Simulation melden sich die Router bei ihren Nachbarn, danach etwa alle 30 Sekunden.
+- Zu jedem gelernten Netz merkt sich der Router die Zahl der Hops: 0 heißt direkt angeschlossen, 1 heißt, ein weiterer Router liegt dazwischen.
+- Die gelernten Wege zeigt die Webseite des Routers, zum Beispiel `http://192.168.10.1/routes`.
+
+[Bild: k05-routen.png | Die gelernten Wege von R1 im Browser]
+
+> Merke: Alle Router auf dem Weg müssen mitmachen, sonst fehlt der Hin- oder der Rückweg. Mit dem Häkchen nutzt ein Router nur noch gelernte Wege, von Hand eingetragene Routen gelten dann nicht mehr.
+
+### Den Weg verfolgen
+Jedes IP-Paket trägt eine Lebensdauer, die **TTL**. Jeder Router zieht 1 ab. Erreicht sie 0, verwirft er das Paket und meldet dem Absender per ICMP „Zeit abgelaufen“.
+
+[Bild: k05-traceroute.png | traceroute von Laptop-1 zum Shop]
+
+Der Befehl **traceroute** (kurz `tracert`) nutzt das: Er schickt Pakete mit TTL 1, 2, 3 und so weiter. Jeder Router auf dem Weg meldet sich so einmal. Jedes Teilstück zwischen zwei Stationen heißt **Hop**.
+
+Vergleichst du dasselbe Paket im Datenaustausch von Laptop-1 und vom Shop, siehst du: Die MAC-Adressen sind auf jedem Teilstück andere, die IPv4-Adressen bleiben von Anfang bis Ende gleich.
+
+## Praxis
+
+### 5.1
+Verbinde das Schulnetz mit einem Providernetz. Stelle dazu auf:
+- einen Switch „Switch Provider“
+- einen Vermittlungsrechner „R1 Router Schule“ mit zwei Schnittstellen
+R1 bekommt diese Adressen, Netzmaske jeweils 255.255.255.0:
+| Schnittstelle am | IPv4-Adresse |
+|---|---|
+| Switch Schule | 192.168.10.1 |
+| Switch Provider | 203.0.113.1 |
+Tipp: Beim Aufstellen fragt Filius nach der Zahl der Schnittstellen. In jedem Reiter siehst du unter „Verbunden mit“, an welchem Switch die Karte hängt.
+
+### 5.2
+Trage bei allen Geräten im Schulnetz das Gateway 192.168.10.1 ein.
+Tipp: Den Webserver nicht vergessen.
+
+### 5.3
+Baue das RGG-Unternehmensnetz. Neue Geräte:
+- ein Switch „Switch RGG“
+- ein Vermittlungsrechner „R2 Router RGG“ mit zwei Schnittstellen
+- ein PC „Shop“ und ein Laptop „Büro-Laptop“, beide am Switch RGG
+Adressen, Netzmaske überall 255.255.255.0:
+| Gerät | IPv4-Adresse |
+|---|---|
+| R2 am Switch Provider | 203.0.113.2 |
+| R2 am Switch RGG | 198.51.100.1 |
+| Shop | 198.51.100.80 |
+| Büro-Laptop | 198.51.100.30 |
+Shop und Büro-Laptop bekommen das Gateway 198.51.100.1.
+Tipp: Der Shop ist ein Server, darum ein PC.
+
+### 5.4
+Mache den Shop zum Webserver und ändere die Überschrift seiner Startseite in „Ravensberger24 – Getränke online“.
+Tipp: Wie in Kapitel 3: Webserver und Text-Editor installieren, Überschrift ändern, Webserver starten.
+
+### 5.5
+Teste auf Laptop-1 `ping 198.51.100.80`. Es klappt noch nicht.
+Frage: Warum?
+- Laptop-1 hat kein Standard-Gateway
+- ✓ Die Router kennen den Weg ins jeweils andere Netz noch nicht
+- Der Shop beantwortet keine Echo-Anfragen
+- Ein Switch kann keine Pakete an Router weitergeben
+Tipp: Was steht in der Weiterleitungstabelle von R1? Du findest sie im Entwurfsmodus im letzten Reiter des Routers.
+
+### 5.6
+Lass die Router ihre Wege selbst lernen:
+- Setze bei R1 und bei R2 das Häkchen „Automatisches Routing“.
+- Starte die Simulation.
+- Öffne im Browser von Laptop-2 die Seite http://192.168.10.1/routes.
+Frage: Wie viele Hops ist das RGG-Netz 198.51.100.0 laut dieser Seite von R1 entfernt?
+Eingabe: Anzahl Hops
+Tipp: Das Häkchen steht im Entwurfsmodus im Reiter „Allgemein“ des Routers. Nach dem Start der Simulation brauchen die Router ein paar Sekunden, bis sie sich ausgetauscht haben.
+
+### 5.7
+Teste die Verbindung ins RGG-Netz:
+- Wiederhole auf Laptop-1 den `ping 198.51.100.80`.
+- Rufe im Browser von Laptop-2 http://198.51.100.80 auf.
+Tipp: Klappt es nicht, prüfe, ob bei beiden Routern das Häkchen gesetzt ist.
+
+### 5.8
+Verfolge den Weg mit `traceroute 198.51.100.80` auf Laptop-1.
+Frage: Über welche zwei Router-Adressen läuft der Weg?
+Eingabe: zwei IPv4-Adressen
+Tipp: Jede Zeile der Ausgabe ist eine Station. Statt traceroute kannst du auch tracert tippen.
+
+### 5.9
+Vergleiche eine Echo-Anfrage auf beiden Seiten:
+- Öffne den Datenaustausch von Laptop-1 und vom Shop.
+- Pinge den Shop noch einmal.
+- Suche dieselbe Echo-Anfrage in beiden Fenstern.
+Frage: Was ist auf beiden Seiten gleich geblieben?
+- Absender- und Ziel-MAC-Adresse
+- ✓ Absender- und Ziel-IPv4-Adresse
+- Nur die Ziel-MAC-Adresse
+- Nichts, alle Adressen haben sich geändert
+Tipp: Klicke die Zeilen an und vergleiche unten Vermittlungsschicht und Netzzugangsschicht.
+
+### 5.10
+Ergänze den Netzplan: Gib im Dokumentationsmodus auch diesen Netzen je eine Gliederungsfläche mit Etikett oben links:
+| Netz | Etikett, zum Beispiel |
+|---|---|
+| Providernetz | Providernetz 203.0.113.0/24 |
+| RGG-Netz | RGG-Netz 198.51.100.0/24 |
+Tipp: Wie in Kapitel 2: Klicke auf das „+“ oben links in der Fläche und tippe Name und Netzadresse mit /24 ein. Die Router gehören zu zwei Netzen und bleiben zwischen den Flächen. Filius ordnet ein Etikett dem Netz zu, dessen Switch in derselben Fläche liegt.
+
+### 5.11
+Anna macht ein Praktikum bei der RGG und schaut von dort in den internen Klassenbereich:
+- Melde dich auf dem Büro-Laptop über https://192.168.10.10/intern/ als anna an.
+- Öffne dann den Datenaustausch von R1 Router Schule und suche die Anmeldung.
+Frage: Was sieht R1 von Annas Passwort?
+- ✓ Nichts, R1 sieht nur verschlüsselte Daten
+- Das Passwort im Klartext
+- Die ersten Buchstaben des Passworts
+- Den Sitzungsschlüssel, mit dem er das Passwort öffnen kann
+Tipp: Die Anmeldung läuft über TLS. R1 ist weder Absender noch Empfänger und hat keinen Sitzungsschlüssel.
+
+## Quiz
+
+### Wofür braucht ein Gerät ein Standard-Gateway?
+- ✓ Um Pakete an Ziele in anderen Netzen zu schicken
+- Um Geräte im eigenen Netz zu finden
+Falsch: Im eigenen Netz sendet ein Gerät direkt, die MAC-Adresse findet es mit ARP. Dafür braucht es kein Gateway.
+- Um Namen in Adressen zu übersetzen
+Falsch: Namen übersetzt der DNS-Server. Das Gateway leitet nur Pakete weiter.
+- Um vom Switch eine Adresse zu bekommen
+Falsch: Ein Switch vergibt keine Adressen. Adressen kommen von Hand oder per DHCP.
+Erklärung: Alles, was nicht im eigenen Netz liegt, schickt das Gerät an sein Gateway.
+
+### Warum kann ein Switch das Schulnetz nicht mit dem RGG-Netz verbinden?
+- ✓ Er vermittelt nur nach MAC-Adressen im eigenen Netz
+- Er leitet keine Broadcasts weiter
+Falsch: Ein Switch leitet Broadcasts sogar an alle Anschlüsse weiter. Das Problem liegt woanders: Er versteht keine IPv4-Adressen.
+- Er braucht für jedes Netz eine eigene IPv4-Adresse
+Falsch: Ein Switch braucht gar keine IPv4-Adresse, um zu arbeiten. Eine eigene IPv4-Adresse in jedem Netz braucht der Router.
+- Er kann nur eine Netzmaske verwalten
+Falsch: Ein Switch verwaltet überhaupt keine Netzmasken. Er schaut nur auf MAC-Adressen.
+Erklärung: Zwischen Netzen muss nach IPv4-Adressen vermittelt werden. Das macht der Router.
+
+### Bei R1 ist „Automatisches Routing“ eingeschaltet, bei R2 nicht. Was passiert beim ping von Laptop-1 zum Shop?
+- ✓ Er scheitert: R1 lernt das RGG-Netz nur von R2, und R2 meldet nichts
+- Er klappt, ein Router mit Häkchen reicht
+Falsch: R1 kann nur lernen, was ihm ein Nachbar meldet. R2 meldet ohne Häkchen nichts, also kennt R1 das RGG-Netz nicht.
+- Er klappt, aber erst nach 30 Sekunden
+Falsch: Warten hilft nicht: Ohne Häkchen bei R2 kommt auch nach 30 Sekunden keine Meldung.
+- Die Anfrage kommt an, nur die Antwort fehlt
+Falsch: Die Anfrage scheitert schon bei R1, weil er keinen Weg ins RGG-Netz kennt. Bis zum Shop kommt sie gar nicht.
+Erklärung: Automatisches Routing funktioniert nur, wenn alle Router auf dem Weg mitmachen. Ohne Häkchen meldet R2 seine Netze nicht und lernt selbst keinen Weg zurück.
+
+### Was steht in einem Eintrag der Weiterleitungstabelle?
+- ✓ Zielnetz, Netzmaske, nächster Router, Schnittstelle
+- Ziel-IPv4-Adresse, Ziel-MAC, Port, Protokoll
+Falsch: Das sind Angaben aus einem einzelnen Paket. Die Tabelle beschreibt Wege zu ganzen Netzen, nicht einzelne Pakete.
+- Gerätename, IPv4-Adresse, MAC-Adresse
+Falsch: Das klingt nach einer Geräteliste. Router merken sich keine Namen, sondern Wege zu Netzen.
+- Absendernetz, Zielnetz, Uhrzeit
+Falsch: Der Absender spielt für die Weiterleitung keine Rolle, und eine Uhrzeit steht nicht in der Tabelle.
+Erklärung: Ein Eintrag beschreibt einen Weg: Pakete für dieses Zielnetz mit dieser Netzmaske gehen über diesen nächsten Router und diese Schnittstelle hinaus.
+
+### Wie lautet die Netzadresse von 198.51.100.80 mit Netzmaske 255.255.255.0?
+- ✓ 198.51.100.0
+- 198.51.100.1
+Falsch: Das ist die erste Adresse für ein Gerät, hier die von R2. Die Netzadresse hat den Hostanteil 0.
+- 198.51.100.255
+Falsch: Das ist die Broadcast-Adresse des Netzes, also die letzte statt der ersten Adresse.
+- 198.51.0.0
+Falsch: Hier wurden zu viele Zahlen auf 0 gesetzt. Bei 255.255.255.0 wird nur die letzte Zahl 0.
+Erklärung: Der Hostanteil wird auf 0 gesetzt. 198.51.100.1 ist nur die Adresse von R2 in diesem Netz.
+
+### Welche Adressen ändern sich, wenn ein Paket einen Router passiert?
+- ✓ Nur die MAC-Adressen
+- Nur die IPv4-Adressen
+Falsch: Die IPv4-Adressen von Absender und Ziel bleiben gleich. Sonst wüsste der Shop nicht, wem er antworten soll.
+- MAC- und IPv4-Adressen
+Falsch: Die IPv4-Adressen bleiben auf dem ganzen Weg gleich. Nur die MAC-Adressen werden für jedes Teilstück neu gesetzt.
+- Keine von beiden
+Falsch: Die MAC-Adressen müssen sich ändern: Eine MAC-Adresse gilt nur im eigenen Netz, für das nächste Teilstück braucht es neue.
+Erklärung: Jede Teilstrecke hat eigene MAC-Adressen, die IPv4-Adressen gelten von Anfang bis Ende.
+
+### Was zeigt traceroute?
+- ✓ Die Router auf dem Weg zum Ziel
+- Alle Geräte im eigenen Netz
+Falsch: traceroute zeigt den Weg zu einem Ziel, keine Liste der Geräte im eigenen Netz.
+- Die Weiterleitungstabelle des Ziels
+Falsch: In fremde Tabellen schaut traceroute nicht. Es zeigt nur die Stationen, die sich unterwegs melden.
+- Die Geschwindigkeit jeder Leitung
+Falsch: traceroute zeigt die Stationen auf dem Weg, nicht die Geschwindigkeit der Leitungen.
+Erklärung: traceroute listet die Router auf dem Weg auf. Jede Station meldet sich, wenn sie ein Paket wegen abgelaufener Lebensdauer verwirft.
+
+### Wozu dient der TTL-Wert in einem IP-Paket?
+- ✓ Er sinkt bei jedem Router um 1, bei 0 wird das Paket verworfen
+- Er gibt an, wie lange ein Paket gespeichert wird
+Falsch: Pakete werden unterwegs nicht gespeichert. Trotz des Namens „Time to live“ zählt der Wert in der Praxis Router, keine Zeit.
+- Er zählt, wie oft ein Paket wiederholt wurde
+Falsch: Wiederholungen regelt TCP mit eigenen Mitteln. Die TTL zählt bei jedem Router herunter.
+- Er legt fest, wie schnell ein Paket reist
+Falsch: Die Geschwindigkeit hängt von Leitungen und Geräten ab. Die TTL sagt nur, wie viele Router ein Paket noch passieren darf.
+Erklärung: So kreist kein Paket endlos. traceroute nutzt das und schickt Pakete mit TTL 1, 2, 3 und so weiter.
+
+### Laptop-1 erreicht 192.168.10.10, aber nicht 198.51.100.80. Laptop-2 erreicht den Shop ohne Probleme. Was ist am wahrscheinlichsten falsch?
+- ✓ Das Gateway von Laptop-1
+- Die Route in R1
+Falsch: Laptop-2 erreicht den Shop über denselben Router R1. Also kennt R1 den Weg.
+- Das Kabel von Laptop-1 zum Switch
+Falsch: Laptop-1 erreicht 192.168.10.10. Das Kabel funktioniert also.
+- Der Webserver des Shops
+Falsch: Laptop-2 erreicht den Shop ohne Probleme. Der Webserver des Shops läuft also.
+Erklärung: Route, Shop und Kabel funktionieren, sonst käme Laptop-2 nicht durch und Laptop-1 nicht an 192.168.10.10.
+
+### Was ist ein Hop?
+- ✓ Ein Teilstück des Weges zwischen zwei aufeinanderfolgenden Stationen
+- Ein Paket, das unterwegs verworfen wurde
+Falsch: Verworfene Pakete gibt es zum Beispiel bei TTL 0. Ein Hop ist aber ein Teilstück des Weges.
+- Ein Eintrag in der Weiterleitungstabelle
+Falsch: Ein Tabelleneintrag beschreibt einen Weg zu einem Netz. Der Hop ist der Schritt von einer Station zur nächsten.
+- Eine Netzwerkkarte eines Routers
+Falsch: Eine Netzwerkkarte ist ein Bauteil. Ein Hop ist die Strecke zwischen zwei Stationen.
+Erklärung: Ein Hop ist ein Schritt von einer Station zur nächsten. Laptop-1 → R1 → R2 → Shop sind drei Hops.
+
+## Glossar
+
+- **Netzadresse** – erste Adresse eines Netzes mit Hostanteil 0, zum Beispiel 198.51.100.0. Sie steht für das ganze Netz. Kein Gerät bekommt diese Adresse. Router und Weiterleitungstabellen nutzen Netzadressen, um ganze Netze zu bezeichnen; mit Netzmaske schreibt man sie oft als 198.51.100.0/24.
+- **Provider** – Internetanbieter, ein Unternehmen, das Schulen, Unternehmen und Haushalte mit dem Internet und mit anderen Netzen verbindet. Bei uns verbindet das Netz des Providers (203.0.113.0/24) das Schulnetz mit dem Netz der RGG.
+- **Vermittlungsrechner (Router)** – verbindet Netze und leitet Pakete anhand der Ziel-IPv4-Adresse weiter. Er hat für jedes Netz eine eigene Netzwerkkarte mit einer Adresse aus diesem Netz. Welchen Weg ein Paket nimmt, entscheidet er mit seiner Weiterleitungstabelle. In unserem Netz verbinden R1 und R2 Schule, Provider und RGG.
+- **Standard-Gateway** – Router, an den ein Gerät alles schickt, was nicht im eigenen Netz liegt. Das Gateway muss im eigenen Netz liegen, im Schulnetz ist es R1 mit 192.168.10.1. Ohne Gateway erreicht ein Gerät nur Geräte im eigenen Netz. Auch Server brauchen ein Gateway, damit ihre Antworten zurückfinden.
+- **Weiterleitungstabelle** – Liste eines Routers: welches Zielnetz über welchen Nachbarn erreicht wird. Jeder Eintrag enthält Zielnetz, Netzmaske, den nächsten Router (Gateway) und die eigene Schnittstelle. Netze, an denen der Router direkt hängt, kennt er von selbst. Für alle anderen braucht er einen Eintrag, von Hand oder durch automatisches Routing.
+- **Statisches Routing** – Die Einträge der Weiterleitungstabelle werden von Hand eingetragen. Das ist übersichtlich, solange es nur wenige Netze gibt. Ändert sich etwas im Netz, muss man jeden betroffenen Router selbst anpassen. Auch der Rückweg braucht jeweils einen eigenen Eintrag.
+- **Automatisches Routing (RIP)** – Router teilen sich mit, welche Netze sie kennen, und lernen die Wege selbst. In Filius ein Häkchen am Vermittlungsrechner, das Protokoll heißt RIP. Die Router melden sich regelmäßig bei ihren Nachbarn, etwa alle 30 Sekunden. Es funktioniert nur, wenn alle Router auf dem Weg mitmachen.
+- **TTL** – Lebensdauer eines Pakets, sinkt bei jedem Router um 1. TTL steht für Time to live. Erreicht der Wert 0, verwirft der Router das Paket und schickt dem Absender eine ICMP-Meldung „Zeit abgelaufen“. So kann kein Paket endlos im Kreis laufen.
+- **traceroute** – Befehl, der alle Stationen auf dem Weg zu einem Ziel anzeigt, kurz auch tracert. Er schickt Pakete mit TTL 1, 2, 3 und so weiter, sodass sich jeder Router auf dem Weg einmal meldet. Bleibt die Ausgabe an einer Stelle hängen, liegt dort das Problem. Beispiel: traceroute 198.51.100.80 zeigt R1 und R2.
+- **Hop** – Teilstück des Weges zwischen zwei Stationen, die ein Paket nacheinander passiert. Von Laptop-1 über R1 und R2 zum Shop sind es drei Hops. Beim automatischen Routing zählen die Router die Hops bis zu einem Netz. Weniger Hops bedeuten meistens einen kürzeren Weg.

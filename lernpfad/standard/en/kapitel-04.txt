@@ -1,0 +1,173 @@
+# Connecting networks: school and RGG
+Goal: A router in the middle connects the school network with the network of the Ravensberger Getränke GmbH (RGG), a drinks company. Then the school opens the online shop of the RGG.
+
+## Read
+
+### Two networks, two network addresses
+The RGG has a network of its own. Every network has a **network address**: the network part with a 0 at the end.
+
+- School network: network address 192.168.0.0, devices 192.168.0.10, 192.168.0.11 and so on
+- RGG network: network address 192.168.1.0, devices 192.168.1.10, 192.168.1.11 and so on
+
+[Picture: s04-netzadresse.png | School network and RGG network have different network addresses]
+
+The network parts are different. So a switch alone cannot connect the two networks.
+
+### The router in the middle
+Networks are connected by a **router**. In Filius the component is called "Router" as well. It has its own network card for every network, with an address from that network. Our router gets three cards: for the school, for the RGG and from chapter 5 on for the DNS provider.
+
+[Picture: s04-router.png | The router has its own card for every network]
+
+For us the router has the address with the 1 at the end in every network: 192.168.0.1 in the school, 192.168.1.1 at the RGG and 192.168.2.1 at the DNS provider.
+
+> Note: In Filius every new card first has the address 192.168.0.10, just like Laptop-1. So give all three cards their address right away, also the ones that have no cable yet.
+
+All networks are connected directly to this one router. So it knows the way to every network by itself, you do not have to enter any routes at the router.
+
+### The default gateway
+A laptop sends everything that does not belong to its own network to its **default gateway**. That is the address of the router in its network. In the school it is 192.168.0.1, at the RGG 192.168.1.1. In Filius the field is called "Gateway".
+
+[Picture: s04-gateway.png | The gateway is in the settings of Laptop-1]
+
+[Picture: s04-weg.png | The way of a packet from Laptop-1 through the router to the shop]
+
+> Note: Without a gateway a device only reaches its own network.
+
+## Practice
+
+### 4.1
+Add a router with the name "Router" and three interfaces and connect it to the school switch. Give all three cards their addresses right away, netmask 255.255.255.0 for each:
+| Card | IPv4 address | Cable to |
+|---|---|---|
+| 1st card | 192.168.0.1 | School switch (now) |
+| 2nd card | 192.168.1.1 | RGG switch (in task 4.3) |
+| 3rd card | 192.168.2.1 | DNS provider switch (in chapter 5) |
+Tip: When you add the router, Filius asks for the number of interfaces. Every card has its own tab. Filius plugs every new cable into the next free card, so the order fits.
+
+### 4.2
+Enter the gateway 192.168.0.1 at all devices in the school network.
+Tip: Do not forget Laptop-1 to Laptop-4 and the web server.
+
+### 4.3
+Build the RGG network:
+- Switch "RGG switch", connected to the router (2nd card, 192.168.1.1)
+- PC "Shop" and laptop "Office laptop" at the RGG switch
+Addresses, netmask 255.255.255.0 everywhere:
+| Device | IPv4 address | Gateway |
+|---|---|---|
+| Shop | 192.168.1.10 | 192.168.1.1 |
+| Office laptop | 192.168.1.11 | 192.168.1.1 |
+Tip: The shop is a server, so it is a PC. In the tab of the 2nd card, "Connected to" must now show the RGG switch.
+
+### 4.4
+Make the shop a web server and change the heading of its start page to "Ravensberger24 – Drinks online".
+Tip: As in chapter 3: install Webserver and text editor, change the heading, start the web server.
+
+### 4.5
+Test the connection between the networks:
+- Ping the shop from Laptop-1 with `ping 192.168.1.10`.
+- Open the page http://192.168.1.10 in the browser of Laptop-2.
+Tip: If it does not work, check the gateways and the addresses of the router.
+
+### 4.6
+Experiment: Delete the gateway at Laptop-3 and ping the shop from Laptop-3. Enter the gateway again afterwards.
+Question: Why does the ping not work without a gateway?
+- The shop is switched off
+- ✓ Laptop-3 does not know where to send packets for another network
+- Without a gateway Laptop-3 has no MAC address
+- The school switch only lets Laptop-1 through
+Tip: You may have to install the command line on Laptop-3 first.
+
+### 4.7
+Label the RGG network in the documentation mode: a structure field around RGG switch, shop and office laptop and at the top left a label with the name and the network address of the network.
+Question: Which network address do you write on the label?
+Input: IPv4 address
+Tip: Network part and a 0 at the end. The router belongs to several networks and stays between the fields.
+
+## Quiz
+
+### What is the network address of the school network?
+- ✓ 192.168.0.0
+- 192.168.0.1
+Wrong: 192.168.0.1 is the address of the router in the school network, so it is a device.
+- 255.255.255.0
+Wrong: This is the netmask, not a network address.
+- 192.168.1.0
+Wrong: This is the network address of the RGG network.
+Explanation: The network address is the network part with a 0 at the end. For the school it is 192.168.0.0.
+
+### Why can a switch not connect the school network and the RGG network?
+- ✓ The two networks have different network parts, you need a router for that
+- A switch has too few ports for the devices from both networks together
+Wrong: The switch would have enough ports. It is because of the different networks.
+- The RGG uses other cables that do not fit into the ports of the school switch
+Wrong: The cables are the same. What matters are the network parts of the addresses.
+- A switch only works with laptops, but the shop of the RGG is a PC
+Wrong: PCs like the web server are connected to the switch as well.
+Explanation: A switch connects devices in the same network. Between networks with different network parts a router passes the packets on.
+
+### What is a router?
+- ✓ A device that connects networks with each other
+- A PC that stores the web pages of the shop
+Wrong: That is a web server like the shop.
+- A laptop that the office of the RGG works with
+Wrong: The office laptop is a client in the RGG network.
+- An especially big switch with a lot of ports
+Wrong: A switch connects devices in the same network. The router connects different networks.
+Explanation: A router connects networks. It has its own network card for every network.
+
+### How many network cards does our router have in the end?
+- ✓ Three, one for every network
+- One for all networks together
+Wrong: A router needs its own card in every network, with an address from that network.
+- Two, more is not possible
+Wrong: A router can have more than two cards. Ours has three.
+- None, it works without cables
+Wrong: The router is connected to every switch with one cable each.
+Explanation: School, RGG and DNS provider are three networks. The router has its own card for each of them.
+
+### What is the default gateway of Laptop-1?
+- ✓ 192.168.0.1, the address of the router in the school network
+- 192.168.1.1, the address of the router in the RGG network
+Wrong: Laptop-1 is in the school network. The gateway must be in the own network.
+- 192.168.0.14, the address of the web server in the school network
+Wrong: The web server is not a router. It does not pass packets on to other networks.
+- 255.255.255.0, the netmask in the school network
+Wrong: That is the netmask. The gateway is the address of a router.
+Explanation: The gateway is the address of the router in the own network. For the school it is 192.168.0.1.
+
+### Which gateway does the office laptop get?
+- ✓ 192.168.1.1
+- 192.168.0.1
+Wrong: That is the gateway of the school. The office laptop is in the RGG network.
+- 192.168.1.10
+Wrong: That is the shop. It is a web server, not a router.
+- No gateway
+Wrong: Without a gateway the office laptop only reaches the RGG network.
+Explanation: Every device gets the address of the router in its own network as gateway.
+
+### Laptop-3 has no gateway. What can it still reach?
+- ✓ Only the devices in the school network
+- Every device in every network
+Wrong: For other networks it needs the gateway. Without a gateway it does not know where to send the packets.
+- Not one single device any more
+Wrong: In the own network everything goes through the switch, it does not need a gateway for that.
+- Only the router at 192.168.0.1
+Wrong: It reaches all devices in the school network, including the card of the router there.
+Explanation: Without a gateway a device stays in its own network. It sends everything else through the gateway.
+
+### Why do you not have to enter any routes at the router?
+- ✓ All networks are connected directly to it, so it knows them by itself
+- The school switch knows the routes and passes them on to the router
+Wrong: A switch does not know routes between networks.
+- The laptops tell the router through their gateway which routes there are
+Wrong: The laptops only know their gateway, no routes.
+- Filius does not need routes at all, the packets find their way by themselves
+Wrong: Routes are needed. With a router to which all networks are connected directly, they just come by themselves.
+Explanation: Every network is connected to its own card of the router. So it knows which network is at which card.
+
+## Glossary
+
+- **Network address** – address of a whole network: the network part with a 0 at the end. The school network has 192.168.0.0, the RGG network 192.168.1.0. It is written on the label in the network plan.
+- **Router** – connects different networks. It has its own network card for every network, with an address from that network. Our router has three cards: 192.168.0.1, 192.168.1.1 and 192.168.2.1. In Filius every new card first has 192.168.0.10, so all of them get their address right away.
+- **Default gateway** – address of the router in the own network. A device sends everything that has to go to another network there. In the school it is 192.168.0.1, at the RGG 192.168.1.1, in Filius the field is called "Gateway".

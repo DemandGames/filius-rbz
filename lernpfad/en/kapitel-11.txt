@@ -1,0 +1,263 @@
+# Home office with VPN
+Goal: Anna's mother works in the sales team of the RGG. The RGG sets up an intranet and protects it with a firewall. So that Anna's mother can still work from home, you set up a VPN: she retrieves the emails of the sales team and checks in the intranet whether there is still sparkling apple juice.
+
+## Read
+
+### The intranet of the RGG
+An **intranet** is a network with services only for the staff of a company, for example internal web pages and mailboxes. At the RGG, the PC "Intranet" shows the warehouse page: how many crates of each drink are still there?
+
+[Picture: k11-intranet.png | The warehouse page in the intranet of the RGG]
+
+The warehouse page and the mailboxes are nobody's business outside the RGG. So the firewall on the R2 RGG router drops new connections from the internet to the intranet and to retrieving emails (IMAP, port 143). The Shop and receiving emails (SMTP, port 25) stay reachable.
+
+[Picture: k11-firewall.png | Two rules on R2: the intranet and IMAP are blocked from outside]
+
+In the office everything keeps working. The packets from the Office laptop to the intranet only go through the RGG switch and never pass R2.
+
+### Home office: blocked from outside
+On some days Anna's mother works at home, in her home office. Her laptop is in the home network. Her packets go through the Home router and the internet to the RGG. For the firewall on R2 this is a request from outside with the source 203.0.113.3. It is dropped, just like the request of a stranger.
+
+### VPN: a tunnel through the internet
+A **VPN** (Virtual Private Network) connects a device through the internet with the network of a company as if it were in the office there. For this, a program on the laptop, the **VPN client**, builds a **tunnel** to the **VPN server** in the network of the company:
+- The VPN client packs every packet for the network of the RGG completely into a new packet to the VPN server: UDP to port 1194, encrypted.
+- The VPN server unpacks it and sends it on in the network of the RGG, with its own address as the source.
+- The answer comes to the VPN server. It packs it again and sends it back through the tunnel.
+
+[Picture: k11-tunnel.png | Outside an encrypted UDP packet to port 1194, inside the actual packet to the intranet]
+
+On the way you only see UDP packets between the Home router and the VPN server, filled with gibberish. The firewall on R2 lets them pass, because they go to the VPN server and not to the intranet.
+
+### Logging in like with HTTPS
+Not everybody may use the tunnel. The VPN server knows users with passwords. Building the tunnel is similar to the TLS handshake from chapter 4:
+1. ClientHello: the VPN client contacts the VPN server.
+2. ServerHello: the server sends its certificate with its public key, the open padlock.
+3. Login: the client thinks of a session key and sends it, locked with the public key of the server (asymmetric). User name and password are encrypted with the session key.
+4. Accept: the server checks name and password and gives the laptop a **VPN address**, for example 10.8.0.2.
+
+From now on every packet in the tunnel is encrypted with the session key (symmetric).
+
+[Picture: k11-vpnclient.png | The VPN client is connected: VPN address 10.8.0.2, network in the tunnel 198.51.100.0/24]
+
+The laptop now has two addresses: its address in the home network and the VPN address. It sends packets to the "Network in the tunnel", here 198.51.100.0/24, through the tunnel. Everything else, for example the school website, goes directly to the internet as always.
+
+### The VPN server
+In the window of the VPN server you add the users and start the server. You can leave the VPN addresses and the network in the tunnel as they are: the server takes 10.8.0.0 for the VPN addresses and its own network as the network in the tunnel.
+
+[Picture: k11-vpnserver.png | The VPN server with the user verkauf; the log shows who is connected]
+
+### In the data exchange
+In the data exchange of the Home office laptop the packets are called VPN. For the warehouse page you see "VPN Data" with gibberish. Below, Filius shows the decrypted content: the inner packet from 10.8.0.2 to 198.51.100.40 with the HTTP request. Only the laptop and the VPN server see this, because only they have the session key.
+
+[Picture: k11-datenaustausch.png | A VPN packet in the data exchange, with the inner packet below]
+
+> Note: A VPN encrypts the way to the VPN server. In the network of the RGG the packet then goes on unencrypted, with the VPN server as the source.
+
+## Practice
+
+### 11.1
+Set up the intranet in the network of the RGG:
+| Setting | Value |
+|---|---|
+| PC at the RGG switch | "Intranet" |
+| IPv4 address | 198.51.100.40 |
+| Gateway | 198.51.100.1 |
+| Software | Webserver and Text editor |
+| Heading of the home page | "RGG warehouse" |
+| Paragraph below | "Sparkling apple juice: 120 crates" |
+Tip: Like the Shop in chapter 5. In the Text editor you write the paragraph below the heading: `<p>Sparkling apple juice: 120 crates</p>`. Then start the web server.
+
+### 11.2
+Test in the office of the RGG on the Office laptop:
+- Open the warehouse page http://198.51.100.40.
+- Retrieve the emails of the sales team.
+Tip: Both work, because the Office laptop is in the network of the RGG.
+
+### 11.3
+Anna's mother gets a laptop in the home network:
+| Setting | Value |
+|---|---|
+| Laptop in the home network | "Home office laptop" |
+| Connection | Wi-Fi "Home-WiFi" |
+| Address | via DHCP |
+| Software | Webbrowser and Email program |
+| Email account | verkauf@ravensberger24.de |
+Tip: Like the Home laptop in chapter 8. You set up the account like on the Office laptop: server mail.ravensberger24.de, the same password.
+
+### 11.4
+On the Home office laptop, open the warehouse page http://198.51.100.40.
+Question: Who can open the warehouse page at the moment?
+- ✓ Everybody on the internet who knows the address
+- Only devices in the network of the RGG
+- Only the Home office laptop, because it has an account with the sales team
+- Nobody, the page is encrypted
+Tip: The Home office laptop does not belong to the network of the RGG. Still the page loads.
+
+### 11.5
+Protect the network of the RGG with the firewall on the R2 RGG router. Add two rules:
+- Rule 1: Dest. IPv4 198.51.100.40, netmask 255.255.255.255, protocol TCP, leave the port empty, action drop
+- Rule 2: Dest. IPv4 198.51.100.25, netmask 255.255.255.255, protocol TCP, port 143, action drop
+Set the Default action to "accept (blacklist)" and tick "Activate firewall".
+Tip: In the settings of R2, "Firewall settings" opens the dialog. As in chapter 10, an empty field stands for all values.
+
+### 11.6
+Test:
+- On the Office laptop the warehouse page and the emails still open.
+- On the Home office laptop neither works any more.
+Question: Why does it still work on the Office laptop?
+- ✓ Its packets to the intranet and to the mail server only go through the RGG switch, not through R2
+- The Office laptop knows a password for the firewall
+- The firewall only applies to devices in the Wi-Fi
+- The Office laptop uses HTTPS
+Tip: If nothing comes back, the Home office laptop waits for a while. Here that is the expected result.
+
+### 11.7
+Set up the VPN server in the network of the RGG:
+| Setting | Value |
+|---|---|
+| PC at the RGG switch | "VPN server" |
+| IPv4 address | 198.51.100.10 |
+| Gateway | 198.51.100.1 |
+| Software | VPN server |
+| User | verkauf |
+| Password | Homeoffice |
+Tip: Add the user and click "Start". The VPN addresses and the network in the tunnel stay as they are.
+
+### 11.8
+Install the VPN client on the Home office laptop and connect to the VPN server 198.51.100.10 as verkauf with the password Homeoffice.
+Question: Which VPN address did the Home office laptop get?
+Input: IPv4 address
+Tip: The VPN client shows it as soon as it is connected. `ipconfig` shows it now as well.
+
+### 11.9
+On the Home office laptop, retrieve the emails of the sales team.
+Tip: Did you stop the simulation in between? Then connect the VPN client again.
+
+### 11.10
+On the Home office laptop, open the warehouse page http://198.51.100.40. Is there still sparkling apple juice?
+Question: From which address does the request arrive at the intranet?
+Input: IPv4 address
+Tip: Look at the data exchange of the intranet.
+
+### 11.11
+Open the data exchange of the Home router.
+Question: What do you see there of your request for the warehouse page?
+- ✓ Only encrypted UDP packets between the Home router and the VPN server, port 1194
+- The warehouse page in plain text
+- HTTP packets to 198.51.100.40
+- Nothing at all, the tunnel bypasses the Home router
+Tip: Look at the column "Protocol".
+
+### 11.12
+Complete the network plan: write a text field "VPN, UDP 1194" next to the VPN server.
+Tip: The text field belongs directly next to the VPN server, inside the area of the RGG network. The documentation mode stops the simulation. Afterwards you connect the VPN client again.
+
+## Quiz
+
+### What is an intranet?
+- ✓ A network with services only for the staff of a company
+- The internet of a city
+Wrong: An intranet belongs to a company, not to a city. From outside it is blocked.
+- A particularly fast Wi-Fi
+Wrong: This has nothing to do with speed. It is about who may use the services.
+- Another word for the home network
+Wrong: The home network is your private network at home. An intranet is the internal network of a company.
+Explanation: The warehouse page and the mailboxes are in the intranet of the RGG. Only who is in the network of the RGG can reach them.
+
+### Why can't Anna's mother open the warehouse page from home without a VPN?
+- ✓ The firewall on R2 drops connections from the internet to the intranet
+- The Home router does not know the address 198.51.100.40
+Wrong: The Home router sends everything for other networks to the internet. The request gets as far as R2.
+- The intranet has no gateway
+Wrong: With its gateway the intranet also answers the Office laptop. The request does not even arrive.
+- She has the wrong password
+Wrong: The warehouse page does not ask for a password. The firewall drops the request before.
+Explanation: For the firewall on R2 the request comes from outside, from the Home router with 203.0.113.3. Rule 1 drops it.
+
+### What does a VPN do?
+- ✓ It connects a device with the network of a company through an encrypted tunnel
+- It makes the internet faster
+Wrong: A VPN does not make anything faster. It encrypts and packs the packets.
+- It replaces the Home router
+Wrong: The Home router is still needed. The packets of the tunnel go through it to the internet.
+- It gives out IPv4 addresses in the home network
+Wrong: The DHCP server in the Home router does that. The VPN server only gives out the VPN addresses.
+Explanation: With the VPN, the laptop in the home office works as if it were in the network of the RGG.
+
+### What can be seen on the way, for example at the Home router, of opening the warehouse page through the VPN?
+- ✓ Only encrypted UDP packets to port 1194 of the VPN server
+- The HTTP request in plain text
+Wrong: The HTTP request is encrypted inside the tunnel. Only the laptop and the VPN server can read it.
+- The password of the VPN user in plain text
+Wrong: Name and password travel encrypted with the session key.
+- Nothing at all, the tunnel bypasses the Home router
+Wrong: The tunnel runs through the internet, so also through the Home router. You just cannot look inside.
+Explanation: From outside you see source, destination and port 1194. What is inside the tunnel stays hidden.
+
+### Which port does the VPN server use in Filius?
+- ✓ UDP 1194
+- TCP 443
+Wrong: TCP 443 belongs to HTTPS.
+- TCP 143
+Wrong: TCP 143 belongs to IMAP, retrieving emails.
+- UDP 53
+Wrong: UDP 53 belongs to DNS.
+Explanation: The VPN server waits at UDP port 1194, like the widespread program OpenVPN. The firewall on R2 lets this port pass.
+
+### What is the VPN address 10.8.0.2 for?
+- ✓ It addresses the laptop inside the tunnel; it is only valid while the VPN is connected
+- It replaces the address in the home network
+Wrong: The address in the home network stays. The laptop now has two addresses.
+- It is the address of the Home router
+Wrong: The Home router has 192.168.178.1 and 203.0.113.3. The VPN address belongs to the laptop.
+- It is the address of the intranet
+Wrong: The intranet has 198.51.100.40. The VPN server gives the VPN address to the laptop.
+Explanation: The inner packets in the tunnel come from 10.8.0.2. That is how the VPN server knows where to send the answers.
+
+### From which address does the intranet see the request from the home office?
+- ✓ From the address of the VPN server, 198.51.100.10
+- From 192.168.178.101, the address of the laptop in the home network
+Wrong: The private address from the home network never reaches the RGG.
+- From 203.0.113.3, the Home router
+Wrong: The Home router is only the source of the outer UDP packets to the VPN server.
+- From 10.8.0.2, the VPN address
+Wrong: In Filius the VPN server sends the packets on with its own address, like with NAT.
+Explanation: The VPN server unpacks the packet and sends it on with its own address. So the answer goes back to it.
+
+### Which packets does the Home office laptop send through the tunnel?
+- ✓ Only packets to the network in the tunnel, here 198.51.100.0/24
+- All packets, also to the school website
+Wrong: The school website is not in the network in the tunnel. These packets go directly to the internet as always.
+- Only emails
+Wrong: The warehouse page also goes through the tunnel. What counts is the destination, not the protocol.
+- Only packets to the VPN server itself
+Wrong: Packets to the VPN server itself must not go into the tunnel, otherwise they would be packed twice.
+Explanation: When logging in, the VPN server tells the client the network in the tunnel. The laptop only uses the tunnel for this network.
+
+### How does the session key get safely to the VPN server when the tunnel is built?
+- ✓ Locked with the public key of the server (asymmetric)
+- In plain text, it is not secret
+Wrong: Whoever knows the session key can read the whole tunnel. It has to be protected.
+- It is in the certificate of the server
+Wrong: The certificate contains the public key of the server. The client thinks of the session key itself.
+- The firewall on R2 brings it there
+Wrong: The firewall only checks packets. It has nothing to do with keys.
+Explanation: Like with TLS: asymmetric for handing over the session key safely, then symmetric for all packets.
+
+### The VPN client reports "Login rejected". What is the reason?
+- ✓ User name or password do not match a user in the VPN server
+- The firewall on R2 blocks port 1194
+Wrong: Then there would be no answer from the VPN server at all, not even a rejection.
+- The Home office laptop has no Wi-Fi
+Wrong: Without a connection there would also be no answer. Only a reachable VPN server sends a rejection.
+- The intranet is switched off
+Wrong: The intranet has nothing to do with the login at the VPN server.
+Explanation: The VPN server answered, so it can be reached. It just did not accept the name or the password.
+
+## Glossary
+
+- **Intranet** – network with services only for the staff of a company, for example internal web pages and mailboxes. From outside a firewall blocks the access. At the RGG, the PC "Intranet" shows the warehouse page.
+- **VPN** – Virtual Private Network. It connects a device through the internet with the network of a company as if it were in the office there. For this, the VPN client builds an encrypted tunnel to the VPN server. Typical for working in a home office.
+- **VPN client** – program on the device in the home office. It logs in at the VPN server with user and password and gets a VPN address. After that it sends all packets for the network in the tunnel encrypted to the VPN server.
+- **Tunnel** – way in which a whole packet is packed into another packet. With a VPN the actual packet lies encrypted in a UDP packet to the VPN server. On the way you only see the outer packet.
+- **VPN server** – program in the network of the company, in Filius at UDP port 1194. It checks user and password, unpacks the packets from the tunnel and sends them on in the network of the company with its own address. It sends the answers back through the tunnel.
+- **VPN address** – second address that a device gets from the VPN server for the time of the VPN connection, for example 10.8.0.2. The packets inside the tunnel are addressed with it. `ipconfig` shows it under "VPN adapter".

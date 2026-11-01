@@ -1,0 +1,24 @@
+Browser-Engine und Java-Laufzeit in Filius (RBZ Wirtschaft Kiel Version)
+==================================================
+
+1. Java-Laufzeit (Ordner java-runtime)
+   Eclipse Temurin 21.0.8+9 (OpenJDK) fuer Windows x64, mit jlink auf die
+   von Filius benoetigten Module verkleinert.
+   Lizenz: GNU General Public License, Version 2, mit Classpath Exception.
+   Die vollstaendigen Lizenz- und Hinweistexte aller Module liegen in
+   java-runtime/legal/ (z. B. java-runtime/legal/java.base/LICENSE).
+   Quellcode: https://github.com/adoptium/jdk21u  (Tag jdk-21.0.8+9)
+
+2. OpenJFX 23.0.2 (Ordner lib/javafx, Dateien javafx-*-23.0.2-win.jar)
+   JavaFX mit der Browser-Engine WebKit, unveraenderte Original-Dateien.
+   Copyright (c) Oracle and/or its affiliates.
+   Lizenz: GNU General Public License, Version 2, mit Classpath Exception
+   (gleicher Lizenztext wie java-runtime/legal/java.base/LICENSE).
+   javafx.web enthaelt Drittkomponenten, u. a. WebKit (LGPL 2.1 / BSD),
+   ICU, libxml2, libxslt und SQLite; deren Lizenzen sind hier aufgefuehrt:
+   https://github.com/openjdk/jfx/tree/23.0.2+3/modules/javafx.web/src/main/legal
+   Quellcode: https://github.com/openjdk/jfx  (Tag 23.0.2+3)
+
+3. lib/javafx/filius-rbz-fx.jar
+   Verbindung zwischen Filius und der Browser-Engine. Teil von Filius (RBZ Wirtschaft Kiel Version),
+   GPL v3; der Quellcode liegt im Ordner quellcode/filius-rbz/src/fx.

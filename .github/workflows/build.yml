@@ -1,0 +1,221 @@
+# Builds Filius (RBZ Wirtschaft Kiel Version) from source on GitHub-hosted runners:
+#   Windows: starter "Filius RBZ.exe", Filius-RBZ-Setup.exe, Filius-RBZ-Setup-AlleBenutzer.exe
+#   macOS:   Filius-RBZ-2.9.3-macOS-AppleSilicon.zip, Filius-RBZ-2.9.3-macOS-Intel.zip
+#   Linux:   filius-rbz_2.9.3+rbz<date>_amd64.deb
+# A release is made by starting the workflow by hand (Actions → Build → Run workflow) with a version such as
+# v2.9.3-rbz-2026-10-21, or by pushing such a tag. Then the Windows files are signed through SignPath (two
+# signing requests: first the starter, which goes into the installers, then the installers) and a draft
+# release with all packages is created; the tag is created when the draft is published.
+# Signing runs only when the repository variable SIGNPATH_ORGANIZATION_ID is set (together with
+# SIGNPATH_PROJECT_SLUG, SIGNPATH_SIGNING_POLICY_SLUG and the secret SIGNPATH_API_TOKEN).
+name: Build
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version für ein Release (z. B. v2.9.3-rbz-2026-10-21); leer = nur bauen'
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Pakete bauen
+    runs-on: ubuntu-24.04
+    timeout-minutes: 300
+    permissions:
+      contents: write   # draft release on tags
+      actions: read     # SignPath downloads the uploaded artifacts
+    env:
+      RELEASE: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || inputs.version }}
+      SIGN: ${{ (startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && inputs.version != '')) && vars.SIGNPATH_ORGANIZATION_ID != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Version prüfen
+        if: env.RELEASE != ''
+        run: |
+          echo "Release: $RELEASE"
+          [[ "$RELEASE" =~ ^v[0-9][0-9A-Za-z.+-]*$ ]] || { echo "Version muss mit v und einer Ziffer beginnen, z. B. v2.9.3-rbz-2026-10-21"; exit 1; }
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Werkzeuge (NSIS, Pillow, zip, Xvfb)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends nsis python3-pil zip xvfb imagemagick
+          makensis -VERSION
+
+      - name: Original-Dateien von Filius 2.9.3 prüfen
+        run: cd third_party/filius-2.9.3 && sha256sum -c --quiet SHA256SUMS
+
+      - name: Zwischenspeicher für Downloads
+        uses: actions/cache@v4
+        with:
+          path: .deps/dl
+          key: deps-${{ hashFiles('tools/deps.sh') }}
+
+      - name: Abhängigkeiten laden und prüfen
+        run: tools/deps.sh
+
+      - name: Java-Laufzeiten (jlink)
+        run: tools/runtimes.sh
+
+      - name: Programm bauen
+        run: ./package.sh
+
+      - name: Windows-Starter
+        run: installer/build-setup.sh launcher
+
+      - name: Starter zum Signieren hochladen
+        id: upload-starter
+        if: env.SIGN == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: starter-unsigniert
+          path: out/installer/launcher/Filius RBZ.exe
+          if-no-files-found: error
+
+      - name: Starter signieren (SignPath)
+        if: env.SIGN == 'true'
+        uses: signpath/github-action-submit-signing-request@v3
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG }}
+          signing-policy-slug: ${{ vars.SIGNPATH_SIGNING_POLICY_SLUG }}
+          artifact-configuration-slug: starter
+          github-artifact-id: ${{ steps.upload-starter.outputs.artifact-id }}
+          wait-for-completion: true
+          wait-for-completion-timeout-in-seconds: 7200
+          output-artifact-directory: out/signiert/starter
+
+      - name: Signierten Starter verwenden
+        if: env.SIGN == 'true'
+        run: echo "LAUNCHER=$PWD/out/signiert/starter/Filius RBZ.exe" >> "$GITHUB_ENV"
+
+      - name: Windows-Installer
+        run: installer/build-setup.sh setup
+
+      - name: macOS- und Linux-Pakete
+        run: |
+          installer/build-mac.sh
+          installer/build-deb.sh
+
+      - name: Starttest (Linux-Paket auf virtuellem Bildschirm)
+        run: tools/starttest.sh
+
+      - name: Bildschirmfoto des Starttests
+        if: always()
+        run: |
+          if [ -f out/starttest.png ]; then
+            convert out/starttest.png -resize 50% out/starttest-klein.png
+            echo "::group::Bildschirmfoto (PNG, Base64)"; base64 -w 0 out/starttest-klein.png; echo; echo "::endgroup::"
+          fi
+
+      - name: Installer zum Signieren hochladen
+        id: upload-setup
+        if: env.SIGN == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: installer-unsigniert
+          path: |
+            out/installer/Filius-RBZ-Setup.exe
+            out/installer/Filius-RBZ-Setup-AlleBenutzer.exe
+          if-no-files-found: error
+
+      - name: Installer signieren (SignPath)
+        if: env.SIGN == 'true'
+        uses: signpath/github-action-submit-signing-request@v3
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG }}
+          signing-policy-slug: ${{ vars.SIGNPATH_SIGNING_POLICY_SLUG }}
+          artifact-configuration-slug: installer
+          github-artifact-id: ${{ steps.upload-setup.outputs.artifact-id }}
+          wait-for-completion: true
+          wait-for-completion-timeout-in-seconds: 7200
+          output-artifact-directory: out/signiert/installer
+
+      - name: Pakete zusammenstellen
+        run: |
+          mkdir -p out/release
+          if [ "$SIGN" = true ]; then
+            cp out/signiert/installer/*.exe out/release/
+          else
+            cp out/installer/Filius-RBZ-Setup.exe out/installer/Filius-RBZ-Setup-AlleBenutzer.exe out/release/
+          fi
+          cp out/installer/*.zip out/installer/*.deb out/release/
+          (cd out/release && sha256sum * > SHA256SUMS.txt && cat SHA256SUMS.txt)
+
+      - name: Pakete hochladen
+        uses: actions/upload-artifact@v4
+        with:
+          name: filius-rbz-pakete
+          path: out/release/
+          retention-days: 14
+
+      - name: Release-Entwurf (nur mit Version)
+        if: env.RELEASE != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$RELEASE" out/release/* --draft --target "$GITHUB_SHA" \
+            --title "Filius (RBZ Wirtschaft Kiel Version) $RELEASE" \
+            --notes "Downloads und Installationshinweise: https://www.demand-unterricht.de/projekte/filius – Prüfsummen in SHA256SUMS.txt."
+
+  # Installs both Windows installers on a GitHub-hosted Windows runner, starts Filius, takes a screenshot
+  # (in the log as Base64) and uninstalls again.
+  windows-test:
+    name: Test unter Windows
+    needs: build
+    runs-on: windows-2025
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: filius-rbz-pakete
+          path: pakete
+      - name: Installieren, starten, deinstallieren
+        shell: pwsh
+        run: |
+          function Test-Setup($setup, $dir) {
+            Write-Output "=== $setup"
+            Write-Output ("Signatur: " + (Get-AuthenticodeSignature $setup).Status)
+            Start-Process $setup -ArgumentList "/S" -Wait
+            if (-not (Test-Path "$dir\filius-rbz.jar")) { throw "nicht installiert: $dir" }
+            Write-Output ("Starter: " + (Get-AuthenticodeSignature "$dir\Filius RBZ.exe").Status)
+            Start-Process "$dir\Filius RBZ.exe"
+            Start-Sleep -Seconds 45
+            if (-not (Get-Process javaw -ErrorAction SilentlyContinue)) { throw "Filius läuft nicht" }
+            Write-Output "Filius läuft"
+            try {
+              Add-Type -AssemblyName System.Windows.Forms, System.Drawing
+              $b = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
+              $bmp = New-Object System.Drawing.Bitmap $b.Width, $b.Height
+              [System.Drawing.Graphics]::FromImage($bmp).CopyFromScreen($b.Location, [System.Drawing.Point]::Empty, $b.Size)
+              $klein = New-Object System.Drawing.Bitmap $bmp, ([int]($b.Width / 2)), ([int]($b.Height / 2))
+              $klein.Save("$PWD\bild.png", [System.Drawing.Imaging.ImageFormat]::Png)
+              Write-Output "::group::Bildschirmfoto Windows (PNG, Base64)"
+              Write-Output ([Convert]::ToBase64String([IO.File]::ReadAllBytes("$PWD\bild.png")))
+              Write-Output "::endgroup::"
+            } catch { Write-Output "kein Bildschirmfoto: $_" }
+            Stop-Process -Name javaw -Force
+            Start-Sleep -Seconds 3
+            Start-Process "$dir\uninstall.exe" -ArgumentList "/S" -Wait
+            Start-Sleep -Seconds 15
+            if (Test-Path "$dir\filius-rbz.jar") { throw "Deinstallation unvollständig: $dir" }
+            Write-Output "deinstalliert"
+          }
+          Test-Setup "pakete\Filius-RBZ-Setup.exe" "$env:LOCALAPPDATA\Programs\Filius RBZ"
+          Test-Setup "pakete\Filius-RBZ-Setup-AlleBenutzer.exe" "$env:ProgramFiles\Filius RBZ"

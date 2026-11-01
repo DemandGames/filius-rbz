@@ -1,0 +1,265 @@
+# Abschlussprojekt: Fehlersuche
+Ziel: Im fertigen Netz sind acht Störungen versteckt. Du findest und behebst sie mit allem, was du in den Kapiteln 1 bis 11 gelernt hast.
+
+## Lesen
+
+### Das ganze Netz auf einen Blick
+Das Netz aus Kapitel 11 verbindet vier Netze: Schule, Provider, RGG und dein Heimnetz. Dazu kommen alle Router und Server: der Webserver der Schule mit HTTPS, DNS, DHCP, zwei Mailserver, das Blog, das Intranet und der VPN-Server. Der Netzplan zeigt dir, was wo steht.
+
+[Bild: k12-netzplan.png | Das fertige Netz mit Schulnetz, Providernetz, RGG-Netz und Heimnetz]
+
+Der Netzplan ist der Startpunkt jeder Fehlersuche. Frag dich: Wo steht das Gerät? Wo läuft der Dienst? Welche Router und Firewalls liegen dazwischen?
+
+> Merke: Beim Start dieses Kapitels lädt Filius eine Kopie dieses Netzes mit acht eingebauten Störungen. Welche es sind, wird zufällig gewählt.
+
+### Tickets
+Wer ein Problem mit dem Netz hat, schreibt dem IT-Support ein **Ticket**: eine kurze Meldung, was nicht geht. Ein Ticket beschreibt nur, was die Person bemerkt hat. Die Ursache findest du selbst. Oft steckt in der Meldung schon ein wichtiger Hinweis, zum Beispiel „über die IPv4-Adresse geht es, über den Namen nicht“.
+
+### Fehler finden wie Profis
+Profis gehen bei der **systematischen Fehlersuche** von unten nach oben vor. Jede Stufe setzt die vorige voraus:
+
+- Stufe 1, eigene Einstellungen: `ipconfig` – stimmen Adresse, Gateway und DNS-Server?
+- Stufe 2, Gateway: `ping` auf das eigene Gateway.
+- Stufe 3, Ziel-IPv4-Adresse: `ping` auf die Adresse des Ziels. Bleibt es hängen, zeigt `traceroute`, an welchem Router.
+- Stufe 4, Name: `nslookup` oder `host` – liefert der DNS-Server die richtige Adresse?
+- Stufe 5, Dienst: Läuft der Server? Passt der Port? Lässt eine Firewall die Verbindung durch?
+
+[Bild: k12-stufen.png | Die fünf Stufen der Fehlersuche, von unten nach oben]
+
+[Bild: k12-fehlersuche.png | ping, traceroute und nslookup bei der Fehlersuche]
+
+### Werkzeuge für Stufe 5
+- Der Datenaustausch zeigt, ob eine Anfrage ankommt und ob eine Antwort zurückgeht. Bleibt ein SYN ohne Antwort, wartet dort niemand, oder eine Firewall verwirft das Paket.
+- Das Log eines Routers mit Firewall zeigt, welche Regel gegriffen hat.
+- Das Schloss im Browser zeigt das Zertifikat: Wer hat es ausgestellt, und für welche Namen gilt es?
+- Der VPN-Client unterscheidet zwei Fälle: „Keine Antwort“ heißt, der VPN-Server ist nicht erreichbar. „Anmeldung abgelehnt“ heißt, er ist erreichbar, aber Name oder Passwort passen nicht.
+
+### Wann ist eine Störung behoben?
+Behoben ist eine Störung erst, wenn der **Ende-zu-Ende-Test** klappt: Der Dienst funktioniert vom Gerät des Nutzers bis zum Server. Teste also genau das, was im Ticket nicht ging, und zwar auf dem Gerät, von dem das Ticket kam.
+
+## Praxis
+
+### Montagmorgen beim IT-Support
+Acht Tickets sind eingegangen. Du siehst nur die Meldung. Ein Haken kommt, wenn die Ursache behoben ist und der passende Ende-zu-Ende-Test geklappt hat. Danach zeigt Filius die Ursache an. Die Reihenfolge wählst du selbst.
+
+### A1
+Variante: 1
+„Kein Schul-Laptop erreicht etwas außerhalb des Schulnetzes. Untereinander und den Mailserver der Schule erreichen sie per ping.“
+Ursache: Der DHCP-Server der Schule verteilte das Gateway 192.168.10.254.
+Tipp: Was hat ein Schul-Laptop als Gateway? Woher hat er es?
+
+### A2
+Variante: 2
+„Aus der Schule erreicht niemand das Netz der RGG, auch nicht per ping auf 198.51.100.80. Der DNS-Server im Providernetz antwortet.“
+Ursache: Bei R2 Router RGG war das automatische Routing ausgeschaltet.
+Tipp: Welche Netze kennt R1? Seine Seite /routes verrät es.
+
+### A3
+Variante: 2
+„Im Büro der RGG lädt die Shop-Seite nicht, auch nicht über 198.51.100.80. Auf ping antwortet der Shop.“
+Ursache: Der Webserver des Shops war gestoppt.
+Tipp: ping klappt, also stimmt der Weg. Was fehlt dann noch?
+
+### A4
+Variante: 1, 3
+„Im Büro der RGG öffnet sich der Shop über 198.51.100.80, über www.ravensberger24.de aber nicht.“
+Ursache: Der A-Eintrag www.ravensberger24.de zeigte auf 198.51.100.81.
+Tipp: Was antwortet nslookup?
+
+### A5
+Variante: 1
+„Annas Bestellungen an verkauf@ravensberger24.de kommen nicht an. Mails an ben gehen.“
+Ursache: Der MX-Eintrag für ravensberger24.de fehlte.
+Tipp: host ravensberger24.de zeigt, was der DNS-Server über die Domain weiß.
+
+### A6
+Variante: 2
+„Auf dem Heim-Laptop öffnen sich Webseiten nur über IPv4-Adressen.“
+Ursache: Der DHCP-Server des Heimrouters verteilte den DNS-Server 203.0.113.35.
+Tipp: ipconfig auf dem Heim-Laptop. Woher hat er seine Werte?
+
+### A7
+Variante: 2
+„Das Blog ist von außen unter http://203.0.113.3:8080 nicht zu erreichen, im Heimnetz schon.“
+Ursache: Die Portfreigabe zeigte auf 192.168.178.11.
+Tipp: Im Heimnetz läuft das Blog. Was fehlt auf dem Weg von außen hinein?
+
+### A8
+Variante: 1
+„Zu Hause öffnet sich der Shop auf keinem Gerät mehr, auch nicht über 198.51.100.80. Im Büro der RGG öffnet er sich über 198.51.100.80.“
+Ursache: Die Firewall-Regel am Heimrouter verwarf TCP 80 vom ganzen Heimnetz (Maske 255.255.255.0) statt nur vom Tablet.
+Tipp: Das Log des Heimrouters zeigt, welche Regel greift.
+
+### A9
+Variante: 2
+„Niemand kann Mails von @rbz-wirtschaft-kiel.de abrufen, weder in der Schule noch zu Hause.“
+Ursache: Der E-Mail-Server der Schule war gestoppt.
+Tipp: Alle Nutzer sind betroffen. Liegt es dann an einem einzelnen Laptop?
+
+### A10
+Variante: 2, 3
+„Laptop-3 erreicht nichts außerhalb des Schulnetzes, Laptop-1 und Laptop-2 schon.“
+Ursache: Auf Laptop-3 war DHCP abgeschaltet und eine feste Adresse 192.168.10.45 mit Gateway 192.168.10.100 eingetragen.
+Tipp: Vergleiche die Einstellungen von Laptop-3 mit denen von Laptop-1.
+
+### A11
+Variante: 1
+„Die Schulseite öffnet sich nirgends mehr, weder über https://www.rbz-wirtschaft-kiel.de noch über https://192.168.10.10. Auf ping antwortet der Webserver.“
+Ursache: Am Webserver der Schule war HTTPS ausgeschaltet, und HTTP ist seit Kapitel 4 abgeschaltet.
+Tipp: ping klappt. Welcher Port gehört zu https, und wartet dort jemand?
+
+### A12
+Variante: 2
+„Bei https://www.rbz-wirtschaft-kiel.de warnt der Browser auf jedem Gerät: Diese Verbindung ist nicht sicher.“
+Ursache: Das Zertifikat des Webservers war selbst signiert.
+Tipp: Klicke auf das Schloss. Wer hat das Zertifikat ausgestellt?
+
+### A13
+Variante: 1
+„Annas Mutter kommt von zu Hause nicht mehr an die Mails des Verkaufs. Der VPN-Client meldet: Anmeldung abgelehnt.“
+Ursache: Im VPN-Server stand für verkauf das Passwort homeoffice statt Homeoffice.
+Tipp: Der VPN-Server hat geantwortet. Was prüft er bei der Anmeldung?
+
+### A14
+Variante: 3
+„Von außen öffnet sich der Shop nicht mehr, weder aus der Schule noch von zu Hause, auch nicht über 198.51.100.80. Mails an verkauf@ravensberger24.de kommen auch nicht mehr an. Im Büro der RGG öffnet sich der Shop über 198.51.100.80.“
+Ursache: Regel 1 der Firewall an R2 hatte die Netzmaske 255.255.255.0 und verwarf TCP zum ganzen Netz der RGG.
+Tipp: Im Büro geht es. Was liegt nur auf dem Weg von außen?
+
+### A15
+Variante: 3
+„Der VPN-Client im Homeoffice meldet: Keine Antwort vom VPN-Server.“
+Ursache: Der VPN-Server war gestoppt.
+Tipp: Keine Antwort heißt: Niemand wartet an UDP-Port 1194.
+
+### A16
+Variante: 1, 3
+„Die Lager-Seite öffnet sich nirgends mehr, auch nicht im Büro über http://198.51.100.40.“
+Ursache: Das Intranet hatte die IPv4-Adresse 198.51.100.4 statt 198.51.100.40.
+Tipp: Antwortet 198.51.100.40 auf ping? Welche Adresse hat das Intranet?
+
+### A17
+Variante: 2, 3
+„Im Büro meldet das E-Mail-Programm des Verkaufs beim Abrufen einen Fehler. Der Mailserver der RGG läuft.“
+Ursache: Im E-Mail-Programm des Büro-Laptops war als IMAP-Server mail.rbz-wirtschaft-kiel.de eingetragen, der Mailserver der Schule.
+Tipp: Auf welchem Mailserver liegt das Postfach verkauf? Schau in die Einstellungen des Kontos.
+
+### A18
+Variante: 1, 3
+„Das Blog öffnet sich weder im Heimnetz unter http://192.168.178.10 noch von außen.“
+Ursache: Der Webserver des Blog-Servers war gestoppt.
+Tipp: Auch im Heimnetz geht es nicht. Kann es dann an der Portfreigabe liegen?
+
+### A19
+Variante: 3
+„Die Schulseite öffnet sich nirgends mehr. Auch ping auf 192.168.10.10 bleibt ohne Antwort, in der Schule wie von zu Hause.“
+Ursache: Der Webserver der Schule hatte kein Kabel zum Switch Schule.
+Tipp: Kein ping, von nirgends. Schau dir den Webserver im Entwurfsmodus an.
+
+## Quiz
+
+### Laptop-3 öffnet den Shop über 198.51.100.80, aber nicht über www.ravensberger24.de. Was prüfst du zuerst?
+- Das Kabel zwischen Laptop-3 und Switch Schule
+Falsch: Über die IPv4-Adresse kommt Laptop-3 zum Shop. Das Kabel funktioniert also.
+- Das Gateway von Laptop-3
+Falsch: Mit einem falschen Gateway käme Laptop-3 auch über die IPv4-Adresse nicht ins RGG-Netz.
+- ✓ Den DNS-Server-Eintrag von Laptop-3, dann nslookup
+- Die Firewall am Heimrouter
+Falsch: Laptop-3 steht in der Schule. Die Firewall des Heimrouters liegt gar nicht auf seinem Weg.
+Erklärung: Über die IPv4-Adresse klappt es, also stimmen Kabel und Gateway. Das Problem liegt bei der Namensauflösung.
+
+### Von Laptop-2 klappen ping 192.168.10.1 und ping 203.0.113.53, ping 198.51.100.80 aber nicht. Wo suchst du?
+- ✓ Bei den gelernten Wegen von R1 und R2 (Seite /routes)
+- Im Gateway-Eintrag von Laptop-2
+Falsch: Laptop-2 erreicht 203.0.113.53 im Providernetz. Dafür muss sein Gateway schon stimmen.
+- Im A-Eintrag des Shops auf dem DNS-Server
+Falsch: Ein ping auf eine IPv4-Adresse braucht kein DNS. Der A-Eintrag spielt hier keine Rolle.
+- Im Webserver des Shops
+Falsch: Ein ping wird vom Gerät selbst beantwortet, nicht vom Webserver. Auch ein gestoppter Webserver verhindert den ping nicht.
+Erklärung: Bis ins Providernetz kommt Laptop-2, also stimmt sein Gateway. ping braucht weder DNS noch Webserver. Es fehlt ein Weg hin oder zurück.
+
+### Mit welchem Befehl findest du heraus, an welchem Router ein Paket hängen bleibt?
+- ipconfig
+Falsch: ipconfig zeigt nur die eigenen Einstellungen. Über den Weg durchs Netz sagt es nichts.
+- nslookup
+Falsch: nslookup fragt den DNS-Server nach einem Namen. Den Weg der Pakete zeigt es nicht.
+- arp
+Falsch: arp zeigt nur MAC-Adressen im eigenen Netz. Router in anderen Netzen tauchen dort nicht auf.
+- ✓ traceroute
+Erklärung: traceroute zeigt jede Station auf dem Weg. Die Ausgabe endet bei der letzten Station, die noch geantwortet hat, dahinter bleibt das Paket hängen.
+
+### In welcher Reihenfolge gehst du bei der Fehlersuche vor?
+- Gateway, Name, eigene Einstellungen, Dienst, Ziel-IPv4-Adresse
+Falsch: Das Gateway kann man erst sinnvoll prüfen, wenn die eigenen Einstellungen stimmen. Vielleicht stimmt sonst schon die eigene Adresse nicht.
+- Dienst, eigene Einstellungen, Name, Gateway, Ziel-IPv4-Adresse
+Falsch: Beim Dienst anzufangen heißt oben anzufangen. Liegt der Fehler weiter unten, suchst du an der falschen Stelle.
+- ✓ Eigene Einstellungen, Gateway, Ziel-IPv4-Adresse, Name, Dienst
+- Name, Ziel-IPv4-Adresse, Dienst, Gateway, eigene Einstellungen
+Falsch: Ein Name hilft nur, wenn der Weg zur Ziel-IPv4-Adresse funktioniert. Diese Reihenfolge geht von oben nach unten und kommt erst ganz zum Schluss zu den eigenen Einstellungen.
+Erklärung: Man prüft von unten nach oben, weil jede Stufe die vorige voraussetzt: erst die eigenen Einstellungen, dann das Gateway, dann die Ziel-IPv4-Adresse, dann den Namen und zuletzt den Dienst.
+
+### Das Blog ist von außen nicht erreichbar, im Heimnetz schon. Was prüfst du?
+- Den DNS-Eintrag des Blogs
+Falsch: Das Blog hat gar keinen DNS-Eintrag. Es wird über 203.0.113.3:8080 aufgerufen.
+- ✓ Die Portfreigabe am Heimrouter
+- Den Webserver des Blogs
+Falsch: Im Heimnetz öffnet sich das Blog. Der Webserver läuft also.
+- Die Firewall-Regel für das Tablet
+Falsch: Diese Regel sperrt nur Verbindungen vom Tablet zum Shop. Anfragen von außen an das Blog betrifft sie nicht.
+Erklärung: Im Heimnetz läuft das Blog, also fehlt nur der Weg von außen hinein. Das Blog hat keinen DNS-Eintrag, es wird über 203.0.113.3:8080 aufgerufen.
+
+### Zu Hause öffnet sich die Schulseite über ihren Namen, der Shop aber auf keinem Gerät. Im Büro der RGG geht der Shop. Was ist am wahrscheinlichsten?
+- Die Portfreigabe zeigt auf das falsche Gerät
+Falsch: Eine Portfreigabe betrifft Anfragen von außen ins Heimnetz. Der Shop wird aber von innen aufgerufen.
+- Der A-Eintrag des Shops ist falsch
+Falsch: Im Büro der RGG geht der Shop, und das Büro nutzt denselben DNS-Server. Der A-Eintrag stimmt also.
+- Der Heimrouter verteilt einen falschen DNS-Server
+Falsch: Die Schulseite öffnet sich zu Hause über ihren Namen. Die Namensauflösung im Heimnetz funktioniert also.
+- ✓ Eine Firewall-Regel am Heimrouter sperrt zu viel
+Erklärung: Namen werden zu Hause aufgelöst, und der Shop selbst läuft. Es scheitern nur Verbindungen aus dem Heimnetz zum Shop.
+
+### Der VPN-Client meldet „Keine Antwort vom VPN-Server“. Was ist am wahrscheinlichsten?
+- ✓ Der VPN-Server läuft nicht, oder UDP-Port 1194 ist auf dem Weg gesperrt
+- Das Passwort ist falsch
+Falsch: Bei einem falschen Passwort antwortet der VPN-Server mit „Anmeldung abgelehnt“.
+- Das Intranet ist ausgeschaltet
+Falsch: Das Intranet hat mit dem Aufbau des Tunnels nichts zu tun. Der VPN-Server würde trotzdem antworten.
+- Der DNS-Server kennt den VPN-Server nicht
+Falsch: Im VPN-Client steht die IPv4-Adresse des VPN-Servers. Dafür braucht es kein DNS.
+Erklärung: Ohne Antwort kommt beim VPN-Server niemand an, oder er wartet nicht an UDP-Port 1194. Eine Ablehnung schickt nur ein erreichbarer VPN-Server.
+
+### Bei https://www.rbz-wirtschaft-kiel.de warnt der Browser: Diese Verbindung ist nicht sicher. Auf ping antwortet der Webserver. Wo suchst du?
+- ✓ Im Zertifikat des Webservers: Ist es selbst signiert, oder gilt es für einen anderen Namen?
+- Im DHCP-Server der Schule
+Falsch: Der Browser erreicht den Webserver ja, sonst gäbe es gar keine Warnung. Adressen und Gateway stimmen also.
+- In der Portfreigabe des Heimrouters
+Falsch: Die Portfreigabe betrifft nur Anfragen von außen ins Heimnetz. Der Webserver steht in der Schule.
+- Im MX-Eintrag der Schule
+Falsch: Der MX-Eintrag ist nur für Mails wichtig. Mit HTTPS hat er nichts zu tun.
+Erklärung: Die Warnung kommt aus dem TLS-Handshake. Der Browser vertraut dem Zertifikat nicht: Es fehlt die Unterschrift einer bekannten Zertifizierungsstelle, oder der Name passt nicht.
+
+### Ein SYN an 198.51.100.40, Port 80, bleibt vom Heim-Laptop aus ohne Antwort. Im Büro der RGG öffnet sich die Lager-Seite. Was ist der Grund?
+- ✓ Die Firewall an R2 verwirft Verbindungen von außen zum Intranet, so ist es gewollt
+- Der Webserver des Intranets ist gestoppt
+Falsch: Im Büro öffnet sich die Lager-Seite. Der Webserver läuft also.
+- Der Heim-Laptop hat ein falsches Gateway
+Falsch: Mit einem falschen Gateway käme das SYN gar nicht aus dem Heimnetz heraus. Das ist hier nicht die naheliegende Ursache.
+- Der DNS-Server kennt das Intranet nicht
+Falsch: Das SYN geht an eine IPv4-Adresse. DNS spielt hier keine Rolle.
+Erklärung: Das Intranet soll von außen gesperrt sein. Von zu Hause kommt man nur über das VPN hinein.
+
+### Was ist ein Ende-zu-Ende-Test?
+- ✓ Ein Test, ob ein Dienst vom Gerät des Nutzers bis zum Server funktioniert
+- Ein ping vom Gateway bis zum letzten Router
+Falsch: Ein Ende-zu-Ende-Test beginnt beim Gerät des Nutzers und endet beim Dienst, nicht bei Routern dazwischen. Ein ping prüft außerdem keinen Dienst.
+- Ein Test, ob alle Kabel an beiden Enden stecken
+Falsch: Es geht nicht um Kabelenden, sondern darum, ob der ganze Weg vom Nutzer bis zum Dienst funktioniert.
+- Ein Test, ob der Server auf seinem Port wartet
+Falsch: Das prüft nur das eine Ende. Ob der Nutzer den Server auch erreicht, zeigt erst der Test von seinem Gerät aus.
+Erklärung: Ein Ende-zu-Ende-Test prüft den Dienst so, wie der Nutzer ihn verwendet, vom eigenen Gerät bis zum Server. Erst wenn er klappt, ist eine Störung wirklich behoben.
+
+## Glossar
+
+- **Ticket** – kurze Meldung an den IT-Support, was nicht funktioniert. Es beschreibt das Symptom aus Sicht der Person, nicht die Ursache. Gute Tickets nennen das Gerät und was genau nicht geht, zum Beispiel „über die IPv4-Adresse ja, über den Namen nein“.
+- **Systematische Fehlersuche** – von unten nach oben prüfen: eigene Einstellungen, Gateway, Ziel-IPv4-Adresse, Name, Dienst. Jede Stufe setzt die vorige voraus: Ohne richtige eigene Adresse hilft auch das beste Gateway nichts. Passende Werkzeuge sind ipconfig, ping, traceroute und nslookup, für den Dienst der Datenaustausch. So findest du einen Fehler schneller, als wenn du überall gleichzeitig suchst.
+- **Ende-zu-Ende-Test** – prüft einen Dienst vom Gerät des Nutzers bis zum Server über alle Netze hinweg. Man öffnet zum Beispiel den Shop wirklich im Browser des betroffenen Laptops. Erst wenn dieser Test klappt, ist eine Störung behoben. Ein ping allein reicht dafür nicht, weil er keinen Dienst prüft.

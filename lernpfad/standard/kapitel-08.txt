@@ -1,0 +1,193 @@
+# Abschlussprojekt: Fehlersuche
+Ziel: Im fertigen Netz sind drei Störungen versteckt. Du findest sie mit einem festen Plan, behebst sie und machst den Netzplan fertig.
+
+## Lesen
+
+### Der Netzplan
+Dein Netz besteht jetzt aus drei Netzen am Router in der Mitte: Schulnetz, RGG-Netz und das Netz des DNS-Anbieters. Mit den Gliederungsflächen und Etiketten ist daraus ein **Netzplan** geworden: eine beschriftete Zeichnung aller Netze mit ihren Geräten und Adressen.
+
+[Bild: s08-netzplan.png | Der Netzplan: Schulnetz, RGG-Netz und DNS-Anbieter am Router]
+
+Der Netzplan hilft bei jeder Störung. Frag dich: In welchem Netz steht das Gerät? Wo läuft der Dienst? Liegt der Router dazwischen?
+
+> Merke: Beim Start dieses Kapitels lädt Filius das Netz mit drei eingebauten Störungen. Welche es sind, wird zufällig gewählt.
+
+### Schritt für Schritt suchen
+Bei der **systematischen Fehlersuche** prüfst du der Reihe nach, von unten nach oben. Erst wenn eine Stufe klappt, gehst du zur nächsten:
+
+- Stufe 1, Kabel und Einstellungen: Hängt das Gerät am Switch? Stimmen Adresse, Netzmaske, Gateway und DNS-Server? Das zeigt `ipconfig`.
+- Stufe 2, eigenes Netz: Antwortet das Gateway auf `ping`?
+- Stufe 3, anderes Netz: Antwortet das Ziel auf `ping` mit seiner IPv4-Adresse?
+- Stufe 4, Name: Kennt der DNS-Server den Namen? Das zeigt `nslookup`.
+- Stufe 5, Dienst: Läuft die Software auf dem Server, zum Beispiel Webserver oder E-Mail-Server?
+
+[Bild: s08-stufen.png | Die fünf Stufen der Fehlersuche]
+
+[Bild: s08-fehlersuche.png | ping und nslookup bei der Fehlersuche]
+
+Eine Störung ist erst behoben, wenn der Test vom Gerät des Nutzers bis zum Server klappt.
+
+## Praxis
+
+### Teil A – Störungen beheben
+Montagmorgen. Beim IT-Support sind drei Meldungen eingegangen. Du siehst nur die Meldung. Ein Haken kommt, wenn die Ursache behoben ist und der passende Test geklappt hat. Danach zeigt Filius die Ursache an.
+
+### A1
+Variante: 1
+„Laptop-2 erreicht gar nichts, nicht einmal die Schulseite über 192.168.0.14.“
+Ursache: Auf Laptop-2 war DHCP abgeschaltet und die feste Adresse 192.168.5.11 eingetragen.
+Tipp: ipconfig auf Laptop-2. Passt der Netzanteil zum Schulnetz? Bestanden, wenn Laptop-2 wieder im Schulnetz ist (am besten wieder mit DHCP, sonst mit Gateway 192.168.0.1) und die Schulseite http://192.168.0.14 in seinem Browser lädt.
+
+### A2
+Variante: 1
+„Laptop-1, Laptop-3 und der Lehrer-Laptop öffnen die Schulseite über 192.168.0.14, erreichen aber nichts außerhalb des Schulnetzes.“
+Ursache: Der DHCP-Server verteilte das Gateway 192.168.0.254.
+Tipp: Welches Gateway hat ein Schul-Laptop? Woher hat er es? Bestanden, wenn der DHCP-Server das richtige Gateway verteilt und ein Schul-Laptop danach ein Gerät im RGG-Netz anpingt, zum Beispiel `ping 192.168.1.10`. Starte dafür die Simulation neu, damit die Laptops die neuen Einstellungen holen.
+
+### A3
+Variante: 1
+„Im Büro der RGG öffnet sich der Shop über 192.168.1.10, über www.ravensberger24.de aber nicht.“
+Ursache: Der A-Eintrag www.ravensberger24.de zeigte auf 192.168.1.11.
+Tipp: Was antwortet nslookup auf dem Büro-Laptop? Bestanden, wenn der Büro-Laptop den Shop über http://www.ravensberger24.de im Browser öffnet.
+
+### A4
+Variante: 2
+„Im Büro der RGG lädt die Shop-Seite nicht, auch nicht über 192.168.1.10. Auf ping antwortet der Shop.“
+Ursache: Der Webserver des Shops war gestoppt.
+Tipp: ping klappt, also stimmt der Weg. Welche Stufe kommt danach? Bestanden, wenn der Büro-Laptop die Shop-Seite im Browser öffnet.
+
+### A5
+Variante: 2
+„Annas Bestellungen an verkauf@ravensberger24.de kommen nicht an. Mails an ben gehen.“
+Ursache: Der MX-Eintrag für ravensberger24.de fehlte.
+Tipp: Woher weiß der Mailserver der Schule, wohin Mails für ravensberger24.de gehören? Bestanden, wenn Anna danach eine neue Mail an verkauf@ravensberger24.de schickt und sie beim Mailserver der RGG ankommt.
+
+### A6
+Variante: 2
+„Im Büro der RGG öffnet sich die Schulseite über 192.168.0.14, aber nicht über www.rbz-wirtschaft-kiel.de.“
+Ursache: Der A-Eintrag www.rbz-wirtschaft-kiel.de fehlte.
+Tipp: nslookup auf dem Büro-Laptop. Bestanden, wenn der Büro-Laptop die Schulseite über http://www.rbz-wirtschaft-kiel.de im Browser öffnet.
+
+### A7
+Variante: 3
+„Bei der RGG kommt niemand aus dem eigenen Netz heraus. Innerhalb der RGG klappt alles.“
+Ursache: Die Karte des Routers zum RGG-Netz hatte 192.168.1.254 statt 192.168.1.1.
+Tipp: Pinge vom Büro-Laptop sein Gateway. Welche Adresse hat der Router im RGG-Netz? Bestanden, wenn der Büro-Laptop den Webserver der Schule anpingt: `ping 192.168.0.14`.
+
+### A8
+Variante: 3
+„Niemand kann Mails von @rbz-wirtschaft-kiel.de abrufen.“
+Ursache: Der E-Mail-Server der Schule war gestoppt.
+Tipp: Alle sind betroffen. Liegt es dann an einem einzelnen Laptop? Bestanden, wenn danach jemand aus der Schule seine Mails abruft, zum Beispiel Anna auf Laptop-1.
+
+### A9
+Variante: 3
+„Laptop-3 erreicht gar nichts. Die anderen Schul-Laptops funktionieren.“
+Ursache: Das Kabel zwischen Laptop-3 und dem Switch Schule fehlte.
+Tipp: Stufe 1: Sieh dir Laptop-3 im Entwurfsmodus genau an. Bestanden, wenn Laptop-3 sein Gateway anpingt: `ping 192.168.0.1`.
+
+### Teil B – Netzplan
+
+### B1
+Im Netzplan fehlt ein Etikett. Prüfe: Jedes der drei Netze hat eine Gliederungsfläche mit einem Etikett oben links, das seinen Namen und seine Netzadresse nennt. Ergänze, was fehlt.
+Tipp: Schulnetz 192.168.0.0, RGG-Netz 192.168.1.0, DNS-Anbieter 192.168.2.0. Am schnellsten mit dem + oben links in der Fläche.
+
+### B2
+Schreibe im Dokumentationsmodus neben den Router ein Textfeld mit seinen drei Adressen 192.168.0.1, 192.168.1.1 und 192.168.2.1.
+Tipp: Der Router steht zwischen den Flächen. Das Textfeld gehört direkt daneben.
+
+### B3
+Lies im Netzplan nach.
+Frage: Über welche Geräte läuft ein ping von Laptop-1 zum DNS-Server?
+- ✓ Switch Schule, Router, Switch DNS-Anbieter
+- Switch Schule, Switch RGG, Switch DNS-Anbieter
+- Router, Mailserver RGG, Switch DNS-Anbieter
+- Nur über den Switch Schule
+Tipp: Folge im Netzplan den Linien von Laptop-1 bis zum DNS-Server.
+
+## Quiz
+
+### Was ist ein Netzplan?
+- ✓ Eine beschriftete Zeichnung aller Netze mit ihren Geräten und Adressen
+- Eine Liste aller Benutzernamen und Passwörter der Geräte im Netz
+Falsch: Passwörter gehören nie in einen Netzplan.
+- Die Liste des Switches mit den MAC-Adressen an seinen Anschlüssen
+Falsch: Die Liste des Switches gehört nur zu einem Switch. Ein Netzplan zeigt alle Netze.
+- Der Datenaustausch eines Laptops mit allen Nachrichten, die er sendet
+Falsch: Der Datenaustausch zeigt Nachrichten, keine Zeichnung des Netzes.
+Erklärung: Im Netzplan siehst du alle Netze mit Gliederungsfläche, Etikett, Geräten und dem Router dazwischen.
+
+### Womit beginnt die systematische Fehlersuche?
+- ✓ Mit Kabel und Einstellungen des betroffenen Geräts
+- Mit dem Neustart aller Server und des Routers
+Falsch: Erst wird geprüft, dann geändert. Sonst weißt du nicht, was der Fehler war.
+- Mit den Namen und A-Einträgen im DNS-Server
+Falsch: DNS ist erst Stufe 4. Vorher müssen Kabel, Einstellungen und Wege stimmen.
+- Mit dem Löschen und Neuzeichnen des ganzen Netzplans
+Falsch: Der Netzplan ist dein wichtigstes Werkzeug bei der Suche.
+Erklärung: Stufe 1 sind Kabel und Einstellungen, zum Beispiel mit ipconfig. Jede weitere Stufe baut darauf auf.
+
+### ping auf das Gateway klappt, ping auf den Shop mit 192.168.1.10 nicht. Wo suchst du weiter?
+- ✓ Auf dem Weg ins andere Netz: Router und Einstellungen des Shops
+- Am Kabel zwischen dem eigenen Laptop und seinem Switch
+Falsch: Das Gateway antwortet, also ist das eigene Kabel in Ordnung.
+- Im DNS-Server: der A-Eintrag für www.ravensberger24.de
+Falsch: Du hast die IPv4-Adresse benutzt. DNS spielt hier noch keine Rolle.
+- Im E-Mail-Programm: Konto und Einstellungen des Postfachs
+Falsch: Mit ping und Webseiten hat das E-Mail-Programm nichts zu tun.
+Erklärung: Stufe 2 klappt, Stufe 3 nicht. Der Fehler liegt also zwischen Router und Ziel.
+
+### Eine Seite öffnet sich über die IPv4-Adresse, aber nicht über den Namen. Welche Stufe ist betroffen?
+- ✓ Stufe 4: der Name, also der DNS-Server
+- Stufe 1: Kabel und Einstellungen des Laptops
+Falsch: Über die IPv4-Adresse klappt alles. Kabel und Einstellungen passen also.
+- Stufe 3: das andere Netz hinter dem Router
+Falsch: Das andere Netz ist erreichbar, sonst ginge auch die IPv4-Adresse nicht.
+- Stufe 5: der Dienst, also der Webserver
+Falsch: Der Webserver läuft, er liefert die Seite ja über die IPv4-Adresse.
+Erklärung: Nur die Übersetzung des Namens fehlt. Prüfe mit nslookup den DNS-Server und seine A-Einträge.
+
+### Der Shop antwortet auf ping, aber die Seite lädt nicht. Was prüfst du?
+- ✓ Ob die Software Webserver auf dem Shop läuft
+- Ob das Kabel zwischen Shop und Switch steckt
+Falsch: ping klappt, also steckt das Kabel.
+- Ob im Shop das richtige Gateway eingetragen ist
+Falsch: Die Antwort auf ping kommt zurück, also stimmt der Weg samt Gateway.
+- Ob der DNS-Server einen MX-Eintrag für den Shop hat
+Falsch: Der MX-Eintrag gehört zu E-Mails, nicht zu Webseiten.
+Erklärung: Stufe 3 klappt. Bleibt Stufe 5: Der Dienst muss laufen.
+
+### Ein Laptop im Schulnetz hat die Adresse 192.168.5.11. Was ist das Problem?
+- ✓ Sein Netzanteil passt nicht zum Schulnetz 192.168.0.0
+- Die Adresse ist zu lang für eine gültige IPv4-Adresse
+Falsch: Sie hat vier Zahlen wie jede IPv4-Adresse.
+- Die 11 ist als Hostanteil im Schulnetz nicht erlaubt
+Falsch: 11 ist ein ganz normaler Hostanteil.
+- Er braucht eine neue MAC-Adresse für das Schulnetz
+Falsch: Die MAC-Adresse ist in Ordnung. Falsch ist die IPv4-Adresse.
+Erklärung: Im Schulnetz muss der Netzanteil 192.168.0 sein. Mit 192.168.5 liegt der Laptop in einem anderen Netz.
+
+### Wann ist eine Störung wirklich behoben?
+- ✓ Wenn der Test vom Gerät des Nutzers bis zum Server klappt
+- Wenn du eine Einstellung im betroffenen Gerät geändert hast
+Falsch: Eine Änderung allein beweist nichts. Erst der Test zeigt, dass es wieder geht.
+- Wenn der Server auf ping vom Gerät des Nutzers antwortet
+Falsch: ping prüft nur den Weg. Der Dienst kann trotzdem gestört sein.
+- Wenn der Netzplan mit allen Etiketten fertig ist
+Falsch: Der Netzplan hilft beim Suchen. Behoben ist die Störung erst nach dem Test.
+Erklärung: Erst wenn der Nutzer den Dienst wieder nutzen kann, zum Beispiel die Seite öffnen, ist die Störung behoben.
+
+### Alle Schul-Laptops haben ein falsches Gateway. Wo behebst du das am besten?
+- ✓ Im DHCP-Server, der die Einstellungen verteilt
+- An jedem Laptop einzeln von Hand in den Einstellungen
+Falsch: Das wäre viel Arbeit, und beim nächsten Start käme wieder der falsche Wert vom DHCP-Server.
+- Im DNS-Server, den alle Laptops für Namen nutzen
+Falsch: Der DNS-Server kennt nur Namen und Adressen, keine Gateways der Laptops.
+- Im Switch Schule, an dem alle Laptops hängen
+Falsch: Der Switch hat keine Einstellungen für Gateways.
+Erklärung: Die Laptops bekommen ihre Werte vom DHCP-Server. Dort korrigierst du das Gateway einmal für alle.
+
+## Glossar
+
+- **Netzplan** – beschriftete Zeichnung aller Netze mit ihren Geräten und Adressen. In Filius entsteht er im Dokumentationsmodus aus Gliederungsflächen und Etiketten. Er ist der Startpunkt jeder Fehlersuche.
+- **Systematische Fehlersuche** – Fehlersuche Schritt für Schritt von unten nach oben: Kabel und Einstellungen, eigenes Netz, anderes Netz, Name, Dienst. Erst wenn eine Stufe klappt, geht es zur nächsten. Behoben ist eine Störung erst, wenn der Test vom Nutzer bis zum Server klappt.

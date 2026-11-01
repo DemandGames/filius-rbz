@@ -1,0 +1,168 @@
+# Adressen automatisch: DHCP
+Ziel: Ein DHCP-Server verteilt im Schulnetz die Einstellungen an die Laptops automatisch. Statt jeden Laptop von Hand einzurichten, setzt du nur noch ein Häkchen.
+
+## Lesen
+
+### Adressen von Hand sind mühsam
+Bisher hast du jedem Laptop IPv4-Adresse, Netzmaske, Gateway und DNS-Server von Hand gegeben. Bei 30 Laptops in einem Klassenraum dauert das lange, und schnell passiert ein Tippfehler.
+
+**DHCP** löst das: Ein Laptop meldet sich beim Start im Netz und fragt nach seinen Einstellungen. Ein **DHCP-Server** antwortet und gibt ihm alles, was er braucht.
+
+DHCP steht für Dynamic Host Configuration Protocol. Übersetzt heißt das etwa: Protokoll, mit dem sich Geräte (Hosts) automatisch und je nach Bedarf (dynamisch) einstellen lassen.
+
+[Bild: s07-dhcp-idee.png | Der Laptop fragt nach seinen Einstellungen, der DHCP-Server antwortet]
+
+### Der Adressbereich
+Der DHCP-Server verteilt Adressen aus einem **Adressbereich**, bei uns von 192.168.0.100 bis 192.168.0.150. Die festen Adressen von Router und Servern liegen außerhalb. So wird keine Adresse doppelt vergeben.
+
+[Bild: s07-dhcp-server.png | Der DHCP-Server verteilt Adressen von .100 bis .150]
+
+Gateway und DNS-Server gibt der DHCP-Server so weiter, wie sie an seinem eigenen PC eingetragen sind.
+
+Am Laptop setzt du nur das Häkchen „DHCP zur Konfiguration verwenden“. Die Felder werden grau. Die Werte kommen beim Start der Simulation.
+
+[Bild: s07-haekchen.png | Laptop-1 holt sich seine Einstellungen per DHCP]
+
+### Immer dieselbe Adresse
+Manche Geräte sollen immer dieselbe Adresse bekommen, zum Beispiel der Lehrer-Laptop oder ein Server. Dafür gibt es die **statische Zuweisung**: Im DHCP-Server trägst du die MAC-Adresse des Geräts und seine feste IPv4-Adresse ein. Der DHCP-Server erkennt das Gerät an seiner MAC-Adresse.
+
+[Bild: s07-statisch.png | Statische Zuweisung: Der Lehrer-Laptop bekommt immer 192.168.0.13]
+
+> Merke: Router und Server bekommen feste Adressen von Hand. Laptops bekommen ihre Adressen per DHCP.
+
+## Praxis
+
+### 7.1
+Stelle im Schulnetz einen DHCP-Server auf:
+| Einstellung | Wert |
+|---|---|
+| PC am Switch Schule | „DHCP-Server“ |
+| IPv4-Adresse | 192.168.0.16 |
+| Netzmaske | 255.255.255.0 |
+| Gateway | 192.168.0.1 |
+| DNS-Server | 192.168.2.10 |
+Tipp: Gateway und DNS-Server dieses PCs gibt er später an die Laptops weiter.
+
+### 7.2
+Richte den DHCP-Server ein und aktiviere ihn:
+| Feld | Wert |
+|---|---|
+| Adress-Untergrenze | 192.168.0.100 |
+| Adress-Obergrenze | 192.168.0.150 |
+Tipp: Knopf „DHCP-Server einrichten“ in den Einstellungen des PCs, danach das Häkchen „DHCP aktivieren“.
+
+### 7.3
+Stelle Laptop-1 bis Laptop-4 auf „DHCP zur Konfiguration verwenden“ um.
+Tipp: Ein Häkchen pro Laptop.
+
+### 7.4
+Starte die Simulation und prüfe auf Laptop-2 mit `ipconfig` seine Einstellungen.
+Frage: Welche IPv4-Adresse hat Laptop-2 bekommen?
+Eingabe: IPv4-Adresse
+Tipp: Auf Laptop-2 musst du die Befehlszeile vielleicht erst installieren.
+
+### 7.5
+Laptop-4 ist der Lehrer-Laptop und soll immer 192.168.0.13 bekommen:
+- Benenne Laptop-4 in „Lehrer-Laptop“ um.
+- Richte im DHCP-Server für den Lehrer-Laptop eine statische Zuweisung mit 192.168.0.13 ein.
+Tipp: Reiter „Statische Adresszuweisung“. Die MAC-Adresse des Lehrer-Laptops steht in seinen Einstellungen.
+
+### 7.6
+Starte die Simulation neu und teste:
+- Der Lehrer-Laptop hat die Adresse 192.168.0.13.
+- Laptop-1 öffnet www.ravensberger24.de.
+- Anna ruft auf Laptop-1 ihre Mails ab.
+Tipp: Klappt der Name nicht, fehlt vielleicht der DNS-Server am PC DHCP-Server.
+
+### 7.7
+Schreibe im Dokumentationsmodus in die Fläche des Schulnetzes unter das Etikett ein Textfeld: „DHCP: 192.168.0.100 – 192.168.0.150“.
+Tipp: Schreibe beide Grenzen als vollständige IPv4-Adressen.
+
+## Quiz
+
+### Wozu dient DHCP?
+- ✓ Laptops bekommen ihre Einstellungen automatisch
+- Namen werden in IPv4-Adressen übersetzt
+Falsch: Das macht DNS.
+- Verschiedene Netze werden miteinander verbunden
+Falsch: Netze verbindet der Router.
+- Mails werden an die richtigen Postfächer verteilt
+Falsch: Mails verteilt der Mailserver.
+Erklärung: Mit DHCP fragt ein Laptop beim Start nach seinen Einstellungen, und der DHCP-Server antwortet.
+
+### Welche Einstellungen bekommt ein Laptop vom DHCP-Server?
+- ✓ IPv4-Adresse, Netzmaske, Gateway und DNS-Server
+- Nur die IPv4-Adresse, den Rest trägst du von Hand ein
+Falsch: Er bekommt alles, was er für das Netz braucht, auch Gateway und DNS-Server.
+- Nur seinen Namen, zum Beispiel „Laptop-2“
+Falsch: Den Namen vergibst du in Filius selbst. DHCP verteilt Adressen.
+- MAC-Adresse, Netzmaske, Gateway und DNS-Server
+Falsch: Die MAC-Adresse hat die Netzwerkkarte ab Werk. Vom DHCP-Server kommt die IPv4-Adresse.
+Erklärung: Der DHCP-Server gibt dem Laptop alle vier Werte. Darum musst du am Laptop nur ein Häkchen setzen.
+
+### Was ist der Adressbereich?
+- ✓ Die Adressen, die der DHCP-Server verteilen darf
+- Alle Adressen, die es im Internet überhaupt gibt
+Falsch: Der Bereich ist klein und liegt im eigenen Netz, bei uns .100 bis .150.
+- Die festen Adressen von Router und Servern
+Falsch: Diese festen Adressen liegen gerade außerhalb des Bereichs.
+- Die Liste mit Namen und Adressen im DNS-Server
+Falsch: Das sind die Einträge des DNS-Servers. Den Adressbereich hat der DHCP-Server.
+Erklärung: Der DHCP-Server vergibt nur Adressen aus seinem Bereich, bei uns von 192.168.0.100 bis 192.168.0.150.
+
+### Warum liegt der Webserver 192.168.0.14 außerhalb des Adressbereichs?
+- ✓ Damit seine Adresse nicht noch einmal an einen Laptop vergeben wird
+- Weil ein Webserver im Netz gar keine IPv4-Adresse braucht
+Falsch: Jeder Server braucht eine IPv4-Adresse, sonst findet ihn niemand.
+- Weil der Adressbereich nur für die Geräte im RGG-Netz gilt
+Falsch: Der DHCP-Server und sein Bereich gehören zum Schulnetz.
+- Weil gerade Zahlen wie 14 nicht per DHCP verteilt werden
+Falsch: Gerade oder ungerade spielt keine Rolle.
+Erklärung: Server haben feste Adressen. Lägen sie im Bereich, könnte der DHCP-Server dieselbe Adresse an einen Laptop geben.
+
+### Was stellst du am Laptop für DHCP ein?
+- ✓ Das Häkchen „DHCP zur Konfiguration verwenden“
+- Die Adresse des DHCP-Servers im Feld Gateway
+Falsch: Das Gateway ist der Router. Der Laptop findet den DHCP-Server von selbst.
+- Den Adressbereich von 192.168.0.100 bis .150
+Falsch: Den Adressbereich stellst du am DHCP-Server ein.
+- Gar nichts, DHCP läuft am Laptop von selbst
+Falsch: Ohne das Häkchen behält der Laptop seine festen Werte.
+Erklärung: Ein Häkchen genügt. Die Felder werden grau, und die Werte kommen beim Start der Simulation.
+
+### Woran erkennt der DHCP-Server den Lehrer-Laptop bei der statischen Zuweisung?
+- ✓ An der MAC-Adresse des Lehrer-Laptops
+- Am neuen Namen „Lehrer-Laptop“
+Falsch: Der Name steht nur in Filius. In den Nachrichten steht die MAC-Adresse.
+- An der alten IPv4-Adresse des Lehrer-Laptops
+Falsch: Mit DHCP hat der Laptop beim Start noch gar keine IPv4-Adresse.
+- Am Kabel, mit dem er am Switch Schule hängt
+Falsch: Alle Kabel sehen gleich aus. Erkannt wird die Netzwerkkarte.
+Erklärung: Die MAC-Adresse gehört fest zur Netzwerkkarte. Darum erkennt der DHCP-Server den Lehrer-Laptop sicher wieder.
+
+### Die Laptops bekommen eine Adresse, aber Namen wie www.ravensberger24.de klappen nicht. Was fehlt?
+- ✓ Der DNS-Server in den Einstellungen des PCs DHCP-Server
+- Das Kabel zwischen dem Switch Schule und dem Router
+Falsch: Dann käme auch über IPv4-Adressen nichts an. Hier geht es nur um Namen.
+- Die statische Zuweisung für den Lehrer-Laptop im DHCP-Server
+Falsch: Die statische Zuweisung betrifft nur den Lehrer-Laptop. Das Problem haben aber alle Laptops.
+- Die Netzmaske in den Einstellungen des Webservers
+Falsch: Der Webserver ist nicht das Problem, die Namen werden gar nicht übersetzt.
+Erklärung: Der DHCP-Server gibt weiter, was an seinem PC eingetragen ist. Fehlt dort der DNS-Server, fehlt er auch bei den Laptops.
+
+### Welche Geräte bekommen ihre Adresse von Hand?
+- ✓ Router und Server, zum Beispiel der Webserver
+- Alle Laptops, zum Beispiel Laptop-1 und Laptop-2
+Falsch: Laptops bekommen ihre Adressen jetzt per DHCP.
+- Nur der DHCP-Server, alle anderen per DHCP
+Falsch: Auch Router, Webserver, Mailserver und DNS-Server haben feste Adressen.
+- Kein Gerät, alles im Netz läuft per DHCP
+Falsch: Server und Router müssen immer unter derselben Adresse erreichbar sein.
+Erklärung: Server und Router brauchen feste Adressen, damit man sie immer findet. Laptops holen sich ihre per DHCP.
+
+## Glossar
+
+- **DHCP** – Dynamic Host Configuration Protocol: Verfahren, mit dem Geräte ihre Einstellungen automatisch bekommen. Der Laptop fragt beim Start, der DHCP-Server antwortet. Am Laptop setzt du dafür nur das Häkchen „DHCP zur Konfiguration verwenden“.
+- **DHCP-Server** – PC, der IPv4-Adresse, Netzmaske, Gateway und DNS-Server an die Laptops verteilt. Unser DHCP-Server hat die Adresse 192.168.0.16. Gateway und DNS-Server gibt er so weiter, wie sie an seinem PC eingetragen sind.
+- **Adressbereich** – Adressen, die der DHCP-Server verteilen darf, bei uns 192.168.0.100 bis 192.168.0.150. Feste Adressen von Router und Servern liegen außerhalb. So wird keine Adresse doppelt vergeben.
+- **Statische Zuweisung** – feste Adresse für ein bestimmtes Gerät im DHCP-Server. Der DHCP-Server erkennt das Gerät an seiner MAC-Adresse. Der Lehrer-Laptop bekommt so immer 192.168.0.13.

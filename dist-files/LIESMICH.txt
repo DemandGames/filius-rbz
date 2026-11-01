@@ -1,0 +1,548 @@
+FILIUS (RBZ WIRTSCHAFT KIEL VERSION)
+====================================
+
+Diese Version ist Filius 2.9.3 mit einer neu gestalteten Oberflaeche und
+einem Lernpfad fuer den Unterricht. Alle Funktionen, Beispiele und
+gespeicherten Projekte (.fls) von Filius funktionieren wie gewohnt. Die
+Simulation ist erweitert: HTTPS am Webserver, IMAP statt POP3 sowie die
+Programme VPN-Server und VPN-Client; Projekte, die sie nutzen, lassen
+sich nur in dieser Version oeffnen.
+
+
+STARTEN
+-------
+
+Windows:  Doppelklick auf "Filius starten.bat"
+Linux:    ./filius-rbz.sh
+
+Unter Windows bringt diese Version ihre eigene Java-Laufzeit mit
+(Ordner "java-runtime", Java 21). Eine Installation ist nicht noetig;
+der Ordner kann z. B. auch auf einem Netzlaufwerk oder USB-Stick liegen.
+Fehlt der Ordner, wird die Java-Laufzeit einer installierten Filius-Version
+(C:\Program Files\Filius) oder Java auf dem System verwendet - dann zeigt
+der Webbrowser Seiten in der klassischen Darstellung (siehe unten).
+
+Filius startet immer mit einer leeren Arbeitsflaeche. Ein Projekt direkt
+oeffnen: .fls-Datei auf "Filius starten.bat" ziehen.
+
+Fuer eine Verknuepfung auf dem Desktop oder eine veroeffentlichte App auf
+einem Terminalserver liegt das Programmsymbol als Filius.ico bei.
+
+Das normale Filius bleibt installiert und kann jederzeit weiter
+genutzt werden. Beide Versionen teilen sich das Benutzerprofil (~/.filius).
+
+
+SPRACHE
+-------
+
+Filius (RBZ Wirtschaft Kiel Version) gibt es auf Deutsch und Englisch,
+einschliesslich Lernpfad und Hilfe. Beim ersten Start laeuft es auf
+Deutsch. Der Schalter "DE | EN" oben rechts stellt um: Ein Klick schiebt
+ihn auf die andere Sprache, Filius fragt nach, bietet bei ungespeicherten
+Aenderungen "Speichern", "Nicht speichern" oder "Abbrechen" an und
+startet dann in der anderen Sprache neu. Die Wahl gilt fuer das
+Benutzerprofil.
+
+Ist in config/filius.ini eine Sprache fest eingetragen (locale=de_DE
+oder locale=en_GB), gilt sie fuer alle; der Schalter weist dann darauf
+hin.
+Franzoesisch wird in dieser Version nicht mehr angeboten.
+
+
+SPEICHERN
+---------
+
+Ergebnisse stehen nur in der Projektdatei (.fls), die Schuelerinnen und
+Schueler selbst speichern, zum Beispiel in ihrem eigenen Ordner auf dem
+Server. Filius merkt sich nichts von selbst:
+
+- Filius startet immer leer. In der naechsten Stunde oeffnet man die
+  eigene .fls-Datei mit "Laden"; ein begonnener Lernpfad oeffnet sich
+  dann von selbst an der Stelle, an der es weitergeht.
+- Wird Filius mit ungespeicherten Aenderungen geschlossen, fragt es:
+  "Speichern", "Nicht speichern" oder "Abbrechen". Auch Fortschritt im
+  Lernpfad zaehlt als Aenderung.
+- Das Original-Filius legte ungespeicherte Arbeit beim Beenden still im
+  Benutzerprofil ab (~/.filius/edited_scenario.fls) und oeffnete sie oder
+  das letzte Projekt beim naechsten Start wieder. Das macht diese Version
+  nicht mehr; solche alten Dateien loescht sie beim Start.
+- Im Benutzerprofil (~/.filius) bleiben nur Fenstergroesse, Sprache,
+  hell/dunkel und der zuletzt benutzte Ordner.
+- Beim Wechsel der Sprache oeffnet Filius das gespeicherte Projekt nach
+  dem Neustart wieder.
+
+Auf einem Terminalserver zeigen "Laden" und "Speichern" mit der
+Einstellung modern-speicherort (siehe unten) gleich den richtigen Ordner.
+
+
+DER LERNPFAD
+------------
+
+Der Knopf "Lernpfad starten" neben den Modi oeffnet eine Leiste mit dem
+Lernpfad (hat er schon begonnen, heisst der Knopf "Lernpfad fortsetzen").
+Es gibt zwei Lernpfade. Beim ersten Oeffnen waehlen die Schuelerinnen und
+Schueler einen davon; in der Uebersicht koennen sie spaeter wechseln
+("Lernpfad wechseln"). Der Fortschritt beider Lernpfade bleibt getrennt in
+der Projektdatei gespeichert.
+
+STANDARD (8 Kapitel): 8 Quizfragen pro Kapitel. Schule, RGG und ein
+DNS-Anbieter haengen an EINEM Router mit drei Netzwerkkarten (192.168.0.0,
+192.168.1.0, 192.168.2.0), ohne Heimnetz, WLAN, Portfreigabe und Firewall,
+ohne automatisches Routing.
+
+   1  Zwei Laptops, ein Kabel             5  Namen statt Nummern: DNS
+   2  Ein Netz mit Switch                 6  E-Mail: Bestellung bei der RGG
+   3  Webserver und Website               7  Adressen automatisch: DHCP
+   4  Netze verbinden: Schule und RGG     8  Abschlussprojekt: Fehlersuche
+
+FORTGESCHRITTEN (12 Kapitel): mehr Hintergrund, zwei Router mit
+automatischem Routing, ARP, Ports, Verschluesselung mit HTTPS, IMAP, ein
+Heimnetz mit WLAN und NAT, Firewall und VPN.
+
+   1  Zwei Laptops, ein Kabel             7  Adressen automatisch: DHCP
+   2  Ein lokales Netz mit Switch         8  Das Heimnetz: WLAN, Heimrouter, NAT
+   3  Webserver und eigene Website        9  E-Mail: Bestellung bei der RGG
+   4  Verschluesselung: HTTPS mit TLS    10  Portfreigabe und Firewall
+   5  Netze verbinden: Schule und RGG    11  Homeoffice mit VPN
+   6  Namen statt Nummern: DNS           12  Abschlussprojekt: Fehlersuche
+
+Seit Version 19 hat der fortgeschrittene Lernpfad 12 Kapitel: Kapitel 4
+(HTTPS) ist neu, E-Mail (9) kommt vor Portfreigabe und Firewall (10),
+seit Version 20 sind Kapitel 11 (VPN) und das neue Abschlussprojekt (12)
+dabei. Ein Lernstand
+aus einer aelteren Version wird beim Oeffnen der .fls-Datei automatisch
+umgestellt; nur das alte Abschlussprojekt beginnt neu. Projektdateien von vor den
+zwei Lernpfaden gehoeren zum fortgeschrittenen Lernpfad.
+
+Lehrkraefte koennen in config/filius.ini einen Lernpfad fest einstellen
+(siehe Einstellungen fuer Lehrkraefte); dann entfaellt die Auswahl.
+
+Jedes Kapitel hat vier Teile, die nacheinander freigeschaltet werden:
+
+- Lesen: kurze Seiten mit Bildern.
+- Praxis: Arbeitsauftraege im eigenen Netz. Filius prueft sie im laufenden
+  Netz und setzt den Haken erst, wenn die Aufgabe wirklich erledigt und
+  richtig ist (z. B. kam die Antwort auf ein ping an, wurde die Seite
+  ueber den Namen geladen). Manche Auftraege haben eine Frage, deren
+  Antwort am Netz geprueft wird.
+- Quiz: 10 Fragen (Standard: 8); falsch beantwortete Fragen kommen am
+  Ende noch einmal.
+- Glossar: die Begriffe des Kapitels; im Glossar aller Kapitel sind noch
+  nicht freigeschaltete Begriffe verborgen.
+
+Ein Kapitel wird erst freigeschaltet, wenn das vorige geschafft ist.
+Geschaffte Kapitel koennen wiederholt werden. Dann - und auf Wunsch auch
+beim aktuellen Kapitel - laedt Filius den Startaufbau des Kapitels
+(lernpfad/start). Ungespeicherte Arbeit kann vorher gespeichert werden.
+
+Der Fortschritt wird in der Projektdatei (.fls) gespeichert, zusammen mit
+dem Netz. Schuelerinnen und Schueler speichern also wie gewohnt ihr
+Projekt und oeffnen es in der naechsten Stunde wieder: Enthaelt die Datei
+einen begonnenen Lernpfad, oeffnet er sich beim Laden von selbst an der
+Stelle, an der es weitergeht. Was nicht gespeichert ist, ist nach dem
+Beenden weg - Filius fragt vorher nach (siehe Speichern).
+"Neu" beginnt ein leeres Projekt mit einem leeren Lernpfad; der
+Fortschritt des vorigen Projekts wird nicht uebernommen. In der
+Uebersicht des Lernpfads gibt es ausserdem "Fortschritt zuruecksetzen".
+Dateien ohne Lernpfad (z. B. Beispielnetze) aendern den Fortschritt beim
+Oeffnen nicht.
+
+Im Lernpfad gilt: Geraete, an denen jemand arbeitet und surft, sind
+Laptops; Geraete, die anderen etwas anbieten (Webseiten, DNS, DHCP,
+E-Mail), sind PCs. Die Bauteile-Leiste heisst deshalb "PC" und "Laptop".
+
+Texte anpassen: Die Kapitel stehen als einfache Textdateien im Ordner
+lernpfad (fortgeschritten: kapitel-01.txt bis kapitel-12.txt) bzw.
+lernpfad/standard (kapitel-01.txt bis kapitel-08.txt) und lassen sich
+mit jedem Editor aendern (UTF-8). Fett gedruckte Woerter im Lesetext
+stehen im Glossar des Kapitels; Beschriftungen von Filius stehen in
+Anfuehrungszeichen. In Aufgaben koennen Stichpunkte ("- ...") und
+Tabellen ("| Geraet | IP-Adresse |", erste Zeile = Kopfzeile) stehen. Im
+Quiz folgt auf jede falsche Antwort eine Zeile "Falsch: ...": Filius
+zeigt sie zuerst, wenn jemand diese Antwort waehlt, danach die
+"Erklaerung:" zur richtigen Antwort. Bilder liegen in lernpfad/bilder,
+die Startaufbauten in lernpfad/start (Standard: lernpfad/standard/bilder
+und lernpfad/standard/start). Zu jedem Bild NAME.png kann es eine dunkle
+Variante NAME_dunkel.png gleicher Groesse geben; sie erscheint im
+Dunkelmodus. Die englische Fassung liegt genauso aufgebaut in
+lernpfad/en bzw. lernpfad/standard/en; aendert man ein Kapitel, sollte
+man beide Sprachen anpassen. Die Pruefregeln der Praxis-Aufgaben sind im
+Programm hinterlegt; Aufgabennummern und Reihenfolge sollten deshalb
+gleich bleiben. Die Geraetenamen duerfen deutsch oder englisch sein
+(z. B. "Switch Schule" oder "School switch") - Filius erkennt beide.
+Gibt eine Aufgabe einen Namen vor, gehoert er zur Aufgabe: Der Haken
+kommt erst, wenn das Geraet so heisst.
+
+Das Abschlussprojekt waehlt zufaellig eine von drei Varianten mit
+Stoerungen: im Standard-Lernpfad (Kapitel 8) drei pro Variante, im
+fortgeschrittenen Lernpfad (Kapitel 12) acht pro Variante, als Tickets
+an den IT-Support. Ein Haken kommt erst, wenn die Ursache behoben ist
+und der passende Ende-zu-Ende-Test geklappt hat.
+
+
+WAS IST AUSSERDEM NEU?
+----------------------
+
+- Kopfleiste mit beschriftetem Moduswechsel: Entwurf / Simulation /
+  Dokumentation. Jeder Modus hat eine eigene Farbe (blau / gruen / gelb),
+  sichtbar als Streifen unter der Leiste. Neu, Laden und Speichern sind
+  unter den Symbolen beschriftet. Daneben der Knopf "Lernpfad starten".
+- Die Arbeitsflaeche reicht immer bis an den Fensterrand, auch auf breiten
+  Bildschirmen; Bildlaufleisten und eingeklappte Leisten haben die Farbe
+  der Flaeche (keine weissen Raender mehr).
+- Ein minimiertes Desktop-Fenster eines PCs oder Laptops kommt mit einem
+  Klick auf das Geraet wieder nach vorn.
+- Eigenes Logo von Filius (RBZ Wirtschaft Kiel Version): der vernetzte
+  Wasserturm mit Funkwellen und Netzwerkkabeln. Es steht in der
+  Kopfleiste, im Startbild, im Info-Fenster, auf der Startseite neuer
+  Webserver, als Fenster- und Taskleistensymbol und als Filius.ico. In
+  kleinen Groessen (16 bis 32 Pixel) zeigt es eine kompakte Form ohne
+  Stecker, damit der Turm gut erkennbar bleibt.
+- Das Startbild zeigt die Paketeffekte von Filius: Funkwellen und
+  Signalpunkt im WLAN und ein Kabel, das sich blau fuellt.
+- Info-Fenster (i oben rechts) neu gestaltet. Es ist nie doppelt offen;
+  ein zweiter Klick auf i schliesst es. Ein zweiter Klick auf das
+  Fragezeichen blendet die Hilfe wieder aus.
+- Lernpfad: Aufgaben mit mehreren Geraeten, Adressen oder Schritten sind
+  mit Stichpunkten und Tabellen gegliedert.
+- Quiz: Bei einer falschen Antwort erklaert Filius zuerst, warum sie nicht
+  stimmt, und dann, warum die richtige Antwort richtig ist.
+- Glossar: Jeder Begriff wird in mehreren Saetzen erklaert, mit Beispielen
+  aus dem Uebungsnetz.
+- Text-Editor wie ein Code-Editor: Farben fuer HTML, CSS und JavaScript
+  (wie in VS Code), Zeilennummern, aktuelle Zeile hervorgehoben, Einruecken
+  mit Tab und Umschalt+Tab. Oben ein Suchfeld: Strg+F springt hinein, alle
+  Treffer werden markiert, Enter oder die Lupe geht zum naechsten Treffer,
+  Umschalt+Enter zurueck, Esc zurueck in den Text (der Treffer ist
+  ausgewaehlt und kann gleich ueberschrieben werden). Strg+S speichert,
+  Strg+Z/Strg+Y macht wortweise rueckgaengig. Unten stehen Sprache, Zeile
+  und ob die Datei gespeichert ist; im Titel zeigt ein Punkt ungespeicherte
+  Aenderungen.
+- E-Mail mit IMAP statt POP3: Das E-Mail-Programm ruft das Postfach per
+  IMAP (Port 143) ab, der Mailserver wartet an Port 25 (SMTP) und 143.
+  Die Mails bleiben auf dem Server: Jedes Geraet mit demselben Konto zeigt
+  dieselben Mails, und "E-Mail loeschen" loescht die Mail auch auf dem
+  Server. Im Datenaustausch heisst das Protokoll IMAP (LOGIN, SELECT,
+  FETCH, LOGOUT). Kapitel 9 erklaert IMAP und hat die neue Aufgabe 9.10
+  (ein Konto auf zwei Geraeten). In aelteren Projekten wird der Port 110
+  im Konto automatisch zu 143.
+- Webbrowser Waterwolf: neues Logo auf der Startseite des Browsers.
+- Lernpfad-Uebersicht: Jedes Kapitel zeigt seine Nummer im Kreis, grau =
+  noch gesperrt, blau = aktuelles Kapitel, gruen = geschafft (darunter
+  steht "Geschafft").
+- Kapitel 7 mit WLAN: Der Switch Heimnetz sendet das WLAN "Heim-WLAN",
+  Heim-Laptop und Tablet sind per Funk verbunden (gestrichelte Linie).
+  Neuer Abschnitt im Lesetext: Zu Hause stecken Router, Switch und WLAN
+  in einem Kasten, in Filius sind Heimrouter und Switch getrennt - der
+  Switch leitet im Heimnetz nach MAC-Adressen weiter, der Heimrouter
+  routet nach aussen. Neu im Glossar: WLAN, Access Point, SSID. Aufgabe
+  7.3 prueft jetzt die SSID und die WLAN-Verbindung.
+- IPv4: Im Lernpfad heissen Adressen jetzt immer "IPv4-Adresse".
+  Kapitel 1 erklaert kurz den Unterschied zu IPv6 (laengere Adressen,
+  weil IPv4 mit rund 4,3 Milliarden Adressen nicht reicht; beide laufen
+  heute nebeneinander) und dass Filius nur mit IPv4 arbeitet. Neu im
+  Glossar: IPv6. Auch Filius selbst sagt jetzt IPv4: Felder
+  "IPv4-Adresse" (PC, Laptop, Router, Heimrouter, DHCP, DNS-Server),
+  ipconfig zeigt "IPv4-Adresse", die Firewall "Quell-IPv4" und
+  "Ziel-IPv4". Ueberall heisst es "Netzmaske" statt "Subnetzmaske".
+- Fenster der PCs und Laptops in der Simulation: lassen sich am Rand
+  groesser ziehen und auf Vollbild schalten (wie normale Windows-Fenster).
+  Startbildschirm und Programme wachsen mit; kleiner als die alte Groesse
+  geht nicht. Der Hintergrund bleibt dabei in jeder Groesse scharf: Der
+  weiche blaue Farbverlauf (oben links etwas dunkler, unten rechts etwas
+  heller) wird passend zur Fenstergroesse berechnet, und das
+  Netzsymbol steht immer gleich gross in der Ecke unten rechts (vorher
+  wurde ein kleines Bild hochgerechnet und unscharf).
+- Text-Editor mit der Schrift Consolas (wie VS Code unter Windows); fehlt
+  Consolas, nimmt er JetBrains Mono.
+- Dunkelmodus: Der Schalter mit Sonne und Mond oben rechts (neben DE/EN)
+  wechselt zwischen hell und dunkel, mit kurzer Ueberblendung. Dunkel
+  werden Kopfleiste, Bauteilleiste, Arbeitsflaeche (dunkles Punktraster,
+  in der Simulation dunkelgruen), Einstellungen, Lernpfad, Hilfe,
+  Datenaustausch und die Fenster der PCs und Laptops (Befehlszeile,
+  Text-Editor, DNS-Server, E-Mail usw.). Webseiten im Browser bleiben
+  hell, wie im echten Browser; nur die Startseite von Waterwolf wird
+  dunkel. Die Bilder im Lernpfad und in der Hilfe gibt es hell und
+  dunkel, sie wechseln mit. Die Wahl gilt pro Benutzer und bleibt beim
+  naechsten Start erhalten.
+- Zwei Lernpfade: neu ist der Standard-Lernpfad mit 8 Kapiteln (ein Router
+  fuer alle Netze). Der bisherige Lernpfad heisst "Fortgeschritten".
+  Auswahl beim ersten Oeffnen des Lernpfads, Wechsel in der Uebersicht,
+  Festlegung fuer Lehrkraefte in config/filius.ini
+  (modern-lernpfad-auswahl).
+- HTTPS und TLS: Der Webserver bietet auf Wunsch HTTPS an Port 443 an
+  (Bereich "Verschluesselung (HTTPS)": HTTPS an/aus, HTTP an/aus,
+  Zertifikat fuer Namen und Adressen, selbst signiert). Die
+  Filius-Zertifizierungsstelle unterschreibt die Zertifikate; der Browser
+  zeigt ein Schloss vor der Adresse und warnt bei selbst signierten
+  Zertifikaten oder einem falschen Namen. Die Verschluesselung ist echt
+  (RSA fuer den Sitzungsschluessel, AES fuer die Daten). Im Datenaustausch
+  heissen die Nachrichten TLS; Absender und Empfaenger sehen zusaetzlich
+  den entschluesselten Inhalt, im OSI-Modell liegt TLS in Schicht 6.
+- Interner Klassenbereich: Die Startseite neuer Webserver hat einen
+  Bereich "Intern" mit Anmeldung (Name anna, Passwort Schulfest). Die
+  Zugaenge stehen in webserver/intern/zugang.txt (eine Zeile
+  Name:Passwort); der Webserver gibt diese Datei nie heraus.
+- Netzplan: Der Begriff wird in Kapitel 2 eingefuehrt, die
+  Dokumentationsaufgaben beginnen mit "Ergaenze den Netzplan".
+- VPN: Zwei neue Programme, "VPN-Server" und "VPN-Client". Der VPN-Server
+  wartet an UDP-Port 1194, kennt Benutzer mit Passwort und vergibt
+  VPN-Adressen (10.8.0.2, ...). Der VPN-Client baut einen verschluesselten
+  Tunnel auf (Handshake wie bei TLS, Daten mit AES). Pakete fuer das
+  "Netz im Tunnel" gehen dann verschluesselt zum VPN-Server, der sie mit
+  seiner eigenen Adresse weiterschickt (NAT) und die Antworten durch den
+  Tunnel zurueckgibt. ipconfig zeigt den VPN-Adapter, route die Route
+  durch den Tunnel. Im Datenaustausch heissen die Pakete VPN; die beiden
+  Enden des Tunnels sehen zusaetzlich das innere Paket. Beim Beenden der
+  Simulation wird die Verbindung getrennt.
+- HTTPS: Eine Ausnahme "trotzdem oeffnen" fuer ein unsicheres Zertifikat
+  gilt nur, bis die Simulation beendet wird (wie bei einem
+  Browser-Neustart).
+- Neue Symbole fuer Switch / WLAN, Vermittlungsrechner, Laptop und
+  Verbindung im Stil von PC und Heimrouter: der Switch als flacher Kasten
+  mit den Switch-Pfeilen und dem WLAN-Zeichen, der Vermittlungsrechner als
+  blaue Scheibe mit den vier Router-Pfeilen (wie im Netzplan), der Laptop
+  mit Tastatur, nicht mehr breiter als der Bildschirm, und ein duenneres
+  Kabel mit RJ-45-Steckern. Im hellen Modus zeigt der Schalter oben rechts
+  eine Sonne mit Strahlen und eine kleine Wolke (Gegenstueck zu Mond und
+  Sternen).
+- Kontrollkaestchen, die angehakt, aber gesperrt sind (z. B.
+  "IP-Weiterleitung aktivieren" beim Router), zeigen jetzt einen grauen
+  Haken; vorher sahen sie leer aus.
+- DNS-Server: In den Eingabefeldern springt der Textzeiger nicht mehr
+  bei jeder Taste ans Ende (Pfeil links funktioniert wieder).
+- Meldet ein Router "Kein Eintrag in der Weiterleitungstabelle", arbeitet
+  er weiter, waehrend die Meldung offen ist (im Original stand der Router
+  still, bis man auf OK geklickt hatte; danach scheiterten auch Aufrufe
+  richtiger Adressen).
+- E-Mail-Programm: Beim Verfassen sind die Felder fuer Empfaenger, Kopie
+  und Betreff sichtbar umrandet (im Original weiss auf weiss); eine falsche
+  Adresse wird rot markiert. Senden und Abbrechen stehen unten rechts.
+  Eine Leiste mit Symbol und Beschriftung: Abrufen, Neu, Antworten,
+  Loeschen, Konto einrichten. Links stehen unter "Postfaecher" Posteingang,
+  Gesendet, Spam und Papierkorb (geloeschte Mails landen im Papierkorb und
+  sind erst nach dem Loeschen dort ganz weg). Rechts oben steht, wer
+  angemeldet ist ("Angemeldet als: anna"); "Abmelden" entfernt das Konto,
+  danach richtet man ein neues ein. Der Willkommenstext steht in der Mitte.
+- Die Ueberschrift "Bauteile" der Leiste ist groesser und fett.
+- Dokumentationsmodus: Neue Gliederungsflaechen sind hell (im
+  Dunkelmodus dunkel) statt grau. Im Lernpfad bekommt jedes Netz eine
+  Gliederungsflaeche um alle seine Geraete, oben links steht ein Etikett
+  mit Name und Netzadresse.
+- Entfernt: der Softwareassistent (eigene Programme in Java) und der
+  Einstellungsdialog. Filius nutzt immer die Standard-Piktogramme der
+  Geraete; die Sprache stellt der Schalter DE | EN um.
+- Neue, klare Grafiken fuer alle Geraete, Desktop-Programme und Symbole.
+- Gut lesbare Schrift "Atkinson Hyperlegible" (unterscheidet 1, l, I und
+  0, O - wichtig bei IP- und MAC-Adressen); Befehlszeile und Adressen in
+  "JetBrains Mono".
+- Jedes Paket ist zu sehen, und zwar in seiner Richtung: Ein Kabel
+  fuellt sich vom Sender aus blau bis zum Empfaenger und leert sich dann
+  in dieselbe Richtung, das Blau fliesst also mit dem Paket. Im WLAN
+  gehen vom Sender Funkwellen in Richtung Empfaenger aus, und beim
+  Empfaenger leuchtet ein Signalpunkt auf, sobald das Paket angekommen
+  ist. Auch bei hohem Tempo bleibt jedes Paket mindestens eine gute
+  Drittelsekunde sichtbar.
+- Waehlt man in der Konfiguration eines Vermittlungsrechners oder
+  Heimrouters eine Netzwerkkarte aus, leuchtet das Kabel dieser Karte
+  blau und pulsiert langsam (im Entwurfsmodus).
+- Eingabefelder: Ein ungueltiger Eintrag (z. B. eine falsche IPv4-Adresse)
+  bleibt rot im Feld stehen, auch wenn man in ein anderes Feld klickt oder
+  Enter drueckt - so bleibt der Fehler sichtbar. Das Geraet behaelt bis zur
+  Korrektur seinen alten Wert. (Vorher sprang das Feld auf den alten Wert
+  zurueck.) Im Dunkelmodus sind gepruefte Werte jetzt hell geschrieben
+  (vorher schwarz), und die Eingabezeile der Befehlszeile behaelt ihre
+  Hoehe beim Umschalten von Hell auf Dunkel.
+- Fehler im Original behoben: War die Tabelle eines Switches (Rechtsklick,
+  SAT anzeigen) waehrend des Datenverkehrs offen, konnte ein Port des
+  Switches stehen bleiben (z. B. keine DHCP-Adressen mehr).
+- Leere Arbeitsflaeche: Ein Willkommenstext mit dem Logo erklaert kurz,
+  was Filius ist. Geschaffte Aufgaben und Kapitel werden mit einer kurzen
+  Animation und Konfetti gefeiert.
+- Befehlszeile: "tracert" funktioniert wie unter Windows als anderer Name
+  fuer "traceroute".
+- Heimrouter: Beim Start der Simulation beginnt die NAT-Tabelle leer, wie
+  nach einem Neustart. Eine geaenderte Portfreigabe wirkt dadurch sofort
+  (im Original merkte sich der Router alte Zuordnungen bis zu 5 Minuten).
+- Automatisches Routing (RIP): Nach dem Wechsel in die Simulation kennen
+  die Vermittlungsrechner ihre Wege nach wenigen Sekunden wieder. Im
+  Original dauerte das nach jedem Moduswechsel oft bis zu einer halben
+  Minute, und ping scheiterte in der Zwischenzeit.
+- Das Modem ist aus der Bauteile-Leiste entfernt. Aeltere Projekte, die
+  ein Modem enthalten, lassen sich weiterhin oeffnen.
+- Hilfe (Fragezeichen oben rechts) im neuen Design mit aktuellen Bildern,
+  auf Deutsch und Englisch.
+- Datenaustausch: Umschalter "TCP/IP | OSI" oben rechts. Standard ist das
+  TCP/IP-Modell (4 Schichten); im OSI-Modell erscheinen alle 7 Schichten
+  mit Nummer und der passenden TCP/IP-Schicht daneben. Die Schichten 1, 5
+  und 6 haben in Filius keine eigenen Daten und werden erklaert. Ein Klick
+  auf eine Nachricht zeigt ihre Schichten als Stapel.
+- Webbrowser "Waterwolf" mit echter Browser-Engine (WebKit): Eigene
+  Webseiten duerfen aktuelles HTML5, CSS (Flexbox, Grid, Variablen,
+  Verlaeufe, Animationen) und JavaScript (Ereignisse, DOM, fetch, canvas,
+  localStorage) verwenden - ohne zusaetzliche Bibliotheken. Jede Datei
+  (Seite, CSS, JS, Bild, fetch-Anfrage) wird als HTTP-Anfrage durch das
+  simulierte Netz geschickt und erscheint im Datenaustausch. Neu sind
+  auch Knoepfe fuer Zurueck, Vor und Neu laden. Adressen mit Port
+  (z. B. http://203.0.113.3:8080) funktionieren in beiden Darstellungen.
+  Die Log-Seite der Firewall (Heimrouter-Adresse/log) hatte im Original
+  einen HTML-Fehler und blieb in der Engine leer; das ist behoben.
+- Webserver: liefert jede Datei mit passendem Dateityp aus (.css, .js,
+  .json, .svg, .jpeg, Schriften u. a.); ein Ordner liefert seine index.html.
+  CSS- und JS-Dateien koennen mit dem Text-Editor angelegt oder ueber den
+  Datei-Explorer importiert werden.
+- Startseite: Ein neu installierter Webserver bekommt eine Beispielseite im
+  Stil des RBZ Wirtschaft . Kiel (index.html mit CSS und JavaScript, dazu
+  das Logo von Filius RBZ als rbz-logo.png; auf Englisch eine englische
+  Fassung). Sie erklaert, wie die Seite durchs Netz kommt, und laedt
+  zum Aendern ein.
+  Seiten in bestehenden Projekten bleiben, wie sie sind.
+- Software-Installation: Jedes Programm traegt ein Etikett "Server",
+  "Client", "Peer-to-Peer" oder "Werkzeug". Eine Legende erklaert die
+  vier Rollen, beim Darueberfahren erscheint eine kurze Erklaerung.
+- Dokumentationsmodus: Eine Gliederungsflaeche zeigt oben links ein
+  kleines "+". Ein Klick darauf fuegt ein Etikett ein, das zur Flaeche
+  gehoert und mit ihr wandert, z. B. "Schulnetz 192.168.0.0". Ausserhalb des
+  Dokumentationsmodus ist das "+" ausgeblendet. Weitere Beschriftungen
+  macht man wie bisher mit Textfeldern; ein Textfeld wird an der Leiste
+  ueber dem Text verschoben (vorher: darunter). Im Lernpfad zaehlt ein
+  Etikett ueber das "+" genauso wie eines in einem Textfeld.
+- Datei oeffnen (z. B. im Text-Editor): Ein Klick auf eine Datei traegt sie
+  unten ein, ein Doppelklick oeffnet sie sofort - wie unter Windows.
+- Text-Editor, Befehlszeile und Datenaustausch zeigen beim Oeffnen und
+  beim Holen in den Vordergrund ihre letzten Zeilen (die neuesten
+  Nachrichten); ein Klick in ein offenes Fenster verschiebt nichts.
+- Netzwerkfenster des Desktops (Symbol unten rechts): Die Adressen stehen
+  gut lesbar ohne Rahmen da; ein zweiter Klick auf das Symbol oder ein
+  Klick auf den Desktop schliesst es.
+- Startseite neuer Webserver: Das Logo steht freigestellt (ohne weissen
+  Kasten) im dunklen Kopf der Seite. Die Startseite des Browsers Waterwolf
+  folgt dem Dunkelmodus (dunkler Grund, helle Schrift).
+- Hilfe (Fragezeichen) im Dunkelmodus mit dunklen Bildern.
+- Lernpfad: Ein neues Kapitel startet in einem eigenen Fenster mit Titel,
+  Ziel und der Wahl "Mit meinem Netz", "Startaufbau laden" oder
+  "Abbrechen". Ein zweiter Klick auf ein Bild schliesst dessen
+  Grossansicht wieder, auch waehrend ein Einstellungsfenster (z. B. des
+  DHCP-Servers) offen ist.
+- Listen und Tabellen (statische DHCP-Zuweisung, DNS-Eintraege,
+  Portfreigabe, Firewall-Regeln, Mailkonten): Die gewaehlte Zeile ist
+  zartblau statt tuerkis hinterlegt und in hell und dunkel gut lesbar.
+  Bei Portfreigabe und Firewall-Regeln reicht ein Klick in ein Feld, um
+  es zu bearbeiten.
+- Statische DHCP-Zuweisung (DHCP-Server und Heimrouter): Hinzufuegen und
+  Entfernen gelten sofort, auch wenn das Fenster mit dem Kreuz
+  geschlossen wird.
+- Firewall eines Routers: Die Standardaktion zeigt den Ansatz an:
+  "akzeptieren (Blacklist)", "verwerfen (Whitelist)".
+- Webserver mit HTTPS: Das Zertifikat gilt nur fuer die Namen und
+  Adressen, die bei "Zertifikat fuer" eingetragen sind. Ein leeres Feld
+  gilt fuer keinen Server, der Browser warnt dann.
+- Text-Editor: Ein Klick irgendwo in den Text (auch unter die letzte
+  Zeile oder auf die Zeilennummern) gibt die Tastatur an den Text; Enter
+  springt nur zum naechsten Suchtreffer, solange man im Suchfeld ist.
+  Schreibt man im Text, bleibt die Ansicht stehen, auch wenn im Suchfeld
+  noch ein Begriff steht (vorher sprang sie bei jeder neuen Zeile zum
+  Suchtreffer zurueck).
+- Schulwebsite der Startaufbauten: ohne die Symbole im Kopf (sie
+  wiederholten die Menueleiste); das Logo hat einen Schatten in seiner
+  Form statt eines Kastens.
+- Zwei Bildschirme unter Windows: Filius zeichnet ohne Direct3D und
+  zeichnet alle Fenster neu, wenn eines auf den anderen Bildschirm
+  gezogen wird (vorher konnte die Ansicht zerfallen).
+- Lernpfad: Ein noch nicht gestartetes Kapitel zeigt in der Leiste nur
+  noch den Knopf "Kapitel starten"; Text und Wahl stehen im Startfenster,
+  das sich der Laenge des Textes anpasst. Schritte wie der TLS-Handshake
+  erscheinen als nummerierte Liste.
+- Lernpfad im Vollbild: Seiten, die fast genauso hoch sind wie die
+  Lernpfad-Leiste, zittern nicht mehr hin und her (die Bildlaufleiste
+  bekommt ihren Platz immer, auch wenn sie gerade nicht gebraucht wird).
+- Startaufbauten des Lernpfads und das Beispiel
+  private_and_public_network.fls: Name und Netzadresse eines Netzes
+  stehen im Etikett der Gliederungsflaeche (das "+" oben links), z. B.
+  "Schulnetz 192.168.10.0/24". Zusaetzliche Hinweise wie "DHCP: ...",
+  "HTTPS, Port 443" oder "privat, hinter NAT" stehen in Textfeldern.
+- Entwurfsmodus: neues Symbol, ein Schraubenschluessel im Stil der beiden
+  anderen Modus-Symbole.
+- Info-Fenster: Version mit dem Datum dieser Version, "2.9.3 (21.10.2026)"
+  (auch im Startbild); Bearbeiter Thorben Demand mit E-Mail-Adresse
+  thorben.demand@rbz-wirtschaft-kiel.de; "Wartung und Weiterentwicklung
+  (Filius Original)".
+- Groesseres Startfenster, gestochen scharfe Symbole auf hochaufloesenden
+  Bildschirmen, moderne Dialoge, Tabellen und Eingabefelder.
+
+
+EINSTELLUNGEN FUER LEHRKRAEFTE
+------------------------------
+
+In config/filius.ini koennen fuer alle Nutzer dieser Installation
+Funktionen eingestellt werden (Zeile ergaenzen):
+
+  modern-lernpfad=0    Lernpfad ausblenden
+  modern-lernpfad-auswahl=standard
+                       nur der Standard-Lernpfad (keine Auswahl);
+                       =fortgeschritten nur der fortgeschrittene,
+                       =beide Auswahl durch die Schueler (Vorgabe)
+  modern-schichtmodell=osi
+                       Datenaustausch startet im OSI-Modell statt TCP/IP
+  modern-browser=klassisch
+                       Webbrowser nutzt die klassische Filius-Darstellung
+                       (nur HTML 3.2, kein JavaScript) statt der Engine
+  modern-startseite=original
+                       neue Webserver bekommen die urspruengliche
+                       Filius-Startseite statt der RBZ-Seite
+  modern-speicherort=H:\Filius
+                       Ordner, den "Laden" und "Speichern" zuerst zeigen
+                       (er wird angelegt, falls er fehlt). Umgebungs-
+                       variablen werden ersetzt, z. B.
+                       modern-speicherort=%HOMESHARE%\Filius oder
+                       modern-speicherort=D:\Schueler\%USERNAME%
+
+Die Browser-Engine gibt es fuer Windows (64 Bit). Unter Linux und macOS
+sowie mit einer anderen Java-Laufzeit als der mitgelieferten zeigt der
+Webbrowser Seiten automatisch in der klassischen Darstellung.
+
+
+INHALT DIESES ORDNERS
+---------------------
+
+Filius starten.bat     Start unter Windows
+Filius.ico             Programmsymbol fuer Verknuepfungen
+filius-rbz.jar         neue Oberflaeche und Lernpfad (startet das originale
+                       filius.jar)
+README.txt             diese Beschreibung auf Englisch
+lernpfad/              Kapiteltexte, Bilder und Startaufbauten
+                       (fortgeschrittener Lernpfad)
+lernpfad/standard/     dasselbe fuer den Standard-Lernpfad
+lernpfad/en/, lernpfad/standard/en/
+                       dasselbe auf Englisch
+filius.jar, lib/, ...  unveraenderte Programmdateien von Filius 2.9.3
+lib/flatlaf-3.7.2.jar  FlatLaf (modernes Swing-Design)
+lib/javafx/            Browser-Engine (OpenJFX/WebKit, Windows)
+java-runtime/          Java 21 fuer Windows (Eclipse Temurin, verkleinert)
+beispiele/             Beispielnetze
+lizenzen/              Lizenztexte und Quellcode der Anpassungen
+                       (quellcode-filius-rbz.zip)
+
+
+LIZENZEN
+--------
+
+Filius:   GNU GPL v2 oder v3 - https://www.lernsoftware-filius.de
+          Filius (RBZ Wirtschaft Kiel Version) ist eine Weiterentwicklung
+          und steht ebenfalls unter GPL v2/v3. Der Quellcode liegt als
+          lizenzen/quellcode-filius-rbz.zip bei und steht auf
+          https://github.com/DemandGames/filius-rbz
+          Edited by Thorben Demand @ RBZ Wirtschaft Kiel
+FlatLaf:  Apache License 2.0 - https://www.formdev.com/flatlaf/
+OpenJFX und Java-Laufzeit: GPL v2 mit Classpath Exception, Details in
+          lizenzen/OpenJFX-und-Java-Laufzeit.txt
+Schriften: Atkinson Hyperlegible (Braille Institute) und JetBrains Mono,
+          beide SIL Open Font License 1.1
+Logo:     Logo und Symbol von Filius (RBZ Wirtschaft Kiel Version) - in
+          der Kopfleiste, im Startbild, als Fenstersymbol, als Filius.ico
+          und auf der Startseite neuer Webserver (rbz-logo.png) - sind laut
+          Herausgeber nicht geschuetzt und duerfen mit dem Programm
+          verwendet und weitergegeben werden. Das Logo des
+          RBZ Wirtschaft . Kiel (der Schule) ist nicht mehr enthalten.
+          Das Logo des Webbrowsers Waterwolf (Startseite des Browsers)
+          stammt vom Herausgeber.

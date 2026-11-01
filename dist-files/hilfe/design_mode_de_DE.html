@@ -1,0 +1,51 @@
+<html><head><meta charset="UTF-8"><style type="text/css">
+body { font-family: 'Atkinson Hyperlegible', sans-serif; font-size: 13pt; color: #1C2B3A; margin-top: 8px; margin-left: 6px; margin-right: 6px; margin-bottom: 30px; }
+p { margin-top: 0px; margin-bottom: 10px; }
+h1 { font-size: 21pt; color: #1C2B3A; margin-top: 10px; margin-bottom: 4px; }
+h2 { font-size: 15pt; color: #1C2B3A; margin-top: 22px; margin-bottom: 8px; border-left-width: 4px; border-left-style: solid; border-left-color: #2E6BD8; padding-left: 8px; }
+p.lead { color: #4A5B6C; font-size: 13.5pt; margin-bottom: 2px; }
+td.chip { color: #FFFFFF; font-size: 11pt; font-weight: bold; }
+td.shot { border-width: 1px; border-style: solid; border-color: #DDE4EB; }
+p.cap { color: #8796A5; font-size: 11.5pt; text-align: center; margin-top: 5px; margin-bottom: 16px; }
+p.gap { margin-top: 0px; margin-bottom: 12px; }
+td.tip { color: #1C2B3A; }
+p.ic { margin-top: 2px; margin-right: 10px; margin-bottom: 0px; }
+p.it { margin-top: 0px; margin-bottom: 14px; }
+p.mi { margin-top: 0px; margin-right: 10px; margin-bottom: 10px; }
+p.mt { margin-top: 0px; margin-bottom: 10px; }
+span.key { font-family: 'JetBrains Mono', monospace; font-size: 11pt; background-color: #EAEFF4; }
+span.name { font-weight: bold; }
+span.tg-server { color: #6B3FC2; background-color: #EFEAF8; font-weight: bold; font-size: 11pt; }
+span.tg-client { color: #2A5FC4; background-color: #E8EDF9; font-weight: bold; font-size: 11pt; }
+span.tg-p2p { color: #0A6C66; background-color: #E3EEED; font-weight: bold; font-size: 11pt; }
+span.tg-tool { color: #4A5B6C; background-color: #EBEDEF; font-weight: bold; font-size: 11pt; }
+</style></head><body>
+<table cellspacing="0" cellpadding="4" border="0"><tr><td class="chip" bgcolor="#2E6BD8">&nbsp;ENTWURF&nbsp;</td></tr></table><h1>Entwurfsmodus</h1><p class="lead">Hier baust du dein Netz auf und stellst die Geräte ein.</p>
+<h2>Geräte hinzufügen</h2>
+<p>Ziehe ein Bauteil mit gedrückter Maustaste aus der Leiste links auf die Arbeitsfläche.</p>
+<table width="100%" cellspacing="0" cellpadding="0" border="0"><tr><td align="center" class="shot"><img src="hilfe/gfx/draganddrop.gif" width="300" height="150" border="0"></td></tr></table><p class="cap">Einen PC auf die Fläche ziehen</p>
+<p>Gelöscht wird ein Gerät über sein Kontextmenü (rechte Maustaste auf das Gerät) oder mit der Taste <span class="key">&nbsp;Entf&nbsp;</span>, wenn es ausgewählt ist.</p>
+<table width="100%" cellspacing="0" cellpadding="10" border="0"><tr><td align="center" bgcolor="#F2F5F8"><img src="hilfe/gfx/kontextmenue_entwurf.png" width="220" height="120" border="0"></td></tr></table><p class="cap">Kontextmenü eines Geräts</p>
+<h2>Geräte verbinden</h2>
+<p>Wähle in der Leiste die <b>Verbindung</b> (Klick oder <span class="key">&nbsp;Alt + 1&nbsp;</span>) und klicke dann nacheinander die beiden Geräte an.</p>
+<table width="100%" cellspacing="0" cellpadding="0" border="0"><tr><td align="center" class="shot"><img src="hilfe/gfx/verkabeln.png" width="300" height="150" border="0"></td></tr></table><p class="cap">Die Verbindung folgt der Maus bis zum zweiten Gerät.</p>
+<p>Entfernen lässt sich eine Verbindung über das Kontextmenü eines angeschlossenen Geräts (<b>Verbindung entfernen</b>).</p>
+<p>Drahtlos geht es auch: Stelle am PC oder Laptop <b>Drahtlos (WLAN)</b> ein und wähle den Netzwerknamen (SSID) eines Switch / WLAN.</p>
+<h2>Geräte einstellen</h2>
+<p>Ein Doppelklick auf ein Gerät öffnet unten seine Einstellungen. Der Name ist frei wählbar und ändert nichts am Netz. Alle anderen Angaben bestimmen, wie die Daten fließen.</p>
+<table width="100%" cellspacing="0" cellpadding="0" border="0"><tr><td align="center" class="shot"><img src="hilfe/gfx/konfiguration.png" width="415" height="224" border="0"></td></tr></table><p class="cap">Einstellungen eines PCs</p>
+<table width="100%" cellspacing="0" cellpadding="0" border="0"><tr><td width="58" valign="top"><p class="ic"><img src="hilfe/gfx/bauteil_server.png" width="48" height="40" border="0"></p></td><td valign="top"><p class="it"><span class="name">PC und Laptop</span><br>Brauchen eine IPv4-Adresse und eine Netzmaske, für andere Netze zusätzlich ein Gateway. Die Einstellungen können sie auch per DHCP beziehen, wenn im Netz ein DHCP-Server läuft. Im Lernpfad sind Laptops die Geräte, an denen jemand arbeitet und surft; PCs bieten als Server anderen etwas an, z. B. Webseiten.</p></td></tr><tr><td width="58" valign="top"><p class="ic"><img src="hilfe/gfx/bauteil_switch.png" width="48" height="40" border="0"></p></td><td valign="top"><p class="it"><span class="name">Switch / WLAN</span><br>Verbindet Geräte im selben Netz und braucht keine Einstellungen. Mit einem Netzwerknamen (SSID) ist er zugleich WLAN-Zugangspunkt. <b>als Wolke darstellen</b> zeigt ihn als Wolke, etwa für das Internet.</p></td></tr><tr><td width="58" valign="top"><p class="ic"><img src="hilfe/gfx/bauteil_gateway.png" width="48" height="40" border="0"></p></td><td valign="top"><p class="it"><span class="name">Heimrouter</span><br>Verbindet ein Heimnetz (LAN) mit dem Internet (WAN), wie die Box zu Hause. Er übersetzt Adressen (NAT), kann per DHCP Adressen verteilen und bietet Firewall und Portfreigaben.</p></td></tr><tr><td width="58" valign="top"><p class="ic"><img src="hilfe/gfx/bauteil_router.png" width="48" height="40" border="0"></p></td><td valign="top"><p class="it"><span class="name">Vermittlungsrechner</span><br>Verbindet verschiedene Netze. Jede Netzwerkkarte bekommt eine Adresse aus ihrem Netz. Die Weiterleitungstabelle legt fest, wohin Pakete gehen: von Hand oder mit <b>Automatisches Routing</b>. Eine Firewall lässt sich hier oder im Simulationsmodus einrichten.</p></td></tr></table>
+<table width="100%" cellspacing="0" cellpadding="0" border="0"><tr><td width="4" bgcolor="#2E6BD8"></td><td bgcolor="#EAF1FC"><table width="100%" cellspacing="0" cellpadding="9" border="0"><tr><td class="tip"><b>Tipp:</b> Geräte in einem anderen Netz erreichst du nur, wenn als Gateway die Adresse des Vermittlungsrechners in deinem eigenen Netz eingetragen ist.</td></tr></table></td></tr></table>
+<h2>Lernpfad</h2>
+<table width="100%" cellspacing="0" cellpadding="10" border="0"><tr><td align="center" bgcolor="#F2F5F8"><img src="hilfe/gfx/lernpfad.png" width="209" height="52" border="0"></td></tr></table><p class="gap"></p>
+<p>Der Knopf <b>Lernpfad starten</b> neben den Modi öffnet eine Leiste mit dem Lernpfad. Beim ersten Mal wählst du zwischen <b>Standard</b> (8 Kapitel) und <b>Fortgeschritten</b> (12 Kapitel, mit HTTPS, Heimnetz, WLAN, Portfreigabe, Firewall und VPN). Jedes Kapitel hat Lesen, Praxis, Quiz und Glossar. Filius prüft die Praxis-Aufgaben im laufenden Netz und hakt sie ab, sobald sie wirklich erledigt sind. Der Ring zeigt, wie viele Kapitel du geschafft hast. Der Fortschritt beider Lernpfade wird mit deinem Projekt gespeichert; öffnest du das Projekt wieder, geht es an derselben Stelle weiter. In der Übersicht kannst du den Lernpfad wechseln.</p>
+<h2>Neu, Laden, Speichern</h2>
+<table width="100%" cellspacing="0" cellpadding="10" border="0"><tr><td align="center" bgcolor="#F2F5F8"><img src="hilfe/gfx/dateien.png" width="169" height="58" border="0"></td></tr></table><p class="gap"></p>
+<p><b>Neu</b> beginnt ein leeres Projekt, auch der Lernpfad beginnt dann von vorn. <b>Laden</b> öffnet ein gespeichertes Projekt (.fls), <b>Speichern</b> sichert dein Netz zusammen mit dem Fortschritt im Lernpfad. Filius merkt sich nichts von selbst: Es startet immer leer, und was nicht in deiner .fls-Datei steht, ist nach dem Beenden weg. Beim Schließen mit ungespeicherten Änderungen fragt Filius deshalb nach.</p>
+<h2>Sprache</h2>
+<table width="100%" cellspacing="0" cellpadding="0" border="0"><tr><td valign="middle" width="98"><p class="mi"><img src="hilfe/gfx/sprache.png" width="86" height="40" border="0"></p></td><td valign="middle"><p class="mt">Filius gibt es auf Deutsch und Englisch, auch den Lernpfad. Ein Klick auf den Schalter <b>DE | EN</b> oben rechts stellt auf Englisch um: Filius fragt nach, bietet an, ungespeicherte Arbeit zu sichern, und startet neu.</p></td></tr></table>
+<h2>Hell und dunkel</h2>
+<table width="100%" cellspacing="0" cellpadding="0" border="0"><tr><td valign="middle" width="162"><p class="mi"><img src="hilfe/gfx/dunkelmodus.png" width="150" height="42" border="0"></p></td><td valign="middle"><p class="mt">Rechts neben <b>DE | EN</b> sitzt der Schalter mit Sonne und Mond. Ein Klick wechselt zwischen hellem und dunklem Aussehen, ohne Neustart. Filius merkt sich deine Wahl für den nächsten Start. Die Hilfe und die Bilder im Lernpfad und in der Hilfe passen sich an.</p></td></tr></table>
+<h2>Modus wechseln</h2>
+<table width="100%" cellspacing="0" cellpadding="0" border="0"><tr><td valign="middle" width="141"><p class="mi"><img src="hilfe/gfx/aktionsmodus.png" width="129" height="38" border="0"></p></td><td valign="middle"><p class="mt">Netz in Betrieb nehmen und ausprobieren</p></td></tr><tr><td valign="middle" width="155"><p class="mi"><img src="hilfe/gfx/dokumodus.png" width="143" height="38" border="0"></p></td><td valign="middle"><p class="mt">Netz beschriften und als Bild oder Report ausgeben</p></td></tr></table>
+</body></html>

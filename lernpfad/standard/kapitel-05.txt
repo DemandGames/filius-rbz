@@ -1,0 +1,166 @@
+# Namen statt Nummern: DNS
+Ziel: An der dritten Karte des Routers entsteht das Netz eines DNS-Anbieters mit einem DNS-Server. Danach öffnen sich die Schulseite und der Shop über ihre Namen www.rbz-wirtschaft-kiel.de und www.ravensberger24.de.
+
+## Lesen
+
+### Namen sind leichter als Nummern
+Menschen merken sich Namen besser als Zahlen. Darum haben Server einen **Domainnamen**, zum Beispiel www.ravensberger24.de. Das **DNS** (Domain Name System) übersetzt den Namen in die IPv4-Adresse. Erst mit der IPv4-Adresse kann der Browser die Seite abrufen.
+
+### Die Teile eines Domainnamens
+Ein Domainname besteht aus Teilen mit Punkten dazwischen. Du liest ihn von rechts nach links:
+
+[Bild: s05-domainname.png | Die Teile von www.ravensberger24.de]
+
+- de ist die **Top-Level-Domain**, die oberste Stufe. de steht für Deutschland, com zum Beispiel für Firmen weltweit.
+- ravensberger24 ist die Firma oder der Name, den jemand gewählt hat.
+- www ist der Name des Webservers.
+
+### Der DNS-Server
+Die Liste mit Namen und Adressen steht auf einem **DNS-Server**. Unserer steht im Netz eines DNS-Anbieters. Das ist jemand, zum Beispiel ein Unternehmen, das für andere Namen in Adressen übersetzt. Das Netz des DNS-Anbieters ist das dritte Netz an unserem Router. Jede Zeile in der Adressenliste des DNS-Anbieters, in der Domainnamen IPv4-Adressen zugeordnet werden, heißt **A-Eintrag**.
+
+[Bild: s05-dns-server.png | Der DNS-Server mit zwei A-Einträgen]
+
+Damit ein Laptop fragen kann, trägst du in seinen Einstellungen die Adresse des DNS-Servers ein. Das Feld heißt „Domain Name Server“.
+
+### So läuft eine Namensanfrage
+[Bild: s05-dns-ablauf.png | 1. Der Laptop fragt den DNS-Server, 2. der DNS-Server antwortet mit der IPv4-Adresse, 3. der Laptop ruft die Seite ab]
+
+Mit dem Befehl `nslookup` fragst du selbst beim DNS-Server nach.
+
+[Bild: s05-nslookup.png | nslookup www.ravensberger24.de auf Laptop-1]
+
+> Merke: Klappt eine Seite über die IPv4-Adresse, aber nicht über den Namen, liegt es am DNS.
+
+## Praxis
+
+### 5.1
+Baue das Netz des DNS-Anbieters an der dritten Karte des Routers:
+- Switch „Switch DNS-Anbieter“, verbunden mit dem Router (dritte Karte, 192.168.2.1)
+- PC „DNS-Server“ am Switch DNS-Anbieter
+Adressen, Netzmaske 255.255.255.0:
+| Gerät | IPv4-Adresse | Gateway |
+|---|---|---|
+| DNS-Server | 192.168.2.10 | 192.168.2.1 |
+Tipp: Die dritte Karte hat ihre Adresse schon seit Kapitel 4. Prüfe im Reiter der dritten Karte, dass unter „Verbunden mit“ der Switch DNS-Anbieter steht.
+
+### 5.2
+Installiere auf dem DNS-Server die Software „DNS-Server“. Lege zwei A-Einträge an und starte den Server:
+| Host-/Domainname | IPv4-Adresse |
+|---|---|
+| www.rbz-wirtschaft-kiel.de | 192.168.0.14 |
+| www.ravensberger24.de | 192.168.1.10 |
+Tipp: Die Einträge gehören in den Reiter „Adressen (A)“.
+
+### 5.3
+Trage bei allen Laptops den DNS-Server 192.168.2.10 ein:
+- in der Schule: Laptop-1 bis Laptop-4
+- bei der RGG: Büro-Laptop
+Tipp: Das Feld heißt „Domain Name Server“.
+
+### 5.4
+Frage auf Laptop-1 mit `nslookup www.ravensberger24.de` beim DNS-Server nach.
+Frage: Welche IPv4-Adresse nennt der DNS-Server?
+Eingabe: IPv4-Adresse
+Tipp: Antwortet der DNS-Server nicht, läuft er vielleicht noch nicht.
+
+### 5.5
+Öffne die Websites über ihre Namen:
+| Gerät | Adresse im Browser |
+|---|---|
+| Laptop-2 | www.ravensberger24.de |
+| Büro-Laptop | www.rbz-wirtschaft-kiel.de |
+Tipp: Auf dem Büro-Laptop musst du den Webbrowser erst installieren.
+
+### 5.6
+Beschrifte das Netz des DNS-Anbieters im Dokumentationsmodus: eine Gliederungsfläche um Switch DNS-Anbieter und DNS-Server, oben links das Etikett „DNS-Anbieter 192.168.2.0“.
+Tipp: Wie beim Schulnetz und beim RGG-Netz. Der Router bleibt zwischen den Flächen.
+
+## Quiz
+
+### Wozu dient DNS?
+- ✓ Es übersetzt Namen wie www.ravensberger24.de in IPv4-Adressen
+- Es verteilt IPv4-Adressen automatisch an die Laptops im Netz
+Falsch: Adressen verteilt DHCP, das kommt in Kapitel 7.
+- Es verbindet Netze wie das Schulnetz und das RGG-Netz miteinander
+Falsch: Netze verbindet der Router.
+- Es zeigt Webseiten wie www.ravensberger24.de auf dem Laptop an
+Falsch: Webseiten zeigt der Browser an.
+Erklärung: DNS übersetzt einen Namen in eine IPv4-Adresse. Erst dann kann der Browser die Seite abrufen.
+
+### Welcher Teil von www.ravensberger24.de ist die Top-Level-Domain?
+- ✓ de, der Teil ganz rechts nach dem letzten Punkt
+- www, der Teil ganz links vor dem ersten Punkt
+Falsch: www ist der Name des Webservers. Die Top-Level-Domain steht ganz rechts.
+- ravensberger24, der Teil in der Mitte zwischen den Punkten
+Falsch: Das ist die Firma, also der gewählte Name. Die Top-Level-Domain steht ganz rechts.
+- www.ravensberger24, alle Teile vor dem letzten Punkt
+Falsch: Die Top-Level-Domain ist nur der letzte Teil ganz rechts.
+Erklärung: Die Top-Level-Domain steht ganz rechts nach dem letzten Punkt. de steht für Deutschland.
+
+### Was ist ein A-Eintrag?
+- ✓ Eine Zeile im DNS-Server, die einem Namen eine IPv4-Adresse zuordnet
+- Die Adresse des Routers, die ein Laptop als Gateway eingetragen hat
+Falsch: Die Adresse des Routers ist das Gateway. A-Einträge stehen im DNS-Server.
+- Ein Konto auf dem Mailserver mit Benutzername und Passwort
+Falsch: Konten liegen auf dem Mailserver. A-Einträge stehen im DNS-Server.
+- Die erste Zeile im Datenaustausch, wenn ein Laptop eine Seite abruft
+Falsch: Der Datenaustausch zeigt Nachrichten, keine A-Einträge.
+Erklärung: Ein A-Eintrag sagt zum Beispiel: www.ravensberger24.de gehört zu 192.168.1.10.
+
+### Wo steht unser DNS-Server?
+- ✓ Im Netz des DNS-Anbieters, mit der Adresse 192.168.2.10
+- Im Netz der Schule, mit der Adresse 192.168.0.14
+Falsch: 192.168.0.14 ist der Webserver der Schule.
+- Im Netz der RGG, mit der Adresse 192.168.1.10
+Falsch: 192.168.1.10 ist der Shop.
+- Im Router, an der dritten Karte mit der Adresse 192.168.2.1
+Falsch: Der Router verbindet die Netze. 192.168.2.1 ist seine dritte Karte, der DNS-Server ist ein eigener PC.
+Erklärung: Der DNS-Server steht beim DNS-Anbieter im Netz 192.168.2.0 und hat die Adresse 192.168.2.10.
+
+### Was muss an einem Laptop eingetragen sein, damit er Namen benutzen kann?
+- ✓ Die Adresse des DNS-Servers im Feld „Domain Name Server“
+- Der Name des Laptops im Feld „Name“, zum Beispiel Laptop-1
+Falsch: Der eigene Name hilft nicht beim Übersetzen fremder Namen.
+- Die MAC-Adresse des DNS-Servers im Feld „Domain Name Server“
+Falsch: In das Feld gehört die IPv4-Adresse des DNS-Servers, nicht die MAC-Adresse.
+- Der Domainname des Shops, also www.ravensberger24.de
+Falsch: Den Domainnamen tippst du in den Browser. In den Einstellungen steht der DNS-Server.
+Erklärung: Der Laptop muss wissen, wen er fragen soll. Darum steht in seinen Einstellungen der DNS-Server 192.168.2.10.
+
+### Der Shop öffnet sich über 192.168.1.10, aber nicht über www.ravensberger24.de. Woran liegt es?
+- ✓ Am DNS: Eintrag fehlt oder falsch, oder der Laptop kennt den DNS-Server nicht
+- Am Kabel: Der Shop ist nicht per Kabel mit dem Switch RGG verbunden
+Falsch: Über die IPv4-Adresse klappt es. Das Kabel ist also in Ordnung.
+- Am Webserver: Die Software Webserver auf dem Shop ist nicht gestartet
+Falsch: Der Webserver läuft, sonst käme auch über die IPv4-Adresse keine Seite.
+- Am Gateway: Beim Shop ist nicht 192.168.1.1 als Gateway eingetragen
+Falsch: Über die IPv4-Adresse klappt der Weg, also stimmt das Gateway.
+Erklärung: Klappt die IPv4-Adresse, aber nicht der Name, fehlt nur die Übersetzung. Das ist die Aufgabe des DNS.
+
+### Was zeigt der Befehl nslookup www.ravensberger24.de?
+- ✓ Die IPv4-Adresse, die der DNS-Server zu diesem Namen kennt
+- Die Startseite des Shops, so wie sie auch der Browser anzeigt
+Falsch: Webseiten zeigt der Browser. nslookup fragt nur nach der Adresse.
+- Den Weg, den die Pakete durch alle Router bis zum Shop nehmen
+Falsch: nslookup fragt nur den DNS-Server nach dem Namen.
+- Die MAC-Adresse, die der DNS-Server zu diesem Namen kennt
+Falsch: Der DNS-Server kennt Namen und IPv4-Adressen, keine MAC-Adressen.
+Erklärung: Mit nslookup fragst du selbst beim DNS-Server nach. Er antwortet mit der IPv4-Adresse aus seinem A-Eintrag.
+
+### Der DNS-Server ist ausgeschaltet. Was klappt noch?
+- ✓ Webseiten über ihre IPv4-Adresse öffnen
+- Webseiten über ihren Domainnamen öffnen
+Falsch: Ohne DNS-Server übersetzt niemand die Namen.
+- Mit nslookup die IPv4-Adresse erfragen
+Falsch: nslookup fragt den DNS-Server. Ist er aus, kommt keine Antwort.
+- Gar nichts mehr, das ganze Netz steht still
+Falsch: IPv4-Adressen brauchen kein DNS. ping und Seiten über die IPv4-Adresse gehen weiter.
+Erklärung: DNS übersetzt nur Namen. Wer die IPv4-Adresse kennt, kommt auch ohne DNS-Server ans Ziel.
+
+## Glossar
+
+- **Domainname** – Name eines Servers im Netz, zum Beispiel www.ravensberger24.de. Er ist leichter zu merken als eine IPv4-Adresse. Du liest ihn von rechts nach links.
+- **DNS** – übersetzt Domainnamen in IPv4-Adressen (Domain Name System). Erst mit der IPv4-Adresse kann der Browser die Seite abrufen. Fehlt DNS, klappen nur noch IPv4-Adressen.
+- **Top-Level-Domain** – letzter Teil eines Domainnamens, ganz rechts nach dem letzten Punkt. Bei www.ravensberger24.de ist es de. de steht für Deutschland, com zum Beispiel für Firmen weltweit.
+- **DNS-Server** – PC, auf dem die Liste mit Namen und IPv4-Adressen steht. Unser DNS-Server steht im Netz des DNS-Anbieters und hat die Adresse 192.168.2.10. Jeder Laptop braucht ihn im Feld „Domain Name Server“.
+- **A-Eintrag** – Zeile im DNS-Server, die einem Namen eine IPv4-Adresse zuordnet. Beispiel: www.ravensberger24.de → 192.168.1.10. Du legst sie im Reiter „Adressen (A)“ an.

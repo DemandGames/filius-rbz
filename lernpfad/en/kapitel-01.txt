@@ -1,0 +1,218 @@
+# Two laptops, one cable
+Goal: Connect two laptops directly, give them addresses and use ping to check if they can reach each other.
+
+## Read
+
+### Filius has three modes
+A **network** is a group of devices that exchange data by cable or by radio. In Filius you build such networks yourself and try them out.
+
+Filius works in three modes. You switch between them in the header at the top.
+
+- "Design" (blue): Here you build your network, connect devices and enter addresses.
+- "Simulation" (green): Now the network is running. You use the devices and install programs.
+- "Documentation" (yellow): Here you label your network.
+
+[Picture: k01-modi.png | The three modes in the header]
+
+> Note: You can only change cables and addresses in Design mode.
+
+### Placing and connecting devices
+On the left you see the Components bar. Hold down the mouse button and drag a device onto the work area.
+
+In this learning path, the rule is: devices that people work and surf on are laptops. Devices that offer something to others (for example web pages) are PCs.
+
+[Picture: k01-ziehen.png | A laptop is dragged from the bar onto the work area]
+
+To add a cable, choose "Connection" in the bar and click on the two devices, one after the other.
+
+[Picture: k01-kabel.png | The cable follows the mouse to the second device]
+
+### Entering addresses
+When you click on a device, its settings open at the bottom. There you give it a name, an **IPv4 address** and a **netmask**.
+
+An IPv4 address has four numbers from 0 to 255, for example 192.168.10.11. It is the address of the device in the network. It must be unique in the network.
+
+[Picture: k01-ip-adresse.png | An IPv4 address: four numbers from 0 to 255, separated by dots]
+
+[Picture: k01-konfiguration.png | Name, IPv4 address and netmask of a laptop]
+
+The netmask 255.255.255.0 means: the first three numbers name the network. Two devices belong to the same network if these three numbers are the same.
+
+### IPv4 and IPv6
+The "v4" stands for version 4 of the Internet Protocol. An IPv4 address consists of four numbers from 0 to 255. That gives only about 4.3 billion different addresses (2 to the power of 32). That is not nearly enough for all the phones, laptops, servers and connected devices in the world.
+
+That is why there is **IPv6**. An IPv6 address is 128 bits long and is written with hexadecimal numbers, for example 2001:db8::1. That allows about 340 undecillion addresses (2 to the power of 128, a 34 followed by 37 zeros). So every device in the world can get more than enough addresses of its own.
+
+Today both versions run in parallel. Most new computers, phones and internet connections can use IPv4 and IPv6 at the same time; this is called dual stack. But many older devices can only use IPv4, for example old routers, network printers, webcams, smart home devices or controllers in machines. Some company networks and internet connections also still work with IPv4 only. That is why IPv4 will be needed for a long time.
+
+> Note: Filius only works with IPv4. That is enough to understand what IP addresses are for: every device gets an address so that data can find its way to it. That is why the field in Filius is called "IPv4 Address".
+
+### Hello, are you there?
+In Simulation mode, click on a laptop to open its desktop. Use "Software Installation" to install the "Command Line".
+
+[Picture: k01-befehlszeile.png | ipconfig and ping in the Command Line]
+
+- The command **ipconfig** shows your own settings, for example IPv4 address and netmask.
+- The command **ping** checks if a destination answers: `ping 192.168.10.12` sends echo requests. If echo replies come back, the destination can be reached.
+
+### The data exchange
+The **data exchange** window shows everything that goes through the network card of a device. In Simulation mode, you open it with a right-click on the device.
+
+[Picture: k01-datenaustausch.png | Echo requests and echo replies of a ping]
+
+Each line is one message. The columns show the number, the time, the source (sender), the destination (receiver), the protocol, the layer and comments. When you click on a line, you see all layers of this message at the bottom.
+
+A **protocol** defines how devices exchange messages, a bit like a common language. The echo requests and replies of ping belong to the protocol **ICMP**. Devices also use ICMP to report errors, for example that a destination cannot be reached.
+
+## Practice
+
+### 1.1
+In Design mode, add two laptops and name them Laptop-1 and Laptop-2.
+Tip: The components are in the bar on the left. You change the name at the bottom in the settings.
+
+### 1.2
+Connect Laptop-1 and Laptop-2 directly with a cable.
+Tip: Choose "Connection" in the bar and click on both laptops, one after the other.
+
+### 1.3
+Give the two laptops fixed addresses, both with the netmask 255.255.255.0:
+| Device | IPv4 address |
+|---|---|
+| Laptop-1 | 192.168.10.11 |
+| Laptop-2 | 192.168.10.12 |
+Tip: Click on the laptop. The fields are at the bottom in the settings.
+
+### 1.4
+Start the simulation and install the Command Line on Laptop-1.
+Tip: Click on Laptop-1 to open its desktop with Software Installation.
+
+### 1.5
+On Laptop-1, check your settings with `ipconfig`.
+Tip: Type the command and press Enter.
+
+### 1.6
+Test the connection with `ping 192.168.10.12`.
+Tip: No reply? Go to Design mode and check the cable and the addresses.
+
+### 1.7
+Open the data exchange of Laptop-1 and look at the messages of your ping.
+Question: Which protocol do the echo requests belong to?
+- TCP
+- ✓ ICMP
+- UDP
+- ARP
+Tip: In Simulation mode, right-click Laptop-1, then choose "Show data exchange". Look at the "Protocol" column.
+
+## Quiz
+
+### Why does a device in a network need an IPv4 address?
+- ✓ So that messages can reach exactly this device
+- So that its network card works
+Wrong: The network card also works without an IPv4 address, it has its MAC address from the factory. The IPv4 address is not needed for the card, it is an address in the network.
+- So that it gets a device name
+Wrong: A name and an IPv4 address are two different things. In Filius you choose the name of a device yourself, it has nothing to do with the address.
+- So that it can encrypt data
+Wrong: The IPv4 address has nothing to do with encryption. It only says where a message should go, not whether it is protected.
+Explanation: The IPv4 address is like a postal address. Only with this address can messages reach the right device.
+
+### Which IPv4 address is not valid?
+- ✓ 192.168.10.256
+- 192.168.100.25
+Wrong: This address is valid: 192, 168, 100 and 25 are all between 0 and 255.
+- 10.0.0.1
+Wrong: This address is valid: 10, 0, 0 and 1 are all in the allowed range from 0 to 255.
+- 172.16.5.4
+Wrong: This address is valid: each of the four numbers is between 0 and 255.
+Explanation: 256 is too big: each of the four numbers of an IPv4 address is between 0 and 255, because it is stored in 8 bits.
+
+### What does the ping command do?
+- ✓ It sends echo requests and waits for replies
+- It shows your own network settings
+Wrong: That is what ipconfig does. ping does not look at your own device, it tests whether another device answers.
+- It looks for the shortest path to the destination
+Wrong: Routers find paths, and traceroute can show the path. ping only checks whether the destination answers.
+- It sets up a permanent connection
+Wrong: ping only sends single echo requests there and back. It does not set up a permanent connection like TCP does.
+Explanation: ping sends echo requests to the destination and waits for echo replies. If a reply comes back, the destination can be reached and the path works in both directions.
+
+### Which command shows your own IPv4 address and netmask?
+- ✓ ipconfig
+- ping
+Wrong: ping tests whether another device can be reached. It does not show your own settings.
+- route
+Wrong: route shows the forwarding table, which says where packets are sent, not your own IPv4 address and netmask.
+- arp
+Wrong: arp shows which MAC addresses belong to the IPv4 addresses of other devices. Your own settings are not in it.
+Explanation: ipconfig shows the network settings of the device that the Command Line is running on.
+
+### Which protocol do the ping messages belong to?
+- ✓ ICMP
+- TCP
+Wrong: TCP sets up connections for programs like the browser. ping does not need a connection and does not use TCP.
+- UDP
+Wrong: UDP carries data for programs, for example DNS requests. Echo request and echo reply are not part of it.
+- ARP
+Wrong: ARP finds the MAC address for an IPv4 address. You often see ARP messages before a ping, but they are not the ping itself.
+Explanation: ICMP is the protocol for control messages and error messages. Echo request and echo reply are part of it.
+
+### Where do you change cables and IPv4 addresses in Filius?
+- ✓ In Design mode
+- In Simulation mode
+Wrong: In Simulation mode the network is running and you use the programs. You cannot change cables and addresses there.
+- In Documentation mode
+Wrong: In Documentation mode you label the network plan with fields and texts. You do not change the devices there.
+- In the Command Line
+Wrong: The Command Line shows settings, for example with ipconfig. In Filius it does not change cables or IPv4 addresses.
+Explanation: In Design mode you build and set up the network. In Simulation mode the programs run.
+
+### Laptop-1 has 192.168.10.11 with netmask 255.255.255.0. Which address can Laptop-2 get so that both are in the same network?
+- ✓ 192.168.10.12
+- 192.168.11.12
+Wrong: The third number is different (11 instead of 10). With the netmask 255.255.255.0 the laptop is then in another network.
+- 192.168.10.11
+Wrong: This is exactly the address of Laptop-1. Two devices must not have the same address.
+- 10.168.10.12
+Wrong: Already the first number is different (10 instead of 192). This is a completely different network.
+Explanation: With this netmask, the first three numbers must be the same and the last number must be different.
+
+### What happens if two devices in the same network have the same IPv4 address?
+- ✓ Packets arrive at the wrong device, and the connection does not work properly
+- Filius automatically gives one of them a new address
+Wrong: Neither Filius nor a real network fixes this by itself. You have to find duplicate addresses and change them yourself.
+- Both devices get all data twice
+Wrong: The network does not send copies to both devices. Usually a message only arrives at one of them, often at the wrong one.
+- The second device just answers more slowly
+Wrong: It is not about speed: packets go to the wrong device or get lost, and the connection does not work properly at all.
+Explanation: IPv4 addresses must be unique in a network. If an address exists twice, the other devices do not know which device is meant, and packets arrive at the wrong one.
+
+### What does the netmask 255.255.255.0 define?
+- ✓ Which part of the IPv4 address names the network
+- How fast the connection is
+Wrong: The netmask says nothing about speed. It divides the IPv4 address into a network part and a part for the device.
+- Which devices are allowed access
+Wrong: Who may access what is controlled by a firewall, for example. The netmask does not control access.
+- How many cables are connected
+Wrong: How many cables are connected depends on the device or switch, not on the netmask. The mask is only a number in the settings.
+Explanation: Where the mask has 255, you find the network part. Where it has 0, you find the device.
+
+### What does the data exchange window of a device show?
+- ✓ The messages that go through its network card
+- All messages in the whole network
+Wrong: A device only sees its own traffic. For the whole network you would need the windows of all devices.
+- Only the messages with errors
+Wrong: The window shows all messages, not only messages with errors: requests as well as replies.
+- The messages of all devices on the same cable
+Wrong: On a switch every device has its own cable. The window only shows what goes through its own network card.
+Explanation: Each device has its own window. It only shows what goes through the network card of this device.
+
+## Glossary
+
+- **Network** – devices that exchange data by cable or by radio (wireless). These include end devices like laptops and PCs, but also devices like switches and routers that pass the data on. Even two laptops connected by one cable form a small network. The internet is a huge network made of many single networks.
+- **IPv4 address** – address of a device in the network, made of four numbers from 0 to 255. It is unique in the network. It works like a postal address: only with it can messages find the right device. The IPv4 address is assigned, by hand or automatically, and can change when the device moves to another network. Example: Laptop-1 has 192.168.10.11.
+- **Netmask** – defines which part of the IPv4 address names the network and which part names the device. Where the mask has 255, there is the network part, where it has 0, there is the part for the device. With 255.255.255.0, for example, 192.168.10.11 and 192.168.10.12 are in the same network. Only devices in the same network can reach each other directly without a router.
+- **IPv6** – newer version of the Internet Protocol with 128-bit addresses, for example 2001:db8::1. There are about 340 undecillion IPv6 addresses, but only about 4.3 billion IPv4 addresses. Because many older devices (old routers, printers, smart home devices) and some networks can only use IPv4, both versions run in parallel today (dual stack). Filius only works with IPv4.
+- **ipconfig** – command that shows your own network settings, for example IPv4 address and netmask. You type it into the Command Line of the device whose settings you want to see. Later, ipconfig also shows the gateway and the DNS server. When something does not work, it is the first step: are my own settings correct?
+- **ping** – command that sends echo requests to check if a destination answers. If an echo reply comes back, the destination can be reached and the path there and back works. If no reply comes, there is a fault somewhere on the way, for example a missing cable or a wrong address. Example: ping 192.168.10.12.
+- **Data exchange** – window in Filius that shows all messages a device sends and receives. You open it in Simulation mode with a right-click on the device. Each line is one message with time, sender, destination and protocol, and a click shows its layers. This way you can follow what really happens in the network.
+- **Protocol** – fixed rules for how devices exchange messages. A protocol defines how a message is built and how it is answered. Only if both sides use the same protocol do they understand each other, like two people who speak the same language. Examples are ICMP, TCP and HTTP.
+- **ICMP** – protocol for control messages and error messages, for example echo request and echo reply. ping uses ICMP to test whether a destination can be reached. Routers also use ICMP to report errors back to the sender, for example when a destination cannot be reached. ICMP does not carry data of programs, only messages like these.

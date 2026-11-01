@@ -1,0 +1,193 @@
+# E-mail: an order at the RGG
+Goal: First the RGG gets a mail server, then the school as well. In the end Anna orders from the school by e-mail at the RGG, and the RGG answers.
+
+## Read
+
+### The e-mail address
+An **e-mail address** has two parts: before the @ is the name of the mailbox, after it the domain of the company or school, for example verkauf@ravensberger24.de (verkauf is German for sales).
+
+[Picture: s06-adresse.png | The parts of the e-mail address verkauf@ravensberger24.de]
+
+### Mail server and mailbox
+E-mails are stored on a **mail server**. There every person has a **mailbox**, like a letterbox. New mails wait in the mailbox until you fetch them.
+
+[Picture: s06-mailserver.png | The mail server of the RGG with the mailbox verkauf]
+
+To write and read mails you use an **e-mail program** on the laptop. There you set up an account once: your e-mail address, your mail server, user name and password. The mail server appears twice there, once for sending (SMTP) and once for fetching (IMAP). For us it is the same server both times.
+
+[Picture: s06-konto.png | The account verkauf in the e-mail program of the office laptop]
+
+### A mail to another company
+When Anna at the school sends a mail to verkauf@ravensberger24.de, her e-mail program first gives it to the mail server of the school. This server has to find out which mail server is responsible for ravensberger24.de. That is written in the DNS server in an **MX record** (MX stands for Mail Exchange).
+
+[Picture: s06-weg.png | The way of the order: Laptop-1, school mail server, RGG mail server, mailbox verkauf, office laptop]
+
+[Picture: s06-mx.png | Two MX records in the DNS server]
+
+> Note: The A record says which IPv4 address a name has. The MX record says which mail server gets the mails of a domain.
+
+## Practice
+
+### 6.1
+Set up the mail server of the RGG:
+| Setting | Value |
+|---|---|
+| PC at the RGG switch | "RGG mail server" |
+| IPv4 address | 192.168.1.12 |
+| Gateway | 192.168.1.1 |
+| DNS server | 192.168.2.10 |
+| Software | Email server |
+| Mail domain | ravensberger24.de |
+
+Add the account for the sales team on the mail server:
+| Set up account | Value |
+|---|---|
+| User name | verkauf |
+| Password | 123456 |
+Tip: You can only set the mail domain while the server is stopped. Start the server afterwards.
+
+### 6.2
+Add an A record for the mail server of the RGG in the DNS server:
+| Host / domain name | IPv4 address |
+|---|---|
+| mail.ravensberger24.de | 192.168.1.12 |
+Tip: Like the records in chapter 5, in the tab "Address (A)".
+
+### 6.3
+Install the e-mail program on the office laptop and set up the account verkauf@ravensberger24.de. As server you enter mail.ravensberger24.de.
+Tip: User name and password are those of the account on the mail server.
+
+### 6.4
+Send a test mail from the office laptop to verkauf@ravensberger24.de, so to yourself, and fetch it afterwards.
+Question: Where was the mail before you fetched it?
+- On the office laptop
+- ✓ In the mailbox verkauf on the RGG mail server
+- In the DNS server
+- In the router
+Tip: First "New" (write the mail, then "Send" at the bottom right), then "Fetch".
+
+### 6.5
+Now set up the mail server of the school as well:
+| Setting | Value |
+|---|---|
+| PC at the school switch | "School mail server" |
+| IPv4 address | 192.168.0.15 |
+| Gateway | 192.168.0.1 |
+| DNS server | 192.168.2.10 |
+| Software | Email server |
+| Mail domain | rbz-wirtschaft-kiel.de |
+| Accounts | anna and ben |
+Also add the A record mail.rbz-wirtschaft-kiel.de → 192.168.0.15 in the DNS server.
+Tip: As with the mail server of the RGG.
+
+### 6.6
+Anna writes to Ben:
+- Install the e-mail program on Laptop-1 and set up the account anna@rbz-wirtschaft-kiel.de.
+- Send ben a test mail.
+- Set up Ben's mailbox on Laptop-3 (account ben@rbz-wirtschaft-kiel.de) and fetch the mail.
+Tip: For both the server is mail.rbz-wirtschaft-kiel.de. Install the e-mail program on Laptop-3 first.
+
+### 6.7
+So that mails between school and RGG arrive, add two MX records in the DNS server:
+| Mail domain | Domain name of the mail server |
+|---|---|
+| rbz-wirtschaft-kiel.de | mail.rbz-wirtschaft-kiel.de |
+| ravensberger24.de | mail.ravensberger24.de |
+Tip: Tab "Mail exchange (MX)" in the DNS server.
+
+### 6.8
+The order:
+- Anna orders a crate of apple spritzer by mail to verkauf@ravensberger24.de.
+- The sales team fetches the order on the office laptop and answers.
+- Anna fetches the answer on Laptop-1.
+Tip: "Reply" fills in the receiver by itself.
+
+## Quiz
+
+### What comes after the @ in verkauf@ravensberger24.de?
+- ✓ The domain of the company
+- The name of the mailbox
+Wrong: The name of the mailbox is before the @, here verkauf.
+- The password of the mailbox
+Wrong: A password is never part of an e-mail address.
+- The mail server's IPv4 address
+Wrong: The mail server finds the IPv4 address with DNS. The address contains the domain.
+Explanation: Before the @ is the mailbox, after it the domain, here ravensberger24.de.
+
+### Where does a new mail wait until you fetch it?
+- ✓ In the mailbox on the mail server
+- On the laptop of the receiver
+Wrong: It only gets to the laptop when you fetch it.
+- In the DNS server at the DNS provider
+Wrong: The DNS server only knows names and addresses, no mails.
+- In the router between the networks
+Wrong: The router only passes packets on. It does not store mails.
+Explanation: Every person has a mailbox on the mail server. The mail stays there until it is fetched.
+
+### What is a mail server?
+- ✓ A PC that holds the mailboxes and passes mails on
+- A laptop that runs the e-mail program for writing mails
+Wrong: That is a client. The mail server is a server, for us a PC.
+- Another word for the DNS server at the DNS provider
+Wrong: The DNS server translates names. The mail server manages mailboxes.
+- A part of the router that manages all mailboxes
+Wrong: The mail server is a PC of its own in the network. The router only passes packets on.
+Explanation: The mailboxes are on the mail server. It accepts mails and passes them on to other mail servers.
+
+### What do you need the e-mail program for?
+- ✓ To write and send mails and to fetch and read them
+- To create new mailboxes like verkauf on the mail server
+Wrong: You create mailboxes in the software Email server.
+- To translate domain names into IPv4 addresses
+Wrong: DNS does that.
+- To start the mail server and to set the mail domain
+Wrong: You start the mail server in the software Email server on the PC. There you also set the mail domain.
+Explanation: The e-mail program on the laptop is the client. With it you write and read mails.
+
+### What does an MX record say?
+- ✓ Which mail server gets the mails of a domain
+- Which IPv4 address a name in the network has
+Wrong: The A record says that.
+- What the password of a mailbox of this domain is
+Wrong: Passwords are never in the DNS server.
+- How many new mails are in the mailbox of a person
+Wrong: Only the mail server itself knows that.
+Explanation: The MX record names the responsible mail server for a domain, for example ravensberger24.de → mail.ravensberger24.de.
+
+### Mails from Anna to Ben arrive, the order to verkauf@ravensberger24.de does not arrive. What is probably missing?
+- ✓ The MX record for ravensberger24.de
+- The account anna on the school mail server
+Wrong: Mails to ben work, so Anna's account works.
+- The cable at Laptop-1 in the school network
+Wrong: Mails to ben work. So Laptop-1 is connected.
+- The software Webserver on the shop
+Wrong: The web server only delivers the pages of the shop. The order goes to the RGG mail server.
+Explanation: Inside the school no MX is needed. For the other domain the mail server of the school has to find the MX record.
+
+### Who passes Anna's order on to the mail server of the RGG?
+- ✓ The mail server of the school
+- Anna's Laptop-1 directly
+Wrong: Laptop-1 only gives the mail to its own mail server of the school.
+- The DNS server 192.168.2.10
+Wrong: The DNS server only says where to. It does not carry the mail itself.
+- The office laptop of the RGG
+Wrong: The office laptop only fetches the mail at the end.
+Explanation: Anna's program sends the mail to the mail server of the school. It looks up the MX record and passes the mail on to the mail server of the RGG.
+
+### Why does mail.ravensberger24.de need an A record as well?
+- ✓ The MX record only names the mail server, its IPv4 address is in the A record
+- Without this A record the shop www.ravensberger24.de does not load in the browser either
+Wrong: The shop has its own A record www.ravensberger24.de.
+- The A record creates the mailbox verkauf on the mail server, otherwise it is missing
+Wrong: You create mailboxes on the mail server, not in the DNS server.
+- It does not need an A record, because the MX record already holds the IPv4 address
+Wrong: The MX record only names the mail server. Without an A record nobody finds the IPv4 address of the mail server.
+Explanation: First the MX record says: mail.ravensberger24.de. Then the A record gives 192.168.1.12 for it.
+
+## Glossary
+
+- **E-mail address** – address of a mailbox, for example verkauf@ravensberger24.de. Before the @ is the name of the mailbox, after it the domain. From it the mail server knows where the mail belongs.
+- **Mail server** – PC that holds the mailboxes. It accepts mails and passes them on to other mail servers. For us the software Email server runs on it.
+- **Mailbox** – storage for the mails of a person on the mail server, like a letterbox. New mails wait there until they are fetched. The mailbox verkauf is on the RGG mail server.
+- **E-mail program** – software on the laptop to write, send, fetch and read mails. The account holds e-mail address, mail server, user name and password. It is the client of the mail server.
+- **MX record** – line in the DNS server that names the responsible mail server for a domain. Example: ravensberger24.de → mail.ravensberger24.de. Without an MX record, mails from other domains do not arrive.

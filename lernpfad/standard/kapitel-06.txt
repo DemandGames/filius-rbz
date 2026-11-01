@@ -1,0 +1,193 @@
+# E-Mail: Bestellung bei der RGG
+Ziel: Erst bekommt die RGG einen Mailserver, dann auch die Schule. Am Ende bestellt Anna aus der Schule per E-Mail bei der RGG, und die RGG antwortet.
+
+## Lesen
+
+### Die E-Mail-Adresse
+Eine **E-Mail-Adresse** hat zwei Teile: Vor dem @ steht der Name des Postfachs, dahinter die Domain des Unternehmens oder der Schule, zum Beispiel verkauf@ravensberger24.de.
+
+[Bild: s06-adresse.png | Die Teile der E-Mail-Adresse verkauf@ravensberger24.de]
+
+### Mailserver und Postfach
+E-Mails liegen auf einem **Mailserver**. Dort hat jede Person ein **Postfach**, wie einen Briefkasten. Neue Mails warten im Postfach, bis du sie abrufst.
+
+[Bild: s06-mailserver.png | Der Mailserver der RGG mit dem Postfach verkauf]
+
+Zum Schreiben und Lesen nutzt du ein **E-Mail-Programm** auf dem Laptop. Dort richtest du einmal ein Konto ein: deine E-Mail-Adresse, deinen Mailserver, Benutzername und Passwort. Der Mailserver steht dort zweimal, einmal zum Senden (SMTP) und einmal zum Abrufen (IMAP). Bei uns ist es beide Male derselbe Server.
+
+[Bild: s06-konto.png | Das Konto verkauf im E-Mail-Programm des Büro-Laptops]
+
+### Eine Mail an ein anderes Unternehmen
+Schickt Anna aus der Schule eine Mail an verkauf@ravensberger24.de, gibt ihr E-Mail-Programm sie zuerst an den Mailserver der Schule. Der muss herausfinden, welcher Mailserver für ravensberger24.de zuständig ist. Das steht im DNS-Server in einem **MX-Eintrag** (MX steht für Mail Exchange).
+
+[Bild: s06-weg.png | Der Weg der Bestellung: Laptop-1, Mailserver Schule, Mailserver RGG, Postfach verkauf, Büro-Laptop]
+
+[Bild: s06-mx.png | Zwei MX-Einträge im DNS-Server]
+
+> Merke: Der A-Eintrag sagt, welche IPv4-Adresse ein Name hat. Der MX-Eintrag sagt, welcher Mailserver die Mails einer Domain bekommt.
+
+## Praxis
+
+### 6.1
+Richte den Mailserver der RGG ein:
+| Einstellung | Wert |
+|---|---|
+| PC am Switch RGG | „Mailserver RGG“ |
+| IPv4-Adresse | 192.168.1.12 |
+| Gateway | 192.168.1.1 |
+| DNS-Server | 192.168.2.10 |
+| Software | E-Mail-Server |
+| Maildomain | ravensberger24.de |
+
+Lege auf dem Mailserver das Konto für den Verkauf an:
+| Konto einrichten | Wert |
+|---|---|
+| Benutzername | verkauf |
+| Passwort | 123456 |
+Tipp: Die Maildomain lässt sich nur bei angehaltenem Server setzen. Starte den Server danach.
+
+### 6.2
+Lege im DNS-Server einen A-Eintrag für den Mailserver der RGG an:
+| Host-/Domainname | IPv4-Adresse |
+|---|---|
+| mail.ravensberger24.de | 192.168.1.12 |
+Tipp: Wie die Einträge in Kapitel 5, im Reiter „Adressen (A)“.
+
+### 6.3
+Installiere auf dem Büro-Laptop das E-Mail-Programm und richte das Konto verkauf@ravensberger24.de ein. Als Server trägst du mail.ravensberger24.de ein.
+Tipp: Benutzername und Passwort sind die des Kontos auf dem Mailserver.
+
+### 6.4
+Schicke vom Büro-Laptop eine Testmail an verkauf@ravensberger24.de, also an dich selbst, und rufe sie danach ab.
+Frage: Wo lag die Mail, bevor du sie abgerufen hast?
+- Auf dem Büro-Laptop
+- ✓ Im Postfach verkauf auf dem Mailserver RGG
+- Im DNS-Server
+- Im Router
+Tipp: Erst „Neu“ (Mail schreiben, unten rechts „Senden“), dann „Abrufen“.
+
+### 6.5
+Richte jetzt auch den Mailserver der Schule ein:
+| Einstellung | Wert |
+|---|---|
+| PC am Switch Schule | „Mailserver Schule“ |
+| IPv4-Adresse | 192.168.0.15 |
+| Gateway | 192.168.0.1 |
+| DNS-Server | 192.168.2.10 |
+| Software | E-Mail-Server |
+| Maildomain | rbz-wirtschaft-kiel.de |
+| Konten | anna und ben |
+Lege im DNS-Server auch den A-Eintrag mail.rbz-wirtschaft-kiel.de → 192.168.0.15 an.
+Tipp: Wie beim Mailserver der RGG.
+
+### 6.6
+Anna schreibt Ben:
+- Installiere auf Laptop-1 das E-Mail-Programm und richte das Konto anna@rbz-wirtschaft-kiel.de ein.
+- Schicke ben eine Testmail.
+- Richte auf Laptop-3 Bens E-Mail-Postfach ein (Konto ben@rbz-wirtschaft-kiel.de) und rufe die Mail ab.
+Tipp: Der Server ist bei beiden mail.rbz-wirtschaft-kiel.de. Auf Laptop-3 installierst du das E-Mail-Programm zuerst.
+
+### 6.7
+Damit Mails zwischen Schule und RGG ankommen, lege im DNS-Server zwei MX-Einträge an:
+| Maildomain | Domainname Mailserver |
+|---|---|
+| rbz-wirtschaft-kiel.de | mail.rbz-wirtschaft-kiel.de |
+| ravensberger24.de | mail.ravensberger24.de |
+Tipp: Reiter „Mailaustausch (MX)“ im DNS-Server.
+
+### 6.8
+Die Bestellung:
+- Anna bestellt per Mail an verkauf@ravensberger24.de eine Kiste Apfelschorle.
+- Der Verkauf ruft die Bestellung auf dem Büro-Laptop ab und antwortet.
+- Anna ruft die Antwort auf Laptop-1 ab.
+Tipp: „Antworten“ füllt den Empfänger von selbst aus.
+
+## Quiz
+
+### Was steht in verkauf@ravensberger24.de hinter dem @?
+- ✓ Die Domain des Unternehmens
+- Der Name des Postfachs
+Falsch: Der Name des Postfachs steht vor dem @, hier verkauf.
+- Das Passwort des Postfachs
+Falsch: Ein Passwort steht nie in einer E-Mail-Adresse.
+- Die IPv4-Adresse des Mailservers
+Falsch: Die IPv4-Adresse findet der Mailserver über DNS. In der Adresse steht die Domain.
+Erklärung: Vor dem @ steht das Postfach, dahinter die Domain, hier ravensberger24.de.
+
+### Wo wartet eine neue Mail, bis du sie abrufst?
+- ✓ Im Postfach auf dem Mailserver
+- Auf dem Laptop des Empfängers
+Falsch: Auf den Laptop kommt sie erst, wenn du sie abrufst.
+- Im DNS-Server beim DNS-Anbieter
+Falsch: Der DNS-Server kennt nur Namen und Adressen, keine Mails.
+- Im Router zwischen den Netzen
+Falsch: Der Router leitet Pakete nur weiter. Er speichert keine Mails.
+Erklärung: Jede Person hat auf dem Mailserver ein Postfach. Dort liegt die Mail, bis sie abgerufen wird.
+
+### Was ist ein Mailserver?
+- ✓ Ein PC, auf dem die Postfächer liegen und der Mails weitergibt
+- Ein Laptop, auf dem das E-Mail-Programm zum Schreiben von Mails läuft
+Falsch: Das ist ein Client. Der Mailserver ist ein Server, bei uns ein PC.
+- Ein anderes Wort für den DNS-Server beim DNS-Anbieter
+Falsch: Der DNS-Server übersetzt Namen. Der Mailserver verwaltet Postfächer.
+- Ein Teil des Routers, der alle Postfächer verwaltet
+Falsch: Der Mailserver ist ein eigener PC im Netz. Der Router leitet nur Pakete weiter.
+Erklärung: Auf dem Mailserver liegen die Postfächer. Er nimmt Mails an und gibt sie an andere Mailserver weiter.
+
+### Wozu brauchst du das E-Mail-Programm?
+- ✓ Um Mails zu schreiben, zu senden, abzurufen und zu lesen
+- Um neue Postfächer wie verkauf auf dem Mailserver anzulegen
+Falsch: Postfächer legst du in der Software E-Mail-Server an.
+- Um Domainnamen in IPv4-Adressen zu übersetzen
+Falsch: Das macht DNS.
+- Um den Mailserver zu starten und die Maildomain einzustellen
+Falsch: Den Mailserver startest du in der Software E-Mail-Server auf dem PC. Dort stellst du auch die Maildomain ein.
+Erklärung: Das E-Mail-Programm auf dem Laptop ist der Client. Mit ihm schreibst und liest du Mails.
+
+### Was sagt ein MX-Eintrag?
+- ✓ Welcher Mailserver die Mails einer Domain bekommt
+- Welche IPv4-Adresse ein Name im Netz hat
+Falsch: Das sagt der A-Eintrag.
+- Wie das Passwort eines Postfachs dieser Domain lautet
+Falsch: Passwörter stehen nie im DNS-Server.
+- Wie viele neue Mails im Postfach einer Person liegen
+Falsch: Das weiß nur der Mailserver selbst.
+Erklärung: Der MX-Eintrag nennt zu einer Domain den zuständigen Mailserver, zum Beispiel ravensberger24.de → mail.ravensberger24.de.
+
+### Mails von Anna an Ben kommen an, die Bestellung an verkauf@ravensberger24.de kommt nicht an. Was fehlt wahrscheinlich?
+- ✓ Der MX-Eintrag für ravensberger24.de
+- Das Konto anna auf dem Mailserver Schule
+Falsch: Mails an ben gehen, also funktioniert Annas Konto.
+- Das Kabel an Laptop-1 im Schulnetz
+Falsch: Mails an ben gehen. Laptop-1 ist also verbunden.
+- Die Software Webserver auf dem Shop
+Falsch: Der Webserver liefert nur die Seiten des Shops. Die Bestellung geht an den Mailserver RGG.
+Erklärung: Innerhalb der Schule braucht es kein MX. Für die fremde Domain muss der Mailserver der Schule den MX-Eintrag finden.
+
+### Wer gibt Annas Bestellung an den Mailserver der RGG weiter?
+- ✓ Der Mailserver der Schule
+- Annas Laptop-1 direkt
+Falsch: Laptop-1 gibt die Mail nur an den eigenen Mailserver der Schule.
+- Der DNS-Server 192.168.2.10
+Falsch: Der DNS-Server sagt nur, wohin. Die Mail selbst transportiert er nicht.
+- Der Büro-Laptop der RGG
+Falsch: Der Büro-Laptop ruft die Mail am Ende nur ab.
+Erklärung: Annas Programm schickt die Mail an den Mailserver der Schule. Der fragt per MX-Eintrag nach und gibt sie an den Mailserver der RGG.
+
+### Warum braucht mail.ravensberger24.de auch einen A-Eintrag?
+- ✓ Der MX-Eintrag nennt nur den Namen des Mailservers, die IPv4-Adresse steht im A-Eintrag
+- Ohne diesen A-Eintrag lädt auch der Shop www.ravensberger24.de im Browser nicht
+Falsch: Der Shop hat seinen eigenen A-Eintrag www.ravensberger24.de.
+- Der A-Eintrag legt das Postfach verkauf auf dem Mailserver an, sonst fehlt es
+Falsch: Postfächer legst du auf dem Mailserver an, nicht im DNS-Server.
+- Er braucht keinen A-Eintrag, denn der MX-Eintrag enthält schon die IPv4-Adresse
+Falsch: Der MX-Eintrag nennt nur den Namen. Ohne A-Eintrag findet niemand die IPv4-Adresse des Mailservers.
+Erklärung: Erst sagt der MX-Eintrag: mail.ravensberger24.de. Dann liefert der A-Eintrag dazu 192.168.1.12.
+
+## Glossar
+
+- **E-Mail-Adresse** – Adresse eines Postfachs, zum Beispiel verkauf@ravensberger24.de. Vor dem @ steht der Name des Postfachs, dahinter die Domain. Daran erkennt der Mailserver, wohin die Mail gehört.
+- **Mailserver** – PC, auf dem die Postfächer liegen. Er nimmt Mails an und gibt sie an andere Mailserver weiter. Bei uns läuft darauf die Software E-Mail-Server.
+- **Postfach** – Speicher für die Mails einer Person auf dem Mailserver, wie ein Briefkasten. Neue Mails warten dort, bis sie abgerufen werden. Das Postfach verkauf liegt auf dem Mailserver RGG.
+- **E-Mail-Programm** – Software auf dem Laptop zum Schreiben, Senden, Abrufen und Lesen von Mails. Im Konto stehen E-Mail-Adresse, Mailserver, Benutzername und Passwort. Es ist der Client zum Mailserver.
+- **MX-Eintrag** – Zeile im DNS-Server, die zu einer Domain den zuständigen Mailserver nennt. Beispiel: ravensberger24.de → mail.ravensberger24.de. Ohne MX-Eintrag kommen Mails von anderen Domains nicht an.

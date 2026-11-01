@@ -1,0 +1,263 @@
+# Homeoffice mit VPN
+Ziel: Annas Mutter arbeitet im Verkauf der RGG. Die RGG baut ein Intranet auf und schützt es mit einer Firewall. Damit Annas Mutter trotzdem von zu Hause arbeiten kann, richtest du ein VPN ein: Sie ruft die Mails des Verkaufs ab und schaut im Intranet nach, ob noch Apfelschorle da ist.
+
+## Lesen
+
+### Das Intranet der RGG
+Ein **Intranet** ist ein Netz mit Diensten nur für die Mitarbeiterinnen und Mitarbeiter eines Unternehmens, zum Beispiel interne Webseiten und Postfächer. Bei der RGG zeigt der PC „Intranet“ die Lager-Seite: Wie viele Kisten von jedem Getränk sind noch da?
+
+[Bild: k11-intranet.png | Die Lager-Seite im Intranet der RGG]
+
+Die Lager-Seite und die Postfächer gehen niemanden außerhalb der RGG etwas an. Deshalb verwirft die Firewall an R2 Router RGG neue Verbindungen aus dem Internet zum Intranet und zum Abrufen der Mails (IMAP, Port 143). Der Shop und das Empfangen von Mails (SMTP, Port 25) bleiben erreichbar.
+
+[Bild: k11-firewall.png | Zwei Regeln an R2: Intranet und IMAP sind von außen gesperrt]
+
+Im Büro klappt weiter alles. Die Pakete vom Büro-Laptop zum Intranet gehen nur über den Switch RGG und kommen gar nicht an R2 vorbei.
+
+### Homeoffice: von außen gesperrt
+Annas Mutter arbeitet an manchen Tagen zu Hause, im Homeoffice. Ihr Laptop steht im Heimnetz. Ihre Pakete gehen über den Heimrouter und das Internet zur RGG. Für die Firewall an R2 ist das eine Anfrage von außen mit dem Absender 203.0.113.3. Sie wird verworfen, genau wie die Anfrage eines Fremden.
+
+### VPN: ein Tunnel durchs Internet
+Ein **VPN** (Virtual Private Network) verbindet ein Gerät über das Internet so mit dem Netz eines Unternehmens, als stünde es dort im Büro. Dazu baut ein Programm auf dem Laptop, der **VPN-Client**, einen **Tunnel** zum **VPN-Server** im Netz des Unternehmens auf:
+- Der VPN-Client packt jedes Paket für das Netz der RGG komplett in ein neues Paket an den VPN-Server: UDP an Port 1194, verschlüsselt.
+- Der VPN-Server packt es aus und schickt es im Netz der RGG weiter, mit seiner eigenen Adresse als Absender.
+- Die Antwort kommt zum VPN-Server. Er packt sie wieder ein und schickt sie durch den Tunnel zurück.
+
+[Bild: k11-tunnel.png | Außen ein verschlüsseltes UDP-Paket an Port 1194, innen das eigentliche Paket an das Intranet]
+
+Unterwegs sieht man nur UDP-Pakete zwischen Heimrouter und VPN-Server, gefüllt mit Zeichensalat. Die Firewall an R2 lässt sie durch, denn sie gehen an den VPN-Server und nicht an das Intranet.
+
+### Anmelden wie bei HTTPS
+Nicht jeder darf in den Tunnel. Der VPN-Server kennt Benutzer mit Passwort. Der Aufbau des Tunnels ähnelt dem TLS-Handshake aus Kapitel 4:
+1. ClientHello: Der VPN-Client meldet sich beim VPN-Server.
+2. ServerHello: Der Server schickt sein Zertifikat mit seinem öffentlichen Schlüssel, dem offenen Vorhängeschloss.
+3. Login: Der Client denkt sich einen Sitzungsschlüssel aus und schickt ihn, verschlossen mit dem öffentlichen Schlüssel des Servers (asymmetrisch). Benutzername und Passwort sind mit dem Sitzungsschlüssel verschlüsselt.
+4. Accept: Der Server prüft Name und Passwort und gibt dem Laptop eine **VPN-Adresse**, zum Beispiel 10.8.0.2.
+
+Ab jetzt ist jedes Paket im Tunnel mit dem Sitzungsschlüssel verschlüsselt (symmetrisch).
+
+[Bild: k11-vpnclient.png | Der VPN-Client ist verbunden: VPN-Adresse 10.8.0.2, Netz im Tunnel 198.51.100.0/24]
+
+Der Laptop hat jetzt zwei Adressen: seine Adresse im Heimnetz und die VPN-Adresse. Pakete an das „Netz im Tunnel“, hier 198.51.100.0/24, schickt er durch den Tunnel. Alles andere, zum Beispiel die Schulseite, geht wie immer direkt ins Internet.
+
+### Der VPN-Server
+Im Fenster des VPN-Servers legst du die Benutzer an und startest den Server. Die VPN-Adressen und das Netz im Tunnel kannst du so lassen: Der Server nimmt 10.8.0.0 für die VPN-Adressen und sein eigenes Netz als Netz im Tunnel.
+
+[Bild: k11-vpnserver.png | Der VPN-Server mit dem Benutzer verkauf; das Log zeigt, wer verbunden ist]
+
+### Im Datenaustausch
+Im Datenaustausch des Homeoffice-Laptops heißen die Pakete VPN. Für die Lager-Seite siehst du „VPN Data“ mit Zeichensalat. Darunter zeigt Filius den entschlüsselten Inhalt: das innere Paket von 10.8.0.2 an 198.51.100.40 mit der HTTP-Anfrage. Das sehen nur der Laptop und der VPN-Server, denn nur sie haben den Sitzungsschlüssel.
+
+[Bild: k11-datenaustausch.png | Ein VPN-Paket im Datenaustausch, darunter das innere Paket]
+
+> Merke: Ein VPN verschlüsselt den Weg bis zum VPN-Server. Im Netz der RGG geht das Paket danach unverschlüsselt weiter, mit dem VPN-Server als Absender.
+
+## Praxis
+
+### 11.1
+Richte im Netz der RGG das Intranet ein:
+| Einstellung | Wert |
+|---|---|
+| PC am Switch RGG | „Intranet“ |
+| IPv4-Adresse | 198.51.100.40 |
+| Gateway | 198.51.100.1 |
+| Software | Webserver und Text-Editor |
+| Überschrift der Startseite | „Lager der RGG“ |
+| Absatz darunter | „Apfelschorle: 120 Kisten“ |
+Tipp: Wie beim Shop in Kapitel 5. Den Absatz schreibst du im Text-Editor unter die Überschrift: `<p>Apfelschorle: 120 Kisten</p>`. Starte danach den Webserver.
+
+### 11.2
+Teste im Büro der RGG auf dem Büro-Laptop:
+- Öffne die Lager-Seite http://198.51.100.40.
+- Rufe die Mails des Verkaufs ab.
+Tipp: Beides klappt, denn der Büro-Laptop steht im Netz der RGG.
+
+### 11.3
+Annas Mutter bekommt einen Laptop im Heimnetz:
+| Einstellung | Wert |
+|---|---|
+| Laptop im Heimnetz | „Homeoffice-Laptop“ |
+| Verbindung | WLAN „Heim-WLAN“ |
+| Adresse | per DHCP |
+| Software | Webbrowser und E-Mail-Programm |
+| E-Mail-Konto | verkauf@ravensberger24.de |
+Tipp: Wie den Heim-Laptop in Kapitel 8. Das Konto richtest du ein wie auf dem Büro-Laptop: Server mail.ravensberger24.de, dasselbe Passwort.
+
+### 11.4
+Öffne auf dem Homeoffice-Laptop die Lager-Seite http://198.51.100.40.
+Frage: Wer kann die Lager-Seite gerade öffnen?
+- ✓ Jeder im Internet, der die Adresse kennt
+- Nur Geräte im Netz der RGG
+- Nur der Homeoffice-Laptop, weil er ein Konto beim Verkauf hat
+- Niemand, die Seite ist verschlüsselt
+Tipp: Der Homeoffice-Laptop gehört nicht zum Netz der RGG. Trotzdem lädt die Seite.
+
+### 11.5
+Schütze das Netz der RGG mit der Firewall an R2 Router RGG. Lege zwei Regeln an:
+- Regel 1: Ziel-IPv4 198.51.100.40, Netzmaske 255.255.255.255, Protokoll TCP, Port leer lassen, Aktion verwerfen
+- Regel 2: Ziel-IPv4 198.51.100.25, Netzmaske 255.255.255.255, Protokoll TCP, Port 143, Aktion verwerfen
+Stelle die Standardaktion auf „akzeptieren (Blacklist)“ und setze den Haken „Firewall aktivieren“.
+Tipp: In der Konfiguration von R2 führt „Firewall einrichten“ zum Dialog. Wie in Kapitel 10 gilt ein leeres Feld für alle Werte.
+
+### 11.6
+Teste:
+- Auf dem Büro-Laptop öffnen sich die Lager-Seite und die Mails weiterhin.
+- Auf dem Homeoffice-Laptop klappt beides nicht mehr.
+Frage: Warum klappt es auf dem Büro-Laptop noch?
+- ✓ Seine Pakete zum Intranet und zum Mailserver gehen nur über den Switch RGG, nicht über R2
+- Der Büro-Laptop kennt ein Passwort für die Firewall
+- Die Firewall gilt nur für Geräte im WLAN
+- Der Büro-Laptop nutzt HTTPS
+Tipp: Wenn nichts kommt, wartet der Homeoffice-Laptop eine Weile. Das ist hier das erwartete Ergebnis.
+
+### 11.7
+Richte im Netz der RGG den VPN-Server ein:
+| Einstellung | Wert |
+|---|---|
+| PC am Switch RGG | „VPN-Server“ |
+| IPv4-Adresse | 198.51.100.10 |
+| Gateway | 198.51.100.1 |
+| Software | VPN-Server |
+| Benutzer | verkauf |
+| Passwort | Homeoffice |
+Tipp: Lege den Benutzer an und klicke auf „Starten“. VPN-Adressen und Netz im Tunnel bleiben, wie sie sind.
+
+### 11.8
+Installiere auf dem Homeoffice-Laptop den VPN-Client und verbinde dich mit dem VPN-Server 198.51.100.10 als verkauf mit dem Passwort Homeoffice.
+Frage: Welche VPN-Adresse hat der Homeoffice-Laptop bekommen?
+Eingabe: IPv4-Adresse
+Tipp: Der VPN-Client zeigt sie an, sobald er verbunden ist. Auch `ipconfig` zeigt sie jetzt.
+
+### 11.9
+Rufe auf dem Homeoffice-Laptop die Mails des Verkaufs ab.
+Tipp: Hast du zwischendurch die Simulation beendet? Dann verbinde den VPN-Client neu.
+
+### 11.10
+Öffne auf dem Homeoffice-Laptop die Lager-Seite http://198.51.100.40. Ist noch Apfelschorle da?
+Frage: Von welcher Adresse kommt die Anfrage beim Intranet an?
+Eingabe: IPv4-Adresse
+Tipp: Schau in den Datenaustausch des Intranets.
+
+### 11.11
+Öffne den Datenaustausch des Heimrouters.
+Frage: Was siehst du dort von deinem Aufruf der Lager-Seite?
+- ✓ Nur verschlüsselte UDP-Pakete zwischen Heimrouter und VPN-Server, Port 1194
+- Die Lager-Seite im Klartext
+- HTTP-Pakete an 198.51.100.40
+- Gar nichts, der Tunnel geht am Heimrouter vorbei
+Tipp: Achte auf die Spalte „Protokoll“.
+
+### 11.12
+Ergänze den Netzplan: Schreibe neben den VPN-Server ein Textfeld „VPN, UDP 1194“.
+Tipp: Das Textfeld gehört direkt neben den VPN-Server, in die Fläche des RGG-Netzes. Der Dokumentationsmodus beendet die Simulation. Danach verbindest du den VPN-Client neu.
+
+## Quiz
+
+### Was ist ein Intranet?
+- ✓ Ein Netz mit Diensten nur für die Mitarbeiterinnen und Mitarbeiter eines Unternehmens
+- Das Internet einer Stadt
+Falsch: Ein Intranet gehört einem Unternehmen, nicht einer Stadt. Von außen ist es gesperrt.
+- Ein besonders schnelles WLAN
+Falsch: Mit der Geschwindigkeit hat das nichts zu tun. Es geht darum, wer die Dienste nutzen darf.
+- Ein anderes Wort für das Heimnetz
+Falsch: Das Heimnetz ist dein privates Netz zu Hause. Ein Intranet ist das interne Netz eines Unternehmens.
+Erklärung: Im Intranet der RGG liegen die Lager-Seite und die Postfächer. Nur wer im Netz der RGG ist, kommt daran.
+
+### Warum kann Annas Mutter ohne VPN von zu Hause nicht auf die Lager-Seite?
+- ✓ Die Firewall an R2 verwirft Verbindungen aus dem Internet zum Intranet
+- Der Heimrouter kennt die Adresse 198.51.100.40 nicht
+Falsch: Der Heimrouter schickt alles für fremde Netze ins Internet. Die Anfrage kommt bis zu R2.
+- Das Intranet hat kein Gateway
+Falsch: Mit Gateway antwortet das Intranet dem Büro-Laptop ja auch. Die Anfrage kommt gar nicht erst an.
+- Sie hat das falsche Passwort
+Falsch: Die Lager-Seite fragt kein Passwort ab. Die Firewall verwirft die Anfrage vorher.
+Erklärung: Für die Firewall an R2 kommt die Anfrage von außen, vom Heimrouter mit 203.0.113.3. Regel 1 verwirft sie.
+
+### Was macht ein VPN?
+- ✓ Es verbindet ein Gerät über einen verschlüsselten Tunnel mit dem Netz eines Unternehmens
+- Es macht das Internet schneller
+Falsch: Ein VPN macht nichts schneller. Es verschlüsselt und verpackt die Pakete.
+- Es ersetzt den Heimrouter
+Falsch: Der Heimrouter wird weiter gebraucht. Durch ihn gehen die Pakete des Tunnels ins Internet.
+- Es vergibt IPv4-Adressen im Heimnetz
+Falsch: Das macht der DHCP-Server im Heimrouter. Der VPN-Server vergibt nur die VPN-Adressen.
+Erklärung: Mit dem VPN arbeitet der Laptop im Homeoffice, als stünde er im Netz der RGG.
+
+### Was sieht man unterwegs, zum Beispiel am Heimrouter, vom Aufruf der Lager-Seite über das VPN?
+- ✓ Nur verschlüsselte UDP-Pakete an Port 1194 des VPN-Servers
+- Die HTTP-Anfrage im Klartext
+Falsch: Die HTTP-Anfrage steckt verschlüsselt im Tunnel. Lesen können sie nur Laptop und VPN-Server.
+- Das Passwort des VPN-Benutzers im Klartext
+Falsch: Name und Passwort reisen mit dem Sitzungsschlüssel verschlüsselt.
+- Gar nichts, der Tunnel geht am Heimrouter vorbei
+Falsch: Der Tunnel läuft durch das Internet, also auch durch den Heimrouter. Man sieht nur nicht hinein.
+Erklärung: Außen sieht man Absender, Empfänger und Port 1194. Was im Tunnel steckt, bleibt verborgen.
+
+### Welchen Port nutzt der VPN-Server in Filius?
+- ✓ UDP 1194
+- TCP 443
+Falsch: TCP 443 gehört zu HTTPS.
+- TCP 143
+Falsch: TCP 143 gehört zu IMAP, dem Abrufen von Mails.
+- UDP 53
+Falsch: UDP 53 gehört zu DNS.
+Erklärung: Der VPN-Server wartet an UDP-Port 1194, wie das verbreitete Programm OpenVPN. Diesen Port lässt die Firewall an R2 durch.
+
+### Wozu dient die VPN-Adresse 10.8.0.2?
+- ✓ Mit ihr ist der Laptop im Tunnel adressiert; sie gilt nur, solange das VPN verbunden ist
+- Sie ersetzt die Adresse im Heimnetz
+Falsch: Die Adresse im Heimnetz bleibt. Der Laptop hat jetzt zwei Adressen.
+- Sie ist die Adresse des Heimrouters
+Falsch: Der Heimrouter hat 192.168.178.1 und 203.0.113.3. Die VPN-Adresse gehört dem Laptop.
+- Sie ist die Adresse des Intranets
+Falsch: Das Intranet hat 198.51.100.40. Die VPN-Adresse vergibt der VPN-Server an den Laptop.
+Erklärung: Die inneren Pakete im Tunnel kommen von 10.8.0.2. Der VPN-Server weiß so, wohin er die Antworten schicken muss.
+
+### Von welcher Adresse sieht das Intranet die Anfrage aus dem Homeoffice?
+- ✓ Von der Adresse des VPN-Servers, 198.51.100.10
+- Von 192.168.178.101, der Adresse des Laptops im Heimnetz
+Falsch: Die private Adresse aus dem Heimnetz kommt gar nicht bis zur RGG.
+- Von 203.0.113.3, dem Heimrouter
+Falsch: Der Heimrouter ist nur Absender der äußeren UDP-Pakete an den VPN-Server.
+- Von 10.8.0.2, der VPN-Adresse
+Falsch: In Filius schickt der VPN-Server die Pakete mit seiner eigenen Adresse weiter, wie bei NAT.
+Erklärung: Der VPN-Server packt das Paket aus und schickt es mit seiner Adresse weiter. Die Antwort geht deshalb an ihn zurück.
+
+### Welche Pakete schickt der Homeoffice-Laptop durch den Tunnel?
+- ✓ Nur Pakete an das Netz im Tunnel, hier 198.51.100.0/24
+- Alle Pakete, auch an die Schulseite
+Falsch: Die Schulseite liegt nicht im Netz im Tunnel. Diese Pakete gehen wie immer direkt ins Internet.
+- Nur E-Mails
+Falsch: Auch die Lager-Seite geht durch den Tunnel. Es zählt das Ziel, nicht das Protokoll.
+- Nur Pakete an den VPN-Server selbst
+Falsch: Pakete an den VPN-Server selbst gehen gerade nicht in den Tunnel, sonst wären sie doppelt verpackt.
+Erklärung: Der VPN-Server teilt dem Client beim Anmelden das Netz im Tunnel mit. Nur dafür nimmt der Laptop den Tunnel.
+
+### Wie kommt der Sitzungsschlüssel beim Aufbau des Tunnels sicher zum VPN-Server?
+- ✓ Verschlossen mit dem öffentlichen Schlüssel des Servers (asymmetrisch)
+- Im Klartext, er ist nicht geheim
+Falsch: Wer den Sitzungsschlüssel kennt, kann den ganzen Tunnel mitlesen. Er muss geschützt werden.
+- Er steht im Zertifikat des Servers
+Falsch: Im Zertifikat steht der öffentliche Schlüssel des Servers. Den Sitzungsschlüssel denkt sich der Client aus.
+- Die Firewall an R2 bringt ihn hin
+Falsch: Die Firewall prüft nur Pakete. Mit Schlüsseln hat sie nichts zu tun.
+Erklärung: Wie bei TLS: asymmetrisch für die sichere Übergabe des Sitzungsschlüssels, danach symmetrisch für alle Pakete.
+
+### Der VPN-Client meldet „Anmeldung abgelehnt“. Woran liegt das?
+- ✓ Benutzername oder Passwort passen nicht zu einem Benutzer im VPN-Server
+- Die Firewall an R2 sperrt Port 1194
+Falsch: Dann käme gar keine Antwort vom VPN-Server, auch keine Ablehnung.
+- Der Homeoffice-Laptop hat kein WLAN
+Falsch: Ohne Verbindung käme ebenfalls keine Antwort. Eine Ablehnung schickt nur ein erreichbarer VPN-Server.
+- Das Intranet ist ausgeschaltet
+Falsch: Das Intranet hat mit der Anmeldung am VPN-Server nichts zu tun.
+Erklärung: Der VPN-Server hat geantwortet, also ist er erreichbar. Er hat nur Name oder Passwort nicht akzeptiert.
+
+## Glossar
+
+- **Intranet** – Netz mit Diensten nur für die Mitarbeiterinnen und Mitarbeiter eines Unternehmens, zum Beispiel interne Webseiten und Postfächer. Von außen sperrt eine Firewall den Zugang. Bei der RGG zeigt der PC „Intranet“ die Lager-Seite.
+- **VPN** – Virtual Private Network. Es verbindet ein Gerät über das Internet so mit dem Netz eines Unternehmens, als stünde es dort im Büro. Dazu baut der VPN-Client einen verschlüsselten Tunnel zum VPN-Server auf. Typisch für das Arbeiten im Homeoffice.
+- **VPN-Client** – Programm auf dem Gerät im Homeoffice. Es meldet sich mit Benutzer und Passwort beim VPN-Server an und bekommt eine VPN-Adresse. Danach schickt es alle Pakete für das Netz im Tunnel verschlüsselt an den VPN-Server.
+- **Tunnel** – Weg, bei dem ein ganzes Paket in ein anderes Paket verpackt wird. Beim VPN liegt das eigentliche Paket verschlüsselt in einem UDP-Paket an den VPN-Server. Unterwegs sieht man nur das äußere Paket.
+- **VPN-Server** – Programm im Netz des Unternehmens, in Filius an UDP-Port 1194. Es prüft Benutzer und Passwort, packt die Pakete aus dem Tunnel aus und schickt sie mit seiner eigenen Adresse im Netz des Unternehmens weiter. Die Antworten schickt es durch den Tunnel zurück.
+- **VPN-Adresse** – zweite Adresse, die ein Gerät für die Dauer der VPN-Verbindung vom VPN-Server bekommt, zum Beispiel 10.8.0.2. Mit ihr sind die Pakete im Tunnel adressiert. `ipconfig` zeigt sie unter „VPN-Adapter“.

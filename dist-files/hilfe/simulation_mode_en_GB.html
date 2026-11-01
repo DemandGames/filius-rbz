@@ -1,0 +1,64 @@
+<html><head><meta charset="UTF-8"><style type="text/css">
+body { font-family: 'Atkinson Hyperlegible', sans-serif; font-size: 13pt; color: #1C2B3A; margin-top: 8px; margin-left: 6px; margin-right: 6px; margin-bottom: 30px; }
+p { margin-top: 0px; margin-bottom: 10px; }
+h1 { font-size: 21pt; color: #1C2B3A; margin-top: 10px; margin-bottom: 4px; }
+h2 { font-size: 15pt; color: #1C2B3A; margin-top: 22px; margin-bottom: 8px; border-left-width: 4px; border-left-style: solid; border-left-color: #13A35A; padding-left: 8px; }
+p.lead { color: #4A5B6C; font-size: 13.5pt; margin-bottom: 2px; }
+td.chip { color: #FFFFFF; font-size: 11pt; font-weight: bold; }
+td.shot { border-width: 1px; border-style: solid; border-color: #DDE4EB; }
+p.cap { color: #8796A5; font-size: 11.5pt; text-align: center; margin-top: 5px; margin-bottom: 16px; }
+p.gap { margin-top: 0px; margin-bottom: 12px; }
+td.tip { color: #1C2B3A; }
+p.ic { margin-top: 2px; margin-right: 10px; margin-bottom: 0px; }
+p.it { margin-top: 0px; margin-bottom: 14px; }
+p.mi { margin-top: 0px; margin-right: 10px; margin-bottom: 10px; }
+p.mt { margin-top: 0px; margin-bottom: 10px; }
+span.key { font-family: 'JetBrains Mono', monospace; font-size: 11pt; background-color: #EAEFF4; }
+span.name { font-weight: bold; }
+span.tg-server { color: #6B3FC2; background-color: #EFEAF8; font-weight: bold; font-size: 11pt; }
+span.tg-client { color: #2A5FC4; background-color: #E8EDF9; font-weight: bold; font-size: 11pt; }
+span.tg-p2p { color: #0A6C66; background-color: #E3EEED; font-weight: bold; font-size: 11pt; }
+span.tg-tool { color: #4A5B6C; background-color: #EBEDEF; font-weight: bold; font-size: 11pt; }
+</style></head><body>
+<table cellspacing="0" cellpadding="4" border="0"><tr><td class="chip" bgcolor="#0E8045">&nbsp;SIMULATION&nbsp;</td></tr></table><h1>Simulation Mode</h1><p class="lead">Now your network is running: you use the devices and watch how the data flows.</p>
+<h2>Using PCs and laptops</h2>
+<p>Click a PC or laptop to open its desktop. With <b>Software Installation</b> at the top left you install and remove programs. You can drag the border of the window to make it larger or maximize it with the button at the top right.</p>
+<table width="100%" cellspacing="0" cellpadding="10" border="0"><tr><td align="center" bgcolor="#F2F5F8"><img src="hilfe/gfx/icon_softwareinstallation_en_GB.png" width="130" height="96" border="0"></td></tr></table><p class="gap"></p>
+<p>Every program carries a tag that shows its role in the network:</p>
+<table width="100%" cellspacing="0" cellpadding="0" border="0"><tr><td valign="top" nowrap><p class="mi"><span class="tg-server">&nbsp;Server&nbsp;</span></p></td><td valign="top"><p class="mt">offers a service to other devices, e.g. web pages or mailboxes.</p></td></tr><tr><td valign="top" nowrap><p class="mi"><span class="tg-client">&nbsp;Client&nbsp;</span></p></td><td valign="top"><p class="mt">uses the service of a server, e.g. it fetches web pages.</p></td></tr><tr><td valign="top" nowrap><p class="mi"><span class="tg-p2p">&nbsp;Peer-to-peer&nbsp;</span></p></td><td valign="top"><p class="mt">is client and server at once.</p></td></tr><tr><td valign="top" nowrap><p class="mi"><span class="tg-tool">&nbsp;Tool&nbsp;</span></p></td><td valign="top"><p class="mt">is neither client nor server, e.g. for editing files or testing the network.</p></td></tr></table>
+<table width="100%" cellspacing="0" cellpadding="0" border="0"><tr><td align="center" class="shot"><img src="hilfe/gfx/softwareinstallation_en_GB.png" width="274" height="270" border="0"></td></tr></table><p class="cap">Available programs with their tags</p>
+<p>Double-click an icon to open the program. Whether its window is open or closed does not change its work. This matters especially for server programs.</p>
+<h2>Your own web pages</h2>
+<p>The Waterwolf web browser shows pages like a current browser: HTML5, CSS (e.g. flexbox, grid, variables, animations) and JavaScript (e.g. events, DOM, fetch, canvas, localStorage).</p>
+<p>Put the files into the <b>webserver</b> folder of a PC running a web server: with the text editor (colours for HTML, CSS and JavaScript, line numbers, find with <b>Ctrl+F</b>, save with <b>Ctrl+S</b>) or by importing them in the file explorer. Every file the page loads (stylesheet, script, image) is a request of its own in the simulated network.</p>
+<table width="100%" cellspacing="0" cellpadding="0" border="0"><tr><td width="4" bgcolor="#13A35A"></td><td bgcolor="#E6F5EC"><table width="100%" cellspacing="0" cellpadding="9" border="0"><tr><td class="tip"><b>Tip:</b> Open the data exchange of the laptop with the browser and reload the page: you see every single file as an HTTP request.</td></tr></table></td></tr></table>
+<h2>Encryption with HTTPS</h2>
+<p>In the window of the web server you switch on HTTPS at port 443 under <b>Encryption (HTTPS)</b> and, if you like, switch off HTTP at port 80. <b>Certificate for</b> holds the names and addresses the certificate is valid for, separated by commas; if it is empty, the certificate is valid for no server. The Filius Certificate Authority signs it; with <b>Self-signed</b> the signature is missing and browsers warn you.</p>
+<p>In the web browser a lock in front of the address shows whether the page came encrypted (green), with a certificate the browser does not trust (red) or unencrypted (grey). A click shows the certificate. In the data exchange the messages are called TLS; sender and receiver also see the decrypted content there, all other devices only a jumble of characters.</p>
+<h2>VPN: home office</h2>
+<p>The programs <b>VPN server</b> and <b>VPN client</b> build an encrypted tunnel through the internet. In the VPN server you add users with passwords and start it; it waits at UDP port 1194. <b>VPN addresses</b> holds the network for the addresses in the tunnel (10.8.0.0), <b>Network in the tunnel</b> the network the clients can reach. Empty means: the network of the VPN server.</p>
+<p>In the VPN client you enter the IPv4 address of the VPN server, user and password and click <b>Connect</b>. After that all packets for the network in the tunnel go encrypted to the VPN server, which sends them on with its own address. <b>ipconfig</b> shows the VPN adapter; in the data exchange the packets are called VPN. Stopping the simulation disconnects.</p>
+<h2>Viewing the IP configuration</h2>
+<p>The icon at the bottom right of the desktop bar shows the IP configuration of the device. A second click on the icon or a click on the desktop closes it again.</p>
+<table width="100%" cellspacing="0" cellpadding="10" border="0"><tr><td align="center" bgcolor="#F2F5F8"><img src="hilfe/gfx/netzwek_aus_en_GB.png" width="150" height="30" border="0"></td></tr></table><p class="gap"></p>
+<h2>Watching the data exchange</h2>
+<p>When a packet travels through a cable, the cable fills with blue from the sender and then empties towards the receiver – the blue flows along with the packet. On a Wi-Fi link, radio waves go out from the sender and a signal point lights up at the receiver as soon as the packet has arrived.</p>
+<table width="100%" cellspacing="0" cellpadding="0" border="0"><tr><td align="center" class="shot"><img src="hilfe/gfx/kabel_aktiv_en_GB.png" width="300" height="120" border="0"></td></tr></table><p class="cap">A packet flows from the PC to the switch.</p>
+<p>The <b>Speed</b> slider at the top slows down or speeds up the data exchange.</p>
+<table width="100%" cellspacing="0" cellpadding="10" border="0"><tr><td align="center" bgcolor="#F2F5F8"><img src="hilfe/gfx/tempo_en_GB.png" width="191" height="36" border="0"></td></tr></table><p class="gap"></p>
+<p>All data a device sends and receives is shown by <b>Show data exchange</b> in its context menu (right mouse button).</p>
+<table width="100%" cellspacing="0" cellpadding="0" border="0"><tr><td align="center" class="shot"><img src="hilfe/gfx/kontextmenue_simulation_en_GB.png" width="340" height="120" border="0"></td></tr></table><p class="gap"></p>
+<p>In the table each message takes one or more rows. The colours show which layer the data belongs to. Click a row to see all layers of this message below.</p>
+<h2>TCP/IP or OSI model</h2>
+<p>At the top right of the data exchange window you choose the layer model. It starts with the TCP/IP model and its four layers.</p>
+<table width="100%" cellspacing="0" cellpadding="10" border="0"><tr><td align="center" bgcolor="#F2F5F8"><img src="hilfe/gfx/schichtmodell_en_GB.png" width="164" height="44" border="0"></td></tr></table><p class="gap"></p>
+<p>The OSI model shows all seven layers with their numbers, and next to them the TCP/IP layer they belong to. Filius has no data of its own for layers 1, 5 and 6; an explanation is shown instead.</p>
+<table width="100%" cellspacing="0" cellpadding="0" border="0"><tr><td align="center" class="shot"><img src="hilfe/gfx/osi_stapel_en_GB.png" width="292" height="296" border="0"></td></tr></table><p class="cap">A web page request in the OSI model</p>
+<table width="100%" cellspacing="0" cellpadding="0" border="0"><tr><td width="4" bgcolor="#13A35A"></td><td bgcolor="#E6F5EC"><table width="100%" cellspacing="0" cellpadding="9" border="0"><tr><td class="tip"><b>Tip:</b> Compare both models for the same message: which OSI layers are part of the TCP/IP application layer?</td></tr></table></td></tr></table>
+<h2>Firewall of the router</h2>
+<p>Install a web browser on a connected laptop and enter an IPv4 address of the router in the address bar. On that page you switch the firewall on and off, configure it and see its log.</p>
+<h2>Viewing the switch table</h2>
+<p>A switch remembers through which port it reaches which MAC address (Source Address Table, SAT). Click the switch to see this table.</p>
+<h2>Switching modes</h2>
+<table width="100%" cellspacing="0" cellpadding="0" border="0"><tr><td valign="middle" width="106"><p class="mi"><img src="hilfe/gfx/entwurfsmodus_en_GB.png" width="94" height="38" border="0"></p></td><td valign="middle"><p class="mt">build the network and configure the devices</p></td></tr><tr><td valign="middle" width="155"><p class="mi"><img src="hilfe/gfx/dokumodus_en_GB.png" width="143" height="38" border="0"></p></td><td valign="middle"><p class="mt">label the network and export it as an image or report</p></td></tr></table>
+</body></html>

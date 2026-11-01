@@ -1,0 +1,214 @@
+# Namen statt Nummern: DNS
+Ziel: Im Providernetz entsteht ein DNS-Server. Danach sind die Schulseite und der Shop unter www.rbz-wirtschaft-kiel.de und www.ravensberger24.de erreichbar: aus der Schule und von der RGG aus.
+
+## Lesen
+
+### Warum Namen?
+Niemand merkt sich 198.51.100.80. Leichter ist ein Name wie www.ravensberger24.de. Ein Gerät braucht zum Senden aber immer eine IPv4-Adresse.
+
+[Bild: k06-adresszeile.png | Der Shop im Browser, aufgerufen über seinen Namen]
+
+Die Übersetzung von Namen in Adressen übernimmt das **DNS** (Domain Name System). Es arbeitet wie ein Telefonbuch: Du kennst den Namen und schlägst die Nummer nach. Zieht der Shop einmal um, ändert man nur den Eintrag im Telefonbuch. Der Name bleibt.
+
+### Aufbau eines Domainnamens
+Ein **Domainname** wie www.rbz-wirtschaft-kiel.de wird von rechts nach links gelesen:
+
+- `de` ist die **Top-Level-Domain**,
+- `rbz-wirtschaft-kiel` ist die Domain, die sich die Schule gesichert hat,
+- `www` ist der Name eines Rechners in dieser Domain.
+
+[Bild: k06-domainname.png | www.rbz-wirtschaft-kiel.de in drei Teilen]
+
+Für das DNS sind www.rbz-wirtschaft-kiel.de und rbz-wirtschaft-kiel.de zwei verschiedene Namen. Jeder braucht einen eigenen Eintrag.
+
+### Den DNS-Server einrichten
+Ein **DNS-Server** beantwortet Anfragen nach Namen. Du installierst die Software DNS-Server auf einem PC und legst dort Einträge an. Ein **A-Eintrag** ordnet einem Namen eine IPv4-Adresse zu.
+
+[Bild: k06-dns-server.png | Der DNS-Server mit zwei A-Einträgen]
+
+Jedes Gerät muss wissen, welchen DNS-Server es fragen soll. Bei festen Einstellungen steht er im Feld „Domain Name Server“. Geräte mit DHCP bekommen ihn vom DHCP-Server (Kapitel 7).
+
+### Erst fragen, dann verbinden
+Tippst du www.ravensberger24.de in den Browser, passiert zuerst eine DNS-Anfrage: „Welche Adresse hat www.ravensberger24.de?“. Erst mit der Antwort kann der Browser die TCP-Verbindung zum Shop aufbauen.
+
+[Bild: k06-dns-ablauf.png | DNS-Anfrage und -Antwort, danach SYN und GET an den Shop]
+
+DNS-Anfragen sind kurz und passen in ein Paket. Deshalb nutzen sie nicht TCP, sondern das schlanke **UDP** ohne Verbindungsaufbau, an Port 53.
+
+Mit dem Befehl **nslookup** stellst du in der Befehlszeile selbst eine DNS-Anfrage, zum Beispiel `nslookup www.ravensberger24.de`.
+
+### Namen im Zertifikat
+Die Schulseite ist seit Kapitel 4 mit HTTPS verschlüsselt. Ihr Zertifikat gilt aber nur für das, was darin steht, bisher nur für 192.168.10.10. Rufst du die Seite über ihren Namen auf, warnt der Browser: Er kann nicht prüfen, ob www.rbz-wirtschaft-kiel.de wirklich der echte Server ist.
+
+[Bild: k06-zertifikatsname.png | Die Warnung: Das Zertifikat gilt nicht für den Namen]
+
+Deshalb trägst du am Webserver unter „Zertifikat für“ auch die Namen ein. Echte Websites haben ein Zertifikat für alle Namen, unter denen man sie erreicht.
+
+## Praxis
+
+### 6.1
+Stelle im Providernetz einen DNS-Server auf:
+- PC „DNS-Server“ am Switch Provider
+- IPv4-Adresse 203.0.113.53, Netzmaske 255.255.255.0
+- Gateway 203.0.113.1
+- Software „DNS-Server“ installieren
+Tipp: Die Adresse .53 erinnert an den DNS-Port 53.
+
+### 6.2
+Lege im DNS-Server für beide Websites einen A-Eintrag an und starte ihn:
+- www.rbz-wirtschaft-kiel.de
+- www.ravensberger24.de
+Tipp: Die Adressen der beiden Webserver kennst du aus Kapitel 3 und 5.
+
+### 6.3
+Trage bei allen Laptops den DNS-Server 203.0.113.53 ein:
+- in der Schule: Laptop-1 bis Laptop-4
+- bei der RGG: Büro-Laptop
+Tipp: Das Feld heißt „Domain Name Server“ und steht in den Einstellungen jedes Laptops.
+
+### 6.4
+Finde auf Laptop-1 mit `nslookup` heraus, welche Adresse zu www.ravensberger24.de gehört.
+Tipp: Antwortet der DNS-Server nicht, läuft er vielleicht noch nicht.
+
+### 6.5
+Öffne die Websites über ihre Namen:
+| Gerät | Adresse im Browser |
+|---|---|
+| Laptop-2 | http://www.ravensberger24.de |
+| Büro-Laptop | https://www.rbz-wirtschaft-kiel.de |
+Bei der Schulseite warnt der Browser. Darum kümmerst du dich in 6.7.
+Tipp: Klappt ein Name nicht, frage auf diesem Laptop mit `nslookup` nach, ob der DNS-Server antwortet.
+
+### 6.6
+Suche im Datenaustausch von Laptop-2 die DNS-Anfrage.
+Frage: Welches Transportprotokoll und welchen Port nutzt sie?
+- TCP, Port 53
+- ✓ UDP, Port 53
+- UDP, Port 67
+- TCP, Port 80
+Tipp: Klicke die DNS-Zeile an und schau in die Transportschicht.
+
+### 6.7
+Klicke auf dem Büro-Laptop bei https://www.rbz-wirtschaft-kiel.de auf das rote Schloss. Trage dann am Webserver der Schule unter „Zertifikat für“ zusätzlich www.rbz-wirtschaft-kiel.de und rbz-wirtschaft-kiel.de ein und lade die Seite neu.
+Frage: Warum hat der Browser gewarnt?
+- ✓ Das Zertifikat galt nur für 192.168.10.10, nicht für den Namen
+- Der DNS-Server kannte den Namen nicht
+- Der Webserver hatte kein Zertifikat
+- Die Filius-Zertifizierungsstelle war nicht erreichbar
+Tipp: Schreibe alle Namen und Adressen durch Kommas getrennt in das Feld, zum Beispiel „192.168.10.10, www.rbz-wirtschaft-kiel.de, rbz-wirtschaft-kiel.de“.
+
+### 6.8
+Auch https://rbz-wirtschaft-kiel.de ohne „www“ soll die Schulseite zeigen. Finde heraus, was dafür noch fehlt, und erledige es. Teste anschließend im Browser.
+Tipp: Für den DNS-Server ist der Name ohne www ein eigener Name.
+
+## Quiz
+
+### Was macht ein DNS-Server?
+- ✓ Er übersetzt Domainnamen in IPv4-Adressen
+- Er verteilt IPv4-Adressen an Geräte
+Falsch: Adressen verteilt der DHCP-Server (Kapitel 7). Der DNS-Server nennt nur die passende Adresse zu einem Namen.
+- Er speichert die Webseiten einer Domain
+Falsch: Die Webseiten liegen auf dem Webserver. Der DNS-Server kennt nur den Namen und die Adresse.
+- Er leitet Pakete zwischen Netzen weiter
+Falsch: Pakete leiten die Router weiter. Der DNS-Server beantwortet nur Fragen nach Namen.
+Erklärung: Der DNS-Server übersetzt Namen wie www.ravensberger24.de in IPv4-Adressen. Er ist so etwas wie das Telefonbuch des Netzes.
+
+### Was muss passieren, bevor der Browser eine TCP-Verbindung zu www.ravensberger24.de aufbauen kann?
+- ✓ Das Gerät fragt den DNS-Server nach der IPv4-Adresse
+- Der Browser fragt den Webserver nach seiner IPv4-Adresse
+Falsch: Um den Webserver zu fragen, müsste der Browser dessen Adresse schon kennen. Genau die fehlt ihm noch.
+- Das Gerät fragt per ARP nach der MAC-Adresse des Shops
+Falsch: Der Shop liegt in einem anderen Netz. ARP funktioniert nur im eigenen Netz und fragt hier höchstens nach dem Gateway, und auch das erst, wenn die IPv4-Adresse bekannt ist.
+- Der Router sucht den Namen in seiner Tabelle
+Falsch: Router kennen keine Namen, sondern nur Netze und IPv4-Adressen.
+Erklärung: TCP braucht eine IPv4-Adresse, und der DNS-Server kennt sie. Per ARP fragt das Gerät danach nur sein Gateway, weil der Shop in einem anderen Netz liegt.
+
+### Was steht in einem A-Eintrag?
+- ✓ Ein Name und seine IPv4-Adresse
+- Eine Domain und ihr Mailserver
+Falsch: Das steht in einem MX-Eintrag (Kapitel 9).
+- Eine IPv4-Adresse und ihre MAC-Adresse
+Falsch: Diese Zuordnung kennt ARP, nicht DNS.
+- Ein Name und sein Standard-Gateway
+Falsch: Das Gateway steht in den Netzwerkeinstellungen eines Geräts, nicht im DNS.
+Erklärung: Ein A-Eintrag verbindet einen Namen mit einer IPv4-Adresse, zum Beispiel www.ravensberger24.de → 198.51.100.80.
+
+### Welches Transportprotokoll und welchen Port nutzen DNS-Anfragen in Filius?
+- ✓ UDP, Port 53
+- TCP, Port 53
+Falsch: Der Port stimmt, aber für eine kurze Frage und Antwort nutzt DNS in Filius UDP. Ein Verbindungsaufbau mit TCP wäre hier unnötiger Aufwand.
+- UDP, Port 67
+Falsch: Port 67 gehört zum DHCP-Server (Kapitel 7).
+- TCP, Port 80
+Falsch: Das ist HTTP für Webseiten.
+Erklärung: Eine DNS-Frage passt in ein einzelnes Paket, deshalb reicht das schlanke UDP.
+
+### Was ist bei www.rbz-wirtschaft-kiel.de die Top-Level-Domain?
+- ✓ de
+- www
+Falsch: www steht ganz links. Es ist der Name eines Dienstes innerhalb der Domain, keine Top-Level-Domain.
+- rbz-wirtschaft-kiel
+Falsch: Das ist die Second-Level-Domain, also der Name, den sich die Schule ausgesucht hat. Die Top-Level-Domain steht rechts davon.
+- rbz-wirtschaft-kiel.de
+Falsch: Das ist die ganze Domain der Schule. Die Top-Level-Domain ist nur ihr letzter Teil.
+Erklärung: Die Top-Level-Domain ist der letzte Teil des Namens und steht ganz rechts, hier de.
+
+### Woher weiß ein Gerät, welchen DNS-Server es fragen soll?
+- ✓ Aus seinen Netzwerkeinstellungen, von Hand oder per DHCP
+- Es fragt per Broadcast alle Geräte im Netz
+Falsch: Für DNS gibt es keine Suche per Broadcast. Das Gerät fragt gezielt die Adresse, die in seinen Einstellungen steht.
+- Es nimmt immer sein Standard-Gateway
+Falsch: Gateway und DNS-Server sind zwei verschiedene Einträge. Im Übungsnetz ist der DNS-Server ein eigener PC im Providernetz.
+- Es liest ihn aus dem Domainnamen ab
+Falsch: Im Namen steht keine Adresse eines DNS-Servers. Genau dafür braucht man ja die Einstellung.
+Erklärung: Die Adresse des DNS-Servers steht in den Netzwerkeinstellungen des Geräts. Sie wird von Hand eingetragen, so wie in diesem Kapitel, oder kommt per DHCP (Kapitel 7).
+
+### Welcher Befehl zeigt, welche IPv4-Adresse zu einem Namen gehört?
+- ✓ nslookup
+- arp
+Falsch: arp zeigt Paare aus IPv4- und MAC-Adresse im eigenen Netz. Mit Namen hat arp nichts zu tun.
+- route
+Falsch: route zeigt die Weiterleitungstabelle, also Wege in Netze.
+- ipconfig
+Falsch: ipconfig zeigt die eigenen Einstellungen, darunter den DNS-Server. Einen Namen fragt es aber nicht ab.
+Erklärung: nslookup schickt selbst eine DNS-Anfrage und zeigt die Antwort.
+
+### Der Shop lässt sich über 198.51.100.80 öffnen, aber nicht über www.ravensberger24.de. Wo liegt der Fehler am wahrscheinlichsten?
+- ✓ Beim DNS-Eintrag oder der DNS-Einstellung
+- Beim Webserver des Shops
+Falsch: Über 198.51.100.80 öffnet sich die Seite. Der Webserver läuft also.
+- Bei der Route in R1
+Falsch: Die Pakete kommen über die IPv4-Adresse an. Der Weg stimmt also.
+- Beim Gateway des Laptops
+Falsch: Mit einem falschen Gateway käme der Laptop auch über die IPv4-Adresse nicht zum Shop.
+Erklärung: Über die IPv4-Adresse klappt es, also funktionieren Weg und Webserver. Es fehlt nur die Übersetzung des Namens, der Fehler liegt also beim DNS.
+
+### Warum nutzt man Domainnamen statt IPv4-Adressen?
+- ✓ Sie sind leichter zu merken und bleiben, wenn die Adresse wechselt
+- Pakete mit Namen werden schneller vermittelt
+Falsch: Router vermitteln nur nach IPv4-Adressen. Der Name wird vorher übersetzt und macht nichts schneller, eher kommt die DNS-Anfrage noch dazu.
+- Browser dürfen keine IPv4-Adressen anzeigen
+Falsch: Doch: Du hast selbst http://198.51.100.80 in die Adresszeile getippt.
+- Namen ersetzen das Standard-Gateway
+Falsch: Das Gateway braucht ein Gerät trotzdem. Namen helfen nur Menschen beim Merken.
+Erklärung: Namen kann man sich besser merken als Zahlen. Und zieht der Shop auf eine andere Adresse um, ändert man nur den A-Eintrag, der Name bleibt.
+
+### Auf Laptop-3 bekommt nslookup keine Antwort, auf Laptop-2 klappt es. Was prüfst du zuerst?
+- ✓ Den Eintrag „Domain Name Server“ in den Einstellungen von Laptop-3
+- Die A-Einträge im DNS-Server
+Falsch: Laptop-2 bekommt vom selben DNS-Server eine Antwort. Die Einträge sind also da.
+- Den Webserver des Shops
+Falsch: nslookup fragt nur den DNS-Server. Der Webserver spielt dabei noch keine Rolle.
+- Die Weiterleitungstabelle von R1
+Falsch: Laptop-2 erreicht den DNS-Server über denselben Router R1. Der Weg funktioniert also.
+Erklärung: Derselbe DNS-Server antwortet Laptop-2, also liegt der Fehler bei Laptop-3 selbst. Meist fehlt dort der DNS-Server in den Einstellungen oder er ist falsch eingetragen.
+
+## Glossar
+
+- **DNS** – Domain Name System: übersetzt Namen in IPv4-Adressen. Menschen merken sich Namen wie www.ravensberger24.de, Geräte brauchen aber Adressen wie 198.51.100.80. Bevor ein Browser eine Verbindung aufbaut, fragt das Gerät deshalb einen DNS-Server. DNS-Anfragen nutzen UDP und Port 53.
+- **Domainname** – lesbarer Name eines Rechners im Netz, zum Beispiel www.ravensberger24.de. Er besteht aus Teilen, die durch Punkte getrennt sind und von rechts nach links genauer werden: Top-Level-Domain, Domain, Rechner. Ein Name bleibt gleich, auch wenn sich die Adresse dahinter ändert. Dann muss nur der Eintrag im DNS angepasst werden.
+- **Top-Level-Domain** – letzter Teil eines Domainnamens, zum Beispiel de. Sie steht ganz rechts und nennt oft ein Land oder eine Art, etwa de für Deutschland oder com für Unternehmen. Links davon steht der Name, den sich eine Schule oder ein Unternehmen aussucht. Bei www.rbz-wirtschaft-kiel.de ist de die Top-Level-Domain.
+- **DNS-Server** – Server, der DNS-Anfragen beantwortet. Er hat eine Liste von Einträgen, zum Beispiel A-Einträge und MX-Einträge. Jedes Gerät muss die Adresse seines DNS-Servers kennen, von Hand eingetragen oder per DHCP. In unserem Netz steht er im Providernetz mit 203.0.113.53.
+- **A-Eintrag** – DNS-Eintrag, der einem Namen eine IPv4-Adresse zuordnet. Beispiel: www.ravensberger24.de → 198.51.100.80. Jede Website, die über einen Namen erreichbar sein soll, braucht so einen Eintrag. Ein Name ohne www wie rbz-wirtschaft-kiel.de ist ein eigener Name und braucht einen eigenen Eintrag.
+- **UDP** – Transportprotokoll ohne Verbindungsaufbau, gut für kurze Anfragen wie DNS. Es schickt einzelne Pakete los, ohne vorher einen Handschlag zu machen und ohne den Empfang zu bestätigen. Das ist schnell, aber verlorene Pakete werden nicht von selbst nachgeschickt. Auch DHCP nutzt UDP.
+- **nslookup** – Befehl, der einen Namen beim DNS-Server nachschlägt. Beispiel: nslookup www.ravensberger24.de zeigt die Adresse 198.51.100.80. Damit prüfst du die Namensauflösung, ohne einen Browser zu brauchen. Antwortet der DNS-Server nicht, stimmt meist die DNS-Einstellung nicht oder der Server läuft nicht.

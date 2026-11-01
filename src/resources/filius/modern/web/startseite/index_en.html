@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RBZ Wirtschaft . Kiel</title>
+<!-- The look of the page (CSS). Feel free to try other colours and sizes! -->
+<style>
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+  color: #071a2f;
+  background-color: #eef2f5;
+  min-height: 100vh;
+}
+a { color: #002030; }
+
+/* header in dark blue */
+.kopf {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 14px 32px;
+  background-color: #002030;
+  color: #ffffff;
+}
+.marke { display: flex; align-items: center; gap: 20px; }
+.marke img {
+  position: relative; z-index: 2; top: 24px;
+  width: 96px; height: 96px;
+  -webkit-filter: drop-shadow(0 6px 10px rgba(0, 0, 0, .35));
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, .35));
+}
+.name { font-size: 25px; font-weight: 700; letter-spacing: .035em; }
+.ort { font-size: 12px; opacity: .85; margin-top: 2px; }
+
+/* orange menu bar */
+.menue {
+  display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 6px;
+  padding: 0 32px 0 150px;
+  background-color: #f09800;
+  box-shadow: 0 10px 24px rgba(0, 32, 48, .2);
+}
+.menue a {
+  padding: 17px 16px; color: #001827; text-decoration: none;
+  font-size: 15px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase;
+  transition: color .2s;
+}
+.menue a:hover { color: #ffffff; }
+
+/* content: white cards */
+.inhalt { max-width: 980px; margin: 30px auto; padding: 0 18px; }
+.karte {
+  position: relative; overflow: hidden;
+  margin-bottom: 24px; padding: 46px 56px 50px;
+  background-color: #ffffff;
+  border: 1px solid rgba(0, 32, 48, .07); border-radius: 22px;
+  box-shadow: 0 16px 34px rgba(0, 32, 48, .12);
+  animation: rein .6s ease both;
+}
+@keyframes rein { from { opacity: 0; transform: translateY(14px); } }
+.etikett {
+  display: inline-block; padding: 7px 17px; border-radius: 999px;
+  background: #f09800; color: #001827;
+  font-size: 13px; font-weight: 900; letter-spacing: .04em; text-transform: uppercase;
+}
+h1 { margin: 18px 0 14px; font-size: 40px; line-height: 1.2; max-width: 15em; }
+h2 { margin: 16px 0 6px; font-size: 27px; line-height: 1.25; }
+.akzent {
+  width: 92px; height: 6px; margin-bottom: 22px; border-radius: 999px;
+  background-color: #f09800;
+}
+p { line-height: 1.65; }
+.lead { font-size: 18px; max-width: 36em; }
+code {
+  padding: 1px 6px; border-radius: 6px; border: 1px solid #dbe3ea;
+  background: #eef2f5; font-family: Consolas, "Courier New", monospace; font-size: .92em;
+  white-space: nowrap;
+}
+.live {
+  display: inline-flex; align-items: center; gap: 10px; margin-top: 6px;
+  padding: 9px 18px 9px 13px; border-radius: 999px;
+  background: #002030; color: #ffffff; font-size: 14px;
+}
+.punkt {
+  width: 10px; height: 10px; border-radius: 50%; background: #f09800;
+  animation: puls 1.8s infinite;
+}
+@keyframes puls {
+  0% { box-shadow: 0 0 0 0 rgba(240, 152, 0, .7); }
+  70% { box-shadow: 0 0 0 10px rgba(240, 152, 0, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(240, 152, 0, 0); }
+}
+
+/* the four steps */
+.schritte {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px;
+  margin-top: 22px;
+}
+.schritt {
+  padding: 18px 18px 20px; border-radius: 16px;
+  background: #f6f8fa; border: 1px solid #dbe3ea;
+  transition: transform .2s, box-shadow .2s, border-color .2s;
+}
+.schritt:hover { transform: translateY(-3px); border-color: #f09800; box-shadow: 0 12px 24px rgba(0, 32, 48, .10); }
+.nr {
+  display: grid; place-items: center; width: 36px; height: 36px; margin-bottom: 10px;
+  border-radius: 50%; background: #002030; color: #f09800; font-weight: 900;
+}
+.schritt h3 { margin: 0 0 6px; font-size: 17px; }
+.schritt p { margin: 0; font-size: 15px; }
+.tipp {
+  margin-top: 22px; padding: 14px 18px; border-radius: 12px;
+  border-left: 6px solid #f09800; background: #fff6e6;
+}
+.anleitung { padding-left: 22px; line-height: 1.7; }
+.anleitung li { margin-bottom: 6px; }
+.demo { display: flex; align-items: center; flex-wrap: wrap; gap: 14px; margin-top: 18px; }
+button {
+  padding: 11px 24px; border: 0; border-radius: 999px; cursor: pointer;
+  background: #f09800; color: #001827; font: inherit; font-weight: 800;
+  box-shadow: 0 8px 18px rgba(240, 152, 0, .35);
+  transition: background .2s, transform .15s;
+}
+button:hover { background: #d78400; transform: translateY(-1px); }
+button:active { transform: scale(.96); }
+#zahl { font-weight: 700; }
+
+/* footer */
+.fuss {
+  margin-top: 10px; padding: 26px 16px; text-align: center; font-size: 14px;
+  background-color: #001827;
+  color: #ffffff;
+}
+.fuss b { letter-spacing: .06em; }
+.fuss p { margin: 4px 0; line-height: 1.5; }
+.fuss .klein { font-size: 12px; opacity: .7; }
+
+/* narrow browser windows */
+@media (min-width: 1100px) {
+  .schritte { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+@media (max-width: 700px) {
+  .kopf { padding: 12px 18px; }
+  .marke img { top: 0; width: 64px; height: 64px; border-radius: 14px; }
+  .name { font-size: 20px; }
+  .menue { justify-content: center; padding: 0 10px; }
+  .menue a { padding: 13px 10px; font-size: 13px; }
+  .karte { padding: 30px 24px 34px; }
+  h1 { font-size: 30px; }
+}
+@media (max-width: 480px) {
+  .schritte { grid-template-columns: 1fr; }
+}
+/* Only modern browsers know gradients and watermarks.
+   The @supports block makes older browsers simply skip them. */
+@supports (display: grid) {
+  body {
+    background-image: radial-gradient(circle at 8% 0%, rgba(240, 152, 0, .13), transparent 32%),
+                      linear-gradient(#fbfcfd, #eef2f5);
+  }
+  .kopf { background-image: linear-gradient(135deg, #001827 0%, #002030 70%, #07334a 100%); }
+  .menue { background-image: linear-gradient(#f09800, #e89100); }
+  .akzent { background-image: linear-gradient(90deg, #f09800, #d78400); }
+  .fuss { background-image: radial-gradient(circle at 50% 0%, #083b57, #001827); }
+  .karte + .karte { animation-delay: .12s; }
+  .karte + .karte + .karte { animation-delay: .24s; }
+  .karte > * { position: relative; }
+  #start::before {
+    content: ""; position: absolute; right: -50px; bottom: -70px; width: 420px; height: 420px;
+    background: url(rbz-logo.png) center / contain no-repeat;
+    filter: grayscale(1); opacity: .075; pointer-events: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- header with logo -->
+<div class="kopf">
+  <div class="marke">
+    <img src="rbz-logo.png" width="96" height="96" alt="Logo Filius RBZ">
+    <div>
+      <div class="name">RBZ WIRTSCHAFT . KIEL</div>
+      <div class="ort">Westring 444 . 24118 Kiel</div>
+    </div>
+  </div>
+</div>
+
+<!-- orange menu bar: the links jump to sections of this page -->
+<div class="menue">
+  <a href="#start">Welcome</a>
+  <a href="#ablauf">How the page gets to you</a>
+  <a href="#ausprobieren">Try it yourself</a>
+  <a href="/intern/">Internal</a>
+</div>
+
+<div class="inhalt">
+
+  <!-- greeting: here you can change the heading, for example -->
+  <div class="karte" id="start">
+    <span class="etikett">Welcome</span>
+    <h1>Welcome to RBZ Wirtschaft . Kiel</h1>
+    <div class="akzent"></div>
+    <p class="lead"><b id="gruss">Hello!</b> This page comes from a web server in your
+      Filius network. Your browser has just fetched it via <b id="protokoll">HTTP</b>, just like a
+      real website on the internet.</p>
+    <p>On the server it is the file <code>index.html</code> in the folder <code>webserver</code>.
+      The logo is a file of its own: <code>rbz-logo.png</code>.</p>
+    <p class="live"><span class="punkt"></span><span>Fetched from <b id="adresse">this web server</b><span id="zeit"></span></span></p>
+  </div>
+
+  <!-- what happened in the network -->
+  <div class="karte" id="ablauf">
+    <span class="etikett">In the network</span>
+    <h2>How the page gets to you</h2>
+    <div class="akzent"></div>
+    <div class="schritte">
+      <div class="schritt">
+        <div class="nr">1</div>
+        <h3>Resolve the address</h3>
+        <p>If you typed a name, your computer first asks the DNS server for the IPv4 address.</p>
+      </div>
+      <div class="schritt">
+        <div class="nr">2</div>
+        <h3>Connect</h3>
+        <p>The browser opens a TCP connection to the web server, on port <span id="port">80</span>.</p>
+      </div>
+      <div class="schritt">
+        <div class="nr">3</div>
+        <h3>Request the page</h3>
+        <p>With <code>GET /</code> it asks for the start page. The server sends back <code>index.html</code>.</p>
+      </div>
+      <div class="schritt">
+        <div class="nr">4</div>
+        <h3>Load the pictures</h3>
+        <p>For the logo the browser sends a second request: <code>GET /rbz-logo.png</code>.</p>
+      </div>
+    </div>
+    <p class="tipp"><b>Tip:</b> Right-click your computer and choose
+      <b>Show data exchange</b>. There you see each of these messages.</p>
+  </div>
+
+  <!-- your own changes -->
+  <div class="karte" id="ausprobieren">
+    <span class="etikett">Join in</span>
+    <h2>Try it yourself</h2>
+    <div class="akzent"></div>
+    <ol class="anleitung">
+      <li>Install the <b>Text editor</b> on the web server.</li>
+      <li>Use it to open the file <code>webserver/index.html</code> and change the heading, for example.</li>
+      <li>Save the file and reload the page in the browser.</li>
+      <li>Use the <b>File explorer</b> to put your own pictures on the server.</li>
+    </ol>
+    <p>This page uses <b>HTML</b> for the content, <b>CSS</b> for colours and layout and
+      <b>JavaScript</b> for the greeting and this button:</p>
+    <div class="demo">
+      <button type="button" id="knopf">Click me!</button>
+      <span id="zahl">0 clicks</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- footer -->
+<div class="fuss">
+  <p><b>RBZ WIRTSCHAFT . KIEL</b> · Westring 444 · 24118 Kiel</p>
+  <p class="klein">Practice page in the network simulation FILIUS, not the official website of the school.</p>
+</div>
+
+<!-- JavaScript: greeting by time of day, address of the server and the click counter -->
+<script>
+(function () {
+  var now = new Date();
+  var hour = now.getHours();
+  var greeting = hour < 12 ? "Good morning!" : (hour < 18 ? "Good afternoon!" : "Good evening!");
+  document.getElementById("gruss").textContent = greeting;
+
+  function twoDigits(z) { return (z < 10 ? "0" : "") + z; }
+  document.getElementById("adresse").textContent = location.host || "this web server";
+  if (location.protocol === "https:") {
+    document.getElementById("protokoll").textContent = "HTTPS";
+    document.getElementById("port").textContent = "443 and encrypts everything with TLS";
+  }
+  document.getElementById("zeit").textContent = " on " + twoDigits(now.getDate()) + "/" +
+      twoDigits(now.getMonth() + 1) + "/" + now.getFullYear() + " at " +
+      twoDigits(hour) + ":" + twoDigits(now.getMinutes());
+
+  var clicks = 0;
+  document.getElementById("knopf").addEventListener("click", function () {
+    clicks = clicks + 1;
+    document.getElementById("zahl").textContent = clicks + (clicks === 1 ? " click" : " clicks");
+  });
+})();
+</script>
+</body>
+</html>

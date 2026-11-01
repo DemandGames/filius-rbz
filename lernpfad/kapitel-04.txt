@@ -1,0 +1,263 @@
+# Verschlüsselung: HTTPS mit TLS
+Ziel: Im internen Klassenbereich der Schulseite meldet sich Anna mit Name und Passwort an. Du findest ihr Passwort im Datenaustausch und verschlüsselst danach den Webserver mit HTTPS, sodass niemand mehr mitlesen kann.
+
+## Lesen
+
+### Wer liest mit?
+Auf der Seite deines Webservers gibt es den Bereich „Intern“. Dort meldet sich Anna mit ihrem Namen und ihrem Passwort an:
+
+| Name | Passwort |
+|---|---|
+| anna | Schulfest |
+
+Bisher reisen alle Daten im **Klartext** durchs Netz: Jedes Gerät, an dem eine Nachricht unterwegs vorbeikommt, kann sie lesen, so wie eine Postkarte. Im Datenaustausch findest du deshalb Annas Namen und Passwort ganz offen.
+
+[Bild: k04-klartext.png | Name und Passwort stehen im Klartext im Datenaustausch]
+
+Dagegen hilft **Verschlüsselung**: Die Daten werden so verändert, dass nur der richtige Empfänger sie wieder lesen kann. Heraus kommt ein **Geheimtext**, für alle anderen nur Zeichensalat. Zum Verschlüsseln und Entschlüsseln braucht man einen **Schlüssel**. Es gibt zwei ganz verschiedene Verfahren.
+
+### Verfahren 1: symmetrische Verschlüsselung
+Stell dir eine Kiste mit einem Vorhängeschloss vor. Du legst deine Nachricht hinein, schließt ab und schickst die Kiste los. Dein Partner kann sie nur öffnen, wenn er den passenden Schlüssel hat, also denselben Schlüssel wie du. Das ist **symmetrische Verschlüsselung**: Beide brauchen denselben Schlüssel, zum Verschließen und zum Öffnen.
+
+Das Verfahren ist schnell und sicher. Es hat aber ein Problem: Am Anfang hast nur du den Schlüssel. Wie kommt er zu deinem Partner? Schickst du ihn einfach mit, kann jeder, der die Kiste unterwegs abfängt, auch den Schlüssel abfangen und die Kiste öffnen. Die Übergabe des Schlüssels ist der schwierige Teil.
+
+[Bild: k04-symmetrisch.png | Symmetrisch: Beide brauchen denselben Schlüssel, aber wie kommt er sicher zum Partner?]
+
+### Verfahren 2: asymmetrische Verschlüsselung
+Bei der **asymmetrischen Verschlüsselung** gibt es zwei verschiedene Schlüssel. Es funktioniert so: Jeder, der mit dir sprechen will, bekommt von dir ein geöffnetes Vorhängeschloss, aber ohne Schlüssel. Damit kann er eine Kiste für dich verschließen. Danach bekommt sie niemand mehr auf, nicht einmal er selbst. Den Schlüssel zum Öffnen hast nur du.
+
+Das geöffnete Vorhängeschloss heißt **öffentlicher Schlüssel**: Es darf jeder sehen und haben, auch ein Angreifer. Den Schlüssel zum Öffnen nennt man **privaten Schlüssel**. Er verlässt nie dein Gerät.
+
+Willst du deinem Partner antworten, brauchst du sein geöffnetes Vorhängeschloss. Den passenden privaten Schlüssel hat nur er, also kann nur er deine Antwort öffnen.
+
+[Bild: k04-asymmetrisch.png | Asymmetrisch: Jeder darf das offene Vorhängeschloss haben, öffnen kann nur der Besitzer des privaten Schlüssels]
+
+So muss nie ein geheimer Schlüssel verschickt werden. Dafür ist das Verfahren viel langsamer. Für ganze Webseiten mit Bildern wäre es zu langsam.
+
+### TLS: beide Verfahren nacheinander
+**TLS** verschlüsselt die Verbindung zwischen Browser und Webserver. Es nimmt von jedem Verfahren den Vorteil: Asymmetrisch wird nur ein Schlüssel übergeben, danach geht alles symmetrisch. Am Anfang steht der **Handshake** in vier Schritten:
+
+1. ClientHello: Der Browser grüßt den Server und nennt die Verfahren, die er kann.
+2. ServerHello: Der Server schickt sein geöffnetes Vorhängeschloss, also seinen öffentlichen Schlüssel, zusammen mit seinem Zertifikat.
+3. ClientKeyExchange: Der Browser denkt sich einen neuen Schlüssel nur für diese Verbindung aus, den **Sitzungsschlüssel**. Er legt ihn in eine Kiste und verschließt sie mit dem Vorhängeschloss des Servers. Das ist der asymmetrische Teil: Nur der Server kann die Kiste mit seinem privaten Schlüssel öffnen.
+4. Finished: Jetzt haben beide denselben Sitzungsschlüssel und bestätigen das.
+
+Ab jetzt verschließen Browser und Server alles mit dem Sitzungsschlüssel: Anfragen, Seiten, Passwörter. Das ist der symmetrische Teil. Er ist schnell, und den Schlüssel haben nur die beiden.
+
+[Bild: k04-tls.png | TLS: Asymmetrisch wird nur der Sitzungsschlüssel übergeben, danach geht alles symmetrisch]
+
+**HTTPS** ist HTTP mit TLS darunter. Statt an Port 80 wartet der Webserver an Port 443. In der Adresszeile steht `https://`, davor ein Schloss.
+
+[Bild: k04-schloss.png | Eine Seite über HTTPS: https:// in der Adresszeile, davor das Schloss]
+
+Eingeschaltet wird HTTPS am Webserver, im Bereich „Verschlüsselung (HTTPS)“ seines Fensters.
+
+[Bild: k04-https.png | Im Fenster des Webservers schaltest du HTTPS ein]
+
+### Zertifikate: der Ausweis des Servers
+Woher weiß der Browser, dass das Vorhängeschloss wirklich vom echten Webserver kommt? Ein Angreifer könnte sich dazwischenschalten und sein eigenes Vorhängeschloss schicken. Deshalb schickt der Server ein **Zertifikat** mit. Es ist der Ausweis des Servers und garantiert, dass es sich um den echten Server handelt. Im Zertifikat stehen:
+
+- für welche Namen und Adressen es gilt,
+- der öffentliche Schlüssel des Servers,
+- wer es ausgestellt hat und bis wann es gilt.
+
+Unterschrieben wird der Ausweis von einer **Zertifizierungsstelle**. Sie prüft, wem der Server gehört, und gewährleistet mit ihrer Unterschrift die Echtheit. Der Browser kennt die Zertifizierungsstellen, denen er vertraut. In Filius ist das die „Filius-Zertifizierungsstelle“. Ein Klick auf das Schloss zeigt das Zertifikat.
+
+[Bild: k04-zertifikat.png | Ein Klick auf das Schloss zeigt das Zertifikat]
+
+Passt etwas nicht, warnt der Browser: wenn das Zertifikat für einen anderen Namen gilt oder wenn es **selbst signiert** ist, also keine bekannte Zertifizierungsstelle unterschrieben hat.
+
+[Bild: k04-warnung.png | Die Warnung bei einem Zertifikat, dem der Browser nicht vertraut]
+
+### Verschlüsselung im Datenaustausch
+Im Datenaustausch heißen diese Nachrichten TLS. Du siehst die vier Schritte des Handshakes und danach „TLS Application Data“ mit Zeichensalat. Laptop und Webserver zeigen darunter zusätzlich den entschlüsselten Inhalt, denn sie haben den Sitzungsschlüssel. Im OSI-Modell liegt TLS in Schicht 6, der Darstellungsschicht.
+
+[Bild: k04-datenaustausch.png | Verschlüsselte Daten im Datenaustausch, darunter der Inhalt für Laptop und Server]
+
+> Merke: HTTPS schützt den Inhalt. Wer mit wem spricht, also IPv4-Adressen und Ports, bleibt für alle sichtbar.
+
+## Praxis
+
+### 4.1
+Melde dich auf Laptop-1 im internen Klassenbereich an:
+- Rufe im Webbrowser von Laptop-1 http://192.168.10.10/intern/ auf.
+- Name: anna, Passwort: Schulfest
+Tipp: Auf der Startseite führt der Menüpunkt „Intern“ dorthin. Fehlt der Bereich auf deinem Webserver, lade den Startaufbau dieses Kapitels.
+
+### 4.2
+Öffne den Datenaustausch von Laptop-1 und suche die Nachricht, mit der die Anmeldung zum Webserver ging.
+Frage: Wie stehen Name und Passwort darin?
+- ✓ Lesbar im Klartext: name=anna&passwort=Schulfest
+- Verschlüsselt als Zeichensalat
+- Als Sternchen: ********
+- Gar nicht, Passwörter werden nie über das Netz geschickt
+Tipp: Suche eine HTTP-Nachricht, die mit POST beginnt.
+
+### 4.3
+Schalte am Webserver die Verschlüsselung ein. Im Fenster des Webservers gibt es dafür den Bereich „Verschlüsselung (HTTPS)“:
+| Einstellung | Wert |
+|---|---|
+| HTTPS anbieten (Port 443) | Haken setzen |
+| Zertifikat für | 192.168.10.10 |
+| Selbst signiert | kein Haken |
+Tipp: Trage die Adresse bei „Zertifikat für“ selbst ein, sonst gilt das Zertifikat für keinen Server. Das Zertifikat stellt die Filius-Zertifizierungsstelle aus. „Zertifikat anzeigen“ zeigt dir den Ausweis deines Servers.
+
+### 4.4
+Rufe auf Laptop-1 https://192.168.10.10/intern/ auf und klicke auf das Schloss vor der Adresse.
+Frage: Wer hat das Zertifikat des Webservers ausgestellt?
+- ✓ Die Filius-Zertifizierungsstelle
+- Der Webserver selbst
+- Laptop-1
+- Der Switch Schule
+Tipp: Achte auf das „s“ in https.
+
+### 4.5
+Melde dich über HTTPS noch einmal als anna an. Suche dann im Datenaustausch von Laptop-1 die vier Schritte des Handshakes.
+Frage: Was schickt der Server im zweiten Schritt des Handshakes?
+- ✓ Sein Zertifikat mit dem öffentlichen Schlüssel
+- Den Sitzungsschlüssel
+- Die Seite des internen Bereichs
+- Annas Passwort
+Tipp: Die TLS-Nachrichten stehen zwischen dem TCP-Verbindungsaufbau und den verschlüsselten Daten.
+
+### 4.6
+Probiere aus, was ohne Zertifizierungsstelle passiert:
+- Setze am Webserver den Haken „Selbst signiert“.
+- Rufe auf Laptop-2 https://192.168.10.10 auf.
+Frage: Warum warnt der Browser?
+- ✓ Keine Zertifizierungsstelle, die er kennt, hat das Zertifikat unterschrieben
+- Der Webserver ist ausgeschaltet
+- Die Seite ist zu groß zum Verschlüsseln
+- HTTPS funktioniert nur mit Namen, nicht mit IPv4-Adressen
+Tipp: Öffne die Seite nicht trotzdem. Bei einer echten Website wäre das riskant.
+
+### 4.7
+Ab jetzt soll sich niemand mehr unverschlüsselt anmelden können:
+- Nimm am Webserver den Haken „Selbst signiert“ wieder heraus.
+- Nimm den Haken „HTTP anbieten (Port 80)“ heraus.
+- Teste auf Laptop-2: http://192.168.10.10 lädt nicht mehr, https://192.168.10.10 schon.
+Tipp: Ohne HTTP ist Port 80 geschlossen. Der Browser bekommt dort keine Antwort mehr.
+
+### 4.8
+Ergänze den Netzplan: Schreibe im Dokumentationsmodus neben den Webserver ein Textfeld „HTTPS, Port 443“.
+Tipp: Das Textfeld gehört direkt neben den Webserver, innerhalb der Fläche des Schulnetzes.
+
+## Quiz
+
+### Was bedeutet Klartext?
+- ✓ Daten, die jeder lesen kann, der sie unterwegs abfängt
+- Daten, die nur der Empfänger lesen kann
+Falsch: Das wäre ein Geheimtext. Klartext ist für alle lesbar, wie eine Postkarte.
+- Ein besonders kurzer Text
+Falsch: Mit der Länge hat Klartext nichts zu tun. Es geht darum, ob er verschlüsselt ist.
+- Text in einer Programmiersprache
+Falsch: Auch HTML kann Klartext oder verschlüsselt sein. Klartext heißt: nicht verschlüsselt.
+Erklärung: Über HTTP gehen alle Daten im Klartext. Deshalb stand Annas Passwort lesbar im Datenaustausch.
+
+### Was ist das Problem der symmetrischen Verschlüsselung?
+- ✓ Der gemeinsame Schlüssel muss sicher zum Partner kommen
+- Sie ist sehr langsam
+Falsch: Symmetrische Verschlüsselung ist schnell. Langsam ist das asymmetrische Verfahren.
+- Man braucht drei Schlüssel
+Falsch: Man braucht genau einen Schlüssel, den beide haben müssen.
+- Jeder kann den Geheimtext lesen
+Falsch: Ohne den Schlüssel kann niemand den Geheimtext lesen. Das Problem ist, den Schlüssel sicher zu übergeben.
+Erklärung: Beide brauchen denselben Schlüssel. Wer ihn bei der Übergabe abfängt, kann alles lesen.
+
+### Was darf bei der asymmetrischen Verschlüsselung jeder haben?
+- ✓ Den öffentlichen Schlüssel, also das geöffnete Vorhängeschloss
+- Den privaten Schlüssel
+Falsch: Den privaten Schlüssel hat nur sein Besitzer. Er verlässt nie das Gerät.
+- Den Sitzungsschlüssel
+Falsch: Den Sitzungsschlüssel kennen nur Browser und Server. Er wird verschlossen übergeben.
+- Beide Schlüssel
+Falsch: Wer beide Schlüssel hätte, könnte alles öffnen. Den privaten Schlüssel gibt man nie heraus.
+Erklärung: Mit dem öffentlichen Schlüssel kann jeder etwas verschließen. Öffnen kann nur der Besitzer des privaten Schlüssels.
+
+### Laptop-1 verschließt etwas mit dem öffentlichen Schlüssel des Webservers. Wer kann es öffnen?
+- ✓ Nur der Webserver mit seinem privaten Schlüssel
+- Laptop-1 selbst
+Falsch: Auch Laptop-1 bekommt die Kiste nicht mehr auf. Den Schlüssel zum Öffnen hat nur der Webserver.
+- Jeder, der den öffentlichen Schlüssel kennt
+Falsch: Der öffentliche Schlüssel ist das offene Vorhängeschloss. Damit kann man nur verschließen, nicht öffnen.
+- Der Switch, über den die Nachricht läuft
+Falsch: Der Switch leitet die Nachricht nur weiter. Er hat keinen Schlüssel.
+Erklärung: Was mit dem öffentlichen Schlüssel verschlossen ist, öffnet nur der passende private Schlüssel.
+
+### Wofür benutzt TLS die asymmetrische Verschlüsselung?
+- ✓ Um den Sitzungsschlüssel sicher zum Server zu bringen
+- Um alle Seiten und Bilder zu verschlüsseln
+Falsch: Dafür wäre das asymmetrische Verfahren zu langsam. Seiten verschlüsselt TLS symmetrisch.
+- Um die IPv4-Adressen zu verstecken
+Falsch: IPv4-Adressen und Ports bleiben bei TLS sichtbar. Geschützt wird der Inhalt.
+- Um das Zertifikat zu verschlüsseln
+Falsch: Das Zertifikat ist öffentlich. Jeder darf es sehen, so wie einen Ausweis.
+Erklärung: Im dritten Schritt des Handshakes verschließt der Browser den Sitzungsschlüssel mit dem öffentlichen Schlüssel des Servers.
+
+### Warum verschlüsselt TLS die Webseiten symmetrisch?
+- ✓ Weil das schnell ist und beide nach dem Handshake denselben Sitzungsschlüssel haben
+- Weil asymmetrisch nicht sicher ist
+Falsch: Asymmetrisch ist sicher, aber viel langsamer. Für ganze Seiten wäre es zu langsam.
+- Weil der Server keinen privaten Schlüssel hat
+Falsch: Der Server hat einen privaten Schlüssel. Damit öffnet er im Handshake die Kiste mit dem Sitzungsschlüssel.
+- Weil der Browser kein Zertifikat hat
+Falsch: Ein Zertifikat braucht nur der Server. Für die Wahl des Verfahrens spielt das keine Rolle.
+Erklärung: TLS nimmt von jedem Verfahren den Vorteil: asymmetrisch für die sichere Übergabe, symmetrisch für die schnelle Arbeit.
+
+### Welchen Port nutzt HTTPS standardmäßig?
+- ✓ 443
+- 80
+Falsch: Port 80 gehört zu HTTP ohne Verschlüsselung.
+- 25
+Falsch: Port 25 gehört zu SMTP, dem Versenden von E-Mails.
+- 53
+Falsch: Port 53 gehört zu DNS.
+Erklärung: Ein Webserver mit HTTPS wartet an Port 443. Port 80 kann man abschalten, dann gibt es nur noch verschlüsselte Verbindungen.
+
+### Was garantiert ein Zertifikat?
+- ✓ Dass der öffentliche Schlüssel wirklich zum echten Server gehört
+- Dass der Server schnell antwortet
+Falsch: Mit der Geschwindigkeit hat das Zertifikat nichts zu tun.
+- Dass die Seite keine Fehler enthält
+Falsch: Das Zertifikat sagt nichts über den Inhalt der Seite. Es ist der Ausweis des Servers.
+- Dass niemand die IPv4-Adressen sieht
+Falsch: Adressen und Ports bleiben sichtbar. Das Zertifikat bestätigt, wer der Server ist.
+Erklärung: Die Zertifizierungsstelle unterschreibt, dass Name und öffentlicher Schlüssel zusammengehören. So kann sich kein Angreifer als der Server ausgeben.
+
+### Der Browser meldet: Das Zertifikat gilt für www.rbz-wirtschaft-kiel.de, nicht für 192.168.10.10. Was bedeutet das?
+- ✓ Das Zertifikat wurde für einen anderen Namen ausgestellt als den, den du aufgerufen hast
+- Der Webserver ist ausgeschaltet
+Falsch: Dann käme gar keine Antwort und auch kein Zertifikat.
+- Die Verbindung ist trotzdem sicher
+Falsch: Der Browser kann nicht prüfen, ob er mit dem richtigen Server spricht. Deshalb warnt er.
+- Das Passwort ist falsch
+Falsch: Die Warnung kommt vor der Anmeldung, schon beim Handshake.
+Erklärung: Ein Zertifikat gilt nur für die Namen und Adressen, die darin stehen. Passt der aufgerufene Name nicht, warnt der Browser.
+
+### Was können Geräte auf dem Weg bei HTTPS noch sehen?
+- ✓ Die IPv4-Adressen und Ports von Absender und Empfänger
+- Annas Passwort
+Falsch: Das Passwort steckt in den verschlüsselten Daten. Ohne den Sitzungsschlüssel ist es Zeichensalat.
+- Den Inhalt der Webseite
+Falsch: Auch die Seite ist verschlüsselt. Nur Browser und Server können sie lesen.
+- Den Sitzungsschlüssel
+Falsch: Der Sitzungsschlüssel wird verschlossen übergeben. Öffnen kann ihn nur der Server.
+Erklärung: TLS schützt den Inhalt. Damit die Pakete ankommen, müssen Adressen und Ports aber lesbar bleiben.
+
+## Glossar
+
+- **Klartext** – Daten, die nicht verschlüsselt sind. Jedes Gerät, an dem sie unterwegs vorbeikommen, kann sie lesen, wie eine Postkarte. Über HTTP geht alles im Klartext, auch Passwörter. Im Datenaustausch siehst du Klartext direkt in den Bemerkungen.
+- **Verschlüsselung** – Verändern von Daten, sodass nur der richtige Empfänger sie wieder lesen kann. Dazu braucht man einen Schlüssel. Für alle anderen entsteht Zeichensalat. Es gibt zwei Verfahren: symmetrische und asymmetrische Verschlüsselung.
+- **Geheimtext** – verschlüsselte Daten. Ohne den passenden Schlüssel sind sie nur Zeichensalat. Im Datenaustausch steht er bei TLS hinter „Verschlüsselte Daten“. Mit dem Schlüssel wird daraus wieder der Klartext.
+- **Schlüssel** – geheime Information, mit der Daten verschlüsselt und entschlüsselt werden. Im Bild ist er der Schlüssel zu einem Vorhängeschloss. Wer ihn hat, kann die Kiste öffnen. Deshalb muss er gut geschützt werden.
+- **Symmetrische Verschlüsselung** – Verfahren, bei dem beide Seiten denselben Schlüssel benutzen, zum Verschließen und zum Öffnen. Es ist schnell. Sein Problem ist die Übergabe: Wie kommt der Schlüssel sicher zum Partner? TLS verschlüsselt damit alle Daten nach dem Handshake.
+- **Asymmetrische Verschlüsselung** – Verfahren mit zwei verschiedenen Schlüsseln: einem öffentlichen Schlüssel zum Verschließen und einem privaten Schlüssel zum Öffnen. Im Bild verteilt man geöffnete Vorhängeschlösser, den Schlüssel dazu behält man. Es ist langsamer als das symmetrische Verfahren. TLS übergibt damit den Sitzungsschlüssel.
+- **Öffentlicher Schlüssel** – Schlüssel zum Verschließen, im Bild das geöffnete Vorhängeschloss. Jeder darf ihn haben, auch ein Angreifer. Was damit verschlossen ist, öffnet nur der passende private Schlüssel. Der Webserver schickt seinen öffentlichen Schlüssel im Zertifikat mit.
+- **Privater Schlüssel** – Schlüssel zum Öffnen, der zum öffentlichen Schlüssel passt. Nur sein Besitzer hat ihn, er verlässt nie das Gerät. Der Webserver öffnet damit im Handshake die Kiste mit dem Sitzungsschlüssel.
+- **TLS** – Protokoll, das die Verbindung zwischen Browser und Webserver verschlüsselt (Transport Layer Security). Es übergibt im Handshake asymmetrisch einen Sitzungsschlüssel und verschlüsselt danach alles symmetrisch. Im Datenaustausch heißen die Nachrichten TLS. Im OSI-Modell liegt TLS in Schicht 6, der Darstellungsschicht.
+- **Handshake** – Begrüßung am Anfang einer TLS-Verbindung in vier Schritten: ClientHello, ServerHello mit Zertifikat, ClientKeyExchange mit dem verschlossenen Sitzungsschlüssel und Finished. Danach haben Browser und Server denselben Sitzungsschlüssel. Er folgt auf den Drei-Wege-Handschlag von TCP.
+- **Sitzungsschlüssel** – Schlüssel, den sich der Browser für eine einzige Verbindung ausdenkt. Er reist im Handshake verschlossen mit dem öffentlichen Schlüssel des Servers. Danach verschlüsseln beide damit alle Daten symmetrisch. Für die nächste Verbindung gibt es einen neuen.
+- **HTTPS** – HTTP mit TLS darunter, also verschlüsseltes HTTP. Der Webserver wartet an Port 443, in der Adresszeile steht https:// und davor ein Schloss. Anfragen, Seiten und Passwörter sind für Geräte auf dem Weg nicht lesbar. Adressen und Ports bleiben sichtbar.
+- **Zertifikat** – Ausweis des Servers. Es garantiert, dass es sich um den echten Server handelt. Darin stehen die Namen und Adressen, für die es gilt, der öffentliche Schlüssel, der Aussteller und das Ablaufdatum. Eine Zertifizierungsstelle unterschreibt es. Ein Klick auf das Schloss im Browser zeigt es.
+- **Zertifizierungsstelle** – Stelle, die Zertifikate ausstellt und unterschreibt. Sie prüft vorher, wem der Server gehört, und gewährleistet mit ihrer Unterschrift die Echtheit. Browser kennen die Zertifizierungsstellen, denen sie vertrauen. In Filius ist das die Filius-Zertifizierungsstelle.
+- **Selbst signiert** – Zertifikat, das sich der Server selbst ausgestellt hat, ohne Zertifizierungsstelle. Niemand bestätigt, dass er wirklich der echte Server ist. Der Browser vertraut ihm deshalb nicht und zeigt eine Warnung.

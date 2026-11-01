@@ -1,0 +1,255 @@
+# E-Mail: Bestellung bei der RGG
+Ziel: Schule und RGG bekommen je einen Mailserver. Du richtest Postfächer, DNS-Einträge und E-Mail-Programme ein und verfolgst eine Bestellung von der Schule über zwei Mailserver bis zur Antwort, die zu Hause gelesen wird.
+
+## Lesen
+
+### Der Weg einer E-Mail
+Anna bestellt für das Schulfest per E-Mail eine Kiste Apfelschorle bei der RGG. Ihre Mail nimmt einen langen Weg:
+
+- Annas **E-Mail-Programm** schickt die Mail per **SMTP** an den Mailserver ihrer Domain rbz-wirtschaft-kiel.de.
+- Dieser fragt den DNS-Server, welcher Mailserver für ravensberger24.de zuständig ist.
+- Er gibt die Mail per SMTP an den Mailserver der RGG weiter. Dort landet sie im **Postfach** verkauf.
+- Der Verkauf liest sie mit seinem E-Mail-Programm per **IMAP**. Die Mail bleibt dabei auf dem Server.
+
+[Bild: k09-weg.png | Der Weg einer E-Mail von Anna zum Verkauf der RGG]
+
+Jede dieser Stationen findest du später im Datenaustausch wieder.
+
+### Mailserver einrichten
+Ein **Mailserver** nimmt Mails für eine Domain an und speichert sie in Postfächern. In der Anwendung „E-Mail-Server“ setzt du zuerst die „Maildomain“, dann legst du Konten mit Benutzername und Passwort an. Die Domain lässt sich nur ändern, solange der Server angehalten ist.
+
+[Bild: k09-mailserver.png | Maildomain und Konten im E-Mail-Server]
+
+Auch der PC des Mailservers braucht einen DNS-Server. Er muss ja selbst nachfragen, wohin Mails für fremde Domains gehören.
+
+### Das E-Mail-Programm
+Im E-Mail-Programm richtest du ein Konto ein:
+
+- **E-Mail-Adresse**, zum Beispiel anna@rbz-wirtschaft-kiel.de,
+- „IMAP-Server“ zum Abrufen und „SMTP-Server“ zum Senden, beides der Mailserver der eigenen Domain,
+- Benutzername und Passwort des Postfachs.
+
+[Bild: k09-adresse.png | Vor dem @ steht das Postfach, dahinter die Domain]
+
+[Bild: k09-konto.png | Ein Konto im E-Mail-Programm einrichten]
+
+> Merke: Mit IMAP bleiben die Mails im Postfach auf dem Server. Das E-Mail-Programm zeigt, was dort liegt. Darum siehst du auf jedem Gerät mit demselben Konto dieselben Mails. Löschst du eine Mail im Programm, ist sie auch auf dem Server weg.
+
+### Der MX-Eintrag
+Woher weiß der Mailserver der Schule, wohin eine Mail an verkauf@ravensberger24.de muss? Er fragt den DNS-Server nach dem **MX-Eintrag** der Domain. Der nennt den Namen des zuständigen Mailservers, zum Beispiel mail.ravensberger24.de. Dessen IPv4-Adresse liefert dann ein A-Eintrag.
+
+[Bild: k09-mx.png | A- und MX-Einträge im DNS-Server]
+
+Mit dem Befehl `host ravensberger24.de` siehst du, was der DNS-Server über eine Domain weiß.
+
+### Ein SMTP-Gespräch
+SMTP ist ein Gespräch in Textzeilen. Das Programm begrüßt den Server mit `HELO`, nennt mit `MAIL FROM` den Absender und mit `RCPT TO` den Empfänger. Nach `DATA` folgt die Mail selbst. Der Server bestätigt jeden Schritt mit einer Zahl, zum Beispiel `250` für „in Ordnung“.
+
+[Bild: k09-smtp.png | Ein SMTP-Gespräch im Datenaustausch des Mailservers]
+
+### Ein IMAP-Gespräch
+Auch IMAP ist ein Gespräch in Textzeilen. Das E-Mail-Programm setzt vor jeden Befehl eine Marke wie `A1`, damit es die Antwort dem Befehl zuordnen kann:
+
+- `A1 LOGIN anna passwort` meldet das Programm mit Benutzername und Passwort an,
+- `A2 SELECT INBOX` öffnet den Posteingang,
+- `A3 FETCH 1:* (UID FLAGS BODY[])` holt alle Mails,
+- `A4 LOGOUT` beendet das Gespräch.
+
+Der Server antwortet mit Zeilen, die mit `*` beginnen. Zum Schluss wiederholt er die Marke und meldet `OK` (in Ordnung), `NO` (abgelehnt) oder `BAD` (unbekannter Befehl).
+
+[Bild: k09-imap.png | Ein IMAP-Gespräch im Datenaustausch des Mailservers]
+
+SMTP nutzt Port 25, IMAP Port 143. Mit dem Befehl **netstat** siehst du auf einem Server, an welchen Ports er wartet.
+
+> Merke: In Filius gehen E-Mails im Klartext, auch das Passwort beim LOGIN. Echte Mailserver verschlüsseln SMTP und IMAP wie Webseiten mit TLS (Kapitel 4).
+
+## Praxis
+
+### 9.1
+Richte den Mailserver der Schule ein:
+| Einstellung | Wert |
+|---|---|
+| PC am Switch Schule | „Mailserver Schule“ |
+| IPv4-Adresse | 192.168.10.20 |
+| Gateway | 192.168.10.1 |
+| DNS-Server | 203.0.113.53 |
+| Software | E-Mail-Server |
+| Maildomain | rbz-wirtschaft-kiel.de |
+| Konten | anna und ben |
+Tipp: Die Maildomain lässt sich nur bei angehaltenem Server setzen. Server haben feste Adressen, kein DHCP.
+
+### 9.2
+Richte den Mailserver der RGG ein:
+| Einstellung | Wert |
+|---|---|
+| PC am Switch RGG | „Mailserver RGG“ |
+| IPv4-Adresse | 198.51.100.25 |
+| Gateway | 198.51.100.1 |
+| DNS-Server | 203.0.113.53 |
+| Software | E-Mail-Server |
+| Maildomain | ravensberger24.de |
+| Konto | verkauf |
+Tipp: Wie 9.1, nur im Netz der RGG. Die Netzmaske ist wieder 255.255.255.0.
+
+### 9.3
+Sorge im DNS-Server dafür, dass
+- beide Mailserver als mail.rbz-wirtschaft-kiel.de und mail.ravensberger24.de erreichbar sind und
+- andere Server wissen, wohin Mails für die beiden Domains gehören.
+Tipp: Zwei Arten von Einträgen sind nötig.
+
+### 9.4
+Prüfe auf Laptop-1 mit `host ravensberger24.de`, was der DNS-Server über die Domain weiß.
+Tipp: Die Befehlszeile ist auf Laptop-1 installiert.
+
+### 9.5
+Richte das E-Mail-Programm ein und gib die Server per Name an:
+| Gerät | E-Mail-Adresse |
+|---|---|
+| Laptop-1 | anna@rbz-wirtschaft-kiel.de |
+| Büro-Laptop | verkauf@ravensberger24.de |
+Tipp: Das Postfach liegt auf dem Mailserver der eigenen Domain.
+
+### 9.6
+Anna schickt ben eine Testmail.
+Tipp: Senden reicht, ben muss sie nicht abrufen.
+
+### 9.7
+Anna bestellt per Mail an verkauf@ravensberger24.de eine Kiste Apfelschorle.
+Tipp: Der Schul-Mailserver gibt die Mail selbst weiter. Woher kennt er das Ziel?
+
+### 9.8
+Die Antwort der RGG:
+- Der Verkauf ruft die Bestellung auf dem Büro-Laptop ab und antwortet mit einer Auftragsbestätigung.
+- Anna liest die Bestätigung abends auf dem Heim-Laptop.
+Tipp: Auf dem Heim-Laptop fehlt noch etwas. Mit IMAP bleibt die Mail auf dem Server: Du kannst sie auf Laptop-1 und auf dem Heim-Laptop abrufen.
+
+### 9.9
+Installiere auf dem Mailserver der Schule die Befehlszeile und gib `netstat` ein.
+Frage: Auf welchen Ports wartet der Mailserver?
+Eingabe: Ports
+Tipp: Das sind die Ports der beiden Mail-Protokolle.
+
+### 9.10
+Anna nutzt ihr Konto auf zwei Geräten:
+- Rufe Annas Postfach auch auf Laptop-1 ab.
+- Lösche die Auftragsbestätigung auf dem Heim-Laptop.
+- Rufe danach auf Laptop-1 noch einmal ab.
+Frage: Was zeigt Laptop-1 jetzt?
+- Die Auftragsbestätigung, denn jedes Gerät hat seine eigene Kopie
+- ✓ Die Auftragsbestätigung nicht mehr, denn sie ist im Postfach auf dem Server gelöscht
+- Gar keine Mails, denn mit IMAP darf nur ein Gerät ein Konto nutzen
+- Eine Fehlermeldung, denn das Postfach ist gesperrt
+Tipp: Mail anklicken, dann „E-Mail löschen“.
+
+## Quiz
+
+### Mit welchem Protokoll ruft das E-Mail-Programm Mails aus dem Postfach ab?
+- ✓ IMAP
+- SMTP
+Falsch: SMTP liefert Mails ab: vom Programm zum Server und von Server zu Server. Zum Abrufen aus dem Postfach ist es nicht gedacht.
+- HTTP
+Falsch: HTTP überträgt Webseiten zwischen Browser und Webserver. Das E-Mail-Programm ruft Mails nicht über HTTP ab.
+- DNS
+Falsch: DNS übersetzt Namen in Adressen. Damit findet das Programm den Mailserver, Mails ruft es damit aber nicht ab.
+Erklärung: SMTP liefert Mails nur ab. Zum Abrufen aus dem Postfach dient IMAP.
+
+### Mit welchem Protokoll gibt der Schul-Mailserver Annas Bestellung an den Mailserver der RGG weiter?
+- ✓ SMTP
+- IMAP, weil der Server die Mail beim anderen Server abruft
+Falsch: Zwischen den Servern wird nichts abgerufen: Der Schul-Mailserver liefert die Mail aktiv beim Server der RGG ab. IMAP nutzt nur das Programm des Empfängers.
+- HTTP, weil beide Server Webadressen haben
+Falsch: Mailserver haben keine Webadressen, sondern Namen wie mail.ravensberger24.de. HTTP ist für Webseiten zuständig.
+- DNS
+Falsch: DNS hilft nur, den Zielserver zu finden (über den MX-Eintrag). Die Mail selbst wird damit nicht übertragen.
+Erklärung: SMTP transportiert die Mail vom Programm zum Server und von Server zu Server. IMAP nutzt nur das Programm des Empfängers.
+
+### Wozu dient ein MX-Eintrag?
+- Er nennt die IPv4-Adresse eines Webservers
+Falsch: Das macht ein A-Eintrag. Der MX-Eintrag nennt keinen Webserver und keine IPv4-Adresse, sondern den Namen des Mailservers.
+- ✓ Er nennt den Mailserver einer Domain
+- Er speichert das Postfach einer Domain
+Falsch: Postfächer liegen auf dem Mailserver. Im DNS stehen nur Einträge zu Namen, keine Mails.
+- Er legt fest, welche Konten es gibt
+Falsch: Die Konten legst du im E-Mail-Server selbst an. Der DNS-Server weiß nichts über Benutzer.
+Erklärung: Ein MX-Eintrag nennt den Mailserver, der für eine Domain zuständig ist. MX steht für Mail Exchanger; die IPv4-Adresse dieses Servers liefert dann der A-Eintrag.
+
+### Woher weiß mail.rbz-wirtschaft-kiel.de, wohin die Mail an verkauf@ravensberger24.de muss?
+- Aus Annas E-Mail-Programm, das den Zielserver mitschickt
+Falsch: Annas Programm kennt nur ihren eigenen Mailserver. Den Server der RGG sucht der Schul-Mailserver selbst.
+- Er schickt sie an alle Server im Providernetz
+Falsch: Mails gehen gezielt an einen Server, nicht an alle. Sonst könnte jeder fremde Post lesen.
+- ✓ Er fragt den DNS-Server nach dem MX-Eintrag von ravensberger24.de
+- Aus seiner Weiterleitungstabelle
+Falsch: Die Weiterleitungstabelle kennt Netze und Wege, aber keine Domains. Welcher Server für eine Domain zuständig ist, steht im DNS.
+Erklärung: Der Schul-Mailserver fragt den DNS-Server, welcher Mailserver für ravensberger24.de zuständig ist. Darum brauchen die Mailserver-PCs einen DNS-Server und das DNS die MX-Einträge.
+
+### Aus welchen Teilen besteht anna@rbz-wirtschaft-kiel.de?
+- Gerätename und Port
+Falsch: In einer E-Mail-Adresse stehen weder Gerätenamen noch Ports. Vor dem @ steht das Postfach, dahinter die Domain.
+- Vorname und Nachname
+Falsch: anna ist hier zwar ein Vorname, technisch ist es aber der Benutzername des Postfachs. Hinter dem @ steht kein Nachname, sondern die Domain.
+- IPv4-Adresse und Netzmaske
+Falsch: Eine E-Mail-Adresse enthält keine Netzangaben. Die Domain wird erst über DNS zu einer Adresse.
+- ✓ Benutzername und Domain
+Erklärung: Die Domain sagt, welcher Mailserver zuständig ist, der Benutzername, welches Postfach.
+
+### Auf welchem Port nimmt der Mailserver Mails per SMTP an?
+- 143
+Falsch: Port 143 gehört zu IMAP, also zum Abrufen. Ankommende Mails nimmt der Server über SMTP an.
+- ✓ 25
+- 80
+Falsch: Port 80 gehört zu HTTP, also zum Webserver.
+- 53
+Falsch: Port 53 gehört zu DNS.
+Erklärung: SMTP nutzt Port 25. Das hast du mit netstat auf dem Mailserver gesehen.
+
+### Auf welchem Port wartet der Mailserver auf das Abrufen per IMAP?
+- 25
+Falsch: Port 25 gehört zu SMTP, darüber nimmt der Server Mails an. Das Abrufen läuft über einen anderen Port.
+- 80
+Falsch: Port 80 gehört zu HTTP und Webseiten.
+- ✓ 143
+- 67
+Falsch: Port 67 gehört zum DHCP-Server.
+Erklärung: Der Mailserver wartet auf beiden Ports: 25 für SMTP, 143 für IMAP.
+
+### Mails innerhalb der Schule kommen an, Mails an die RGG nicht. Was fehlt am wahrscheinlichsten?
+- Ein IMAP-Konto für anna auf dem Mailserver der RGG
+Falsch: Anna will der RGG eine Mail schicken, nicht dort Mails abrufen. Ein Konto bei der RGG braucht sie dafür nicht.
+- ✓ Ein DNS-Eintrag für die RGG oder der DNS-Server am Schul-Mailserver
+- Ein neues Kabel zwischen R1 und R2
+Falsch: Der Weg zur RGG funktioniert, Webseiten der RGG kommen ja an. Es fehlt nicht an der Verbindung, sondern an der Information, wohin die Mail gehört.
+- Ein zweites E-Mail-Programm auf Laptop-1
+Falsch: Ein Programm reicht. Die Mail kommt beim Schul-Mailserver an und scheitert erst auf dem Weg zur RGG.
+Erklärung: Für die eigene Domain braucht der Schul-Mailserver kein DNS, für eine fremde schon: Er muss den MX-Eintrag der RGG nachschlagen. Fehlt der Eintrag oder kennt er keinen DNS-Server, bleibt die Mail liegen.
+
+### Anna hat die Auftragsbestätigung in der Schule auf Laptop-1 gelesen. Was zeigt das E-Mail-Programm auf dem Heim-Laptop nach dem Abrufen?
+- ✓ Dieselbe Mail, denn mit IMAP bleibt sie im Postfach auf dem Server
+- Nichts, denn die Mail wurde beim Lesen auf dem Server gelöscht
+Falsch: Mit IMAP bleibt die Mail auf dem Server, bis jemand sie löscht. Lesen allein löscht nichts.
+- Nichts, denn der Heimrouter blockiert Port 143
+Falsch: Der Heimrouter lässt Verbindungen von innen nach außen durch. Das Postfach ist auch von zu Hause erreichbar.
+- Nur den Betreff, den Text gibt es nur auf Laptop-1
+Falsch: Die ganze Mail liegt im Postfach auf dem Server. Jedes Gerät, das das Postfach abruft, bekommt sie vollständig.
+Erklärung: Mit IMAP liegt die Mail im Postfach auf dem Schul-Mailserver. Jedes Gerät, auf dem Annas Konto eingerichtet ist, zeigt dieselben Mails, in der Schule wie zu Hause.
+
+### In welcher Reihenfolge schickt ein E-Mail-Programm die SMTP-Befehle?
+- DATA, HELO, RCPT TO, MAIL FROM
+Falsch: DATA leitet den eigentlichen Text ein. Vorher muss klar sein, wer schreibt und an wen.
+- ✓ HELO, MAIL FROM, RCPT TO, DATA
+- RCPT TO, MAIL FROM, HELO, DATA
+Falsch: Am Anfang begrüßt das Programm den Server mit HELO. Der Absender (MAIL FROM) kommt vor dem Empfänger.
+- HELO, DATA, MAIL FROM, RCPT TO
+Falsch: Nach der Begrüßung kommen erst Absender und Empfänger. Der Text (DATA) kommt ganz zum Schluss.
+Erklärung: Erst begrüßt das Programm den Server (HELO), dann nennt es Absender (MAIL FROM) und Empfänger (RCPT TO), zum Schluss kommt der Text (DATA).
+
+## Glossar
+
+- **E-Mail-Programm** – Client, mit dem man Mails schreibt, per SMTP verschickt und per IMAP aus dem Postfach abruft. Darin richtest du ein Konto ein: E-Mail-Adresse, Benutzername, Passwort und die Namen der Mailserver. Das Programm spricht nur mit dem Mailserver der eigenen Domain. Den Weg zu fremden Domains übernimmt dieser Server.
+- **SMTP** – Protokoll zum Versenden und Weitergeben von Mails, Port 25. Das E-Mail-Programm liefert eine Mail per SMTP beim eigenen Mailserver ab. Der gibt sie, ebenfalls per SMTP, an den Mailserver der Zieldomain weiter. Die Befehle laufen in fester Reihenfolge: HELO, MAIL FROM, RCPT TO, DATA.
+- **Postfach** – Speicher für die Mails eines Kontos auf dem Mailserver. Ankommende Mails bleiben dort, auch wenn ein E-Mail-Programm sie per IMAP abruft. Gelöscht werden sie erst, wenn jemand sie im Programm löscht. Jedes Konto, zum Beispiel anna oder verkauf, hat sein eigenes Postfach.
+- **IMAP** – Protokoll zum Abrufen von Mails aus dem Postfach, Port 143 (Internet Message Access Protocol). Das E-Mail-Programm meldet sich mit Benutzername und Passwort an, öffnet den Posteingang und holt die Mails. Die Mails bleiben dabei auf dem Server, darum zeigen alle Geräte mit demselben Konto dieselben Mails. Löschst du eine Mail im Programm, löscht IMAP sie auch auf dem Server. In echten Netzen läuft IMAP verschlüsselt über Port 993.
+- **Mailserver** – nimmt Mails für eine Domain an, speichert sie in Postfächern und gibt fremde Mails weiter. In Filius ist das ein PC mit der Software E-Mail-Server, in der du Domain und Konten einträgst. Er wartet an Port 25 (SMTP) und Port 143 (IMAP). Für fremde Domains fragt er den DNS-Server nach dem MX-Eintrag.
+- **E-Mail-Adresse** – Benutzername und Domain, verbunden durch @. Vor dem @ steht das Postfach, zum Beispiel anna. Hinter dem @ steht die Domain, die sagt, welcher Mailserver zuständig ist. Jede E-Mail-Adresse gibt es weltweit nur einmal.
+- **MX-Eintrag** – DNS-Eintrag, der den Mailserver einer Domain nennt. MX steht für Mail Exchanger. Beispiel: ravensberger24.de → mail.ravensberger24.de. Die Adresse dieses Mailservers liefert dann ein A-Eintrag.
+- **netstat** – Befehl, der zeigt, an welchen Ports ein Gerät auf Verbindungen wartet. Ein Mailserver wartet zum Beispiel an Port 25 und 143. So prüfst du, ob ein Server-Programm wirklich läuft und Anfragen annehmen kann. Fehlt der Port in der Liste, ist der Dienst gestoppt.

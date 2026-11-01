@@ -1,0 +1,181 @@
+# Zwei Laptops, ein Kabel
+Ziel: Du verbindest zwei Laptops mit einem Kabel, gibst ihnen Adressen und prüfst mit ping, ob sie sich erreichen.
+
+## Lesen
+
+### Was ist ein Netzwerk?
+Ein **Netzwerk** sind Geräte, die miteinander verbunden sind und Daten austauschen. Das kann ein Kabel zwischen zwei Laptops sein oder das ganze Internet.
+
+In Filius baust du Netzwerke selbst. Links liegen die Bauteile, in der Mitte ist die Arbeitsfläche. Oben wechselst du zwischen drei Modi: Entwurf (bauen), Simulation (ausprobieren) und Dokumentation (beschriften).
+
+[Bild: s01-modi.png | Die drei Modi oben in Filius]
+
+Ein Gerät ziehst du mit der Maus aus der Leiste auf die Arbeitsfläche. Mit „Verbindung“ ziehst du ein Kabel zwischen zwei Geräten.
+
+[Bild: s01-kabel.png | Zwei Laptops, verbunden mit einem Kabel]
+
+### Jedes Gerät braucht eine Adresse
+Damit Daten beim richtigen Gerät ankommen, braucht jedes Gerät eine eigene **IPv4-Adresse**. Sie besteht aus vier Zahlen mit Punkten dazwischen, zum Beispiel 192.168.0.10. Jede Zahl liegt zwischen 0 und 255.
+
+[Bild: s01-ip-adresse.png | Eine IPv4-Adresse besteht aus vier Zahlen von 0 bis 255]
+
+Zur IPv4-Adresse gehört immer eine **Netzmaske**. Bei uns ist sie immer 255.255.255.0. Was sie genau bedeutet, lernst du in Kapitel 2.
+
+Beides trägst du in Filius unten in den Einstellungen des Geräts ein. Das Feld dafür heißt „IPv4-Adresse“.
+
+[Bild: s01-einstellungen.png | IPv4-Adresse und Netzmaske in den Einstellungen von Laptop-1]
+
+> Merke: Zwei Geräte dürfen nie dieselbe IPv4-Adresse haben.
+
+### Ping: Bist du da?
+Mit **Ping** prüfst du, ob ein anderes Gerät erreichbar ist. Dein Laptop schickt kleine Anfragen, das andere Gerät schickt Antworten zurück. Kommen die Antworten an, ist die Verbindung in Ordnung.
+
+Ping gibst du in der Befehlszeile ein, zum Beispiel `ping 192.168.0.11`. Die Befehlszeile installierst du in der Simulation auf dem Desktop des Laptops.
+
+[Bild: s01-ping.png | ping in der Befehlszeile: Anfragen und Antworten]
+
+### Zuschauen, was passiert
+Im **Datenaustausch** siehst du jede Nachricht, die ein Gerät sendet oder empfängt. Du öffnest ihn in der Simulation mit einem Rechtsklick auf das Gerät und „Datenaustausch anzeigen“.
+
+[Bild: s01-datenaustausch.png | Der Datenaustausch von Laptop-1 nach einem ping]
+
+Jede Zeile ist eine Nachricht. Du siehst, wer sie geschickt hat (Quelle) und an wen sie ging (Ziel).
+
+## Praxis
+
+### 1.1
+Lege im Entwurfsmodus zwei Laptops an und nenne sie Laptop-1 und Laptop-2.
+Tipp: Die Bauteile stehen links in der Leiste. Den Namen änderst du unten in den Einstellungen.
+
+### 1.2
+Verbinde Laptop-1 und Laptop-2 mit einem Kabel.
+Tipp: Wähle in der Leiste „Verbindung“ und klicke nacheinander beide Laptops an.
+
+### 1.3
+Gib den Laptops ihre Adressen, Netzmaske jeweils 255.255.255.0:
+| Gerät | IPv4-Adresse |
+|---|---|
+| Laptop-1 | 192.168.0.10 |
+| Laptop-2 | 192.168.0.11 |
+Tipp: Laptop anklicken, die Felder stehen unten in den Einstellungen.
+
+### 1.4
+Starte die Simulation, installiere auf Laptop-1 die Befehlszeile und teste die Verbindung mit `ping 192.168.0.11`.
+Tipp: Ein Klick auf Laptop-1 öffnet seinen Desktop. Dort findest du die Software-Installation.
+
+### 1.5
+Sieh dir die Ausgabe deines ping in der Befehlszeile genau an.
+Frage: Wie viele Anfragen hat ping geschickt?
+- 1
+- 2
+- ✓ 4
+- 10
+Tipp: Zähle die Zeilen mit einer Antwort.
+
+### 1.6
+Öffne den Datenaustausch von Laptop-1 und pinge Laptop-2 noch einmal.
+Frage: Was steht bei den Anfragen in der Spalte „Ziel“?
+- ✓ 192.168.0.11, die Adresse von Laptop-2
+- 192.168.0.10, die Adresse von Laptop-1
+- 255.255.255.0, die Netzmaske
+- Der Name „Laptop-2“
+Tipp: Rechtsklick auf Laptop-1 in der Simulation, dann „Datenaustausch anzeigen“.
+
+### 1.7
+Experiment: Lösche das Kabel und pinge Laptop-2 noch einmal. Verbinde die Laptops danach wieder mit einem Kabel.
+Frage: Was zeigt ping ohne Kabel?
+- ✓ Es kommen keine Antworten zurück
+- Laptop-2 antwortet trotzdem
+- Laptop-1 bekommt eine neue IPv4-Adresse
+- Filius ändert die Netzmaske
+Tipp: Ein Kabel löschst du im Entwurfsmodus mit einem Rechtsklick auf einen der Laptops.
+
+## Quiz
+
+### Was ist ein Netzwerk?
+- ✓ Geräte, die miteinander verbunden sind und Daten austauschen
+- Ein einzelner Laptop, auf dem viele Programme laufen
+Falsch: Ein einzelnes Gerät ist noch kein Netzwerk. Dazu gehören mindestens zwei Geräte, die verbunden sind.
+- Ein Kabel, an das noch keine Geräte angeschlossen sind
+Falsch: Das Kabel allein tauscht keine Daten aus. Erst die verbundenen Geräte machen das Netzwerk.
+- Nur das Internet, kleinere Verbindungen zählen nicht
+Falsch: Das Internet ist ein sehr großes Netzwerk. Schon zwei Laptops mit einem Kabel sind aber auch eins.
+Erklärung: Ein Netzwerk entsteht, sobald Geräte verbunden sind und Daten austauschen. Das kleinste sind zwei Laptops mit einem Kabel.
+
+### Welche IPv4-Adresse ist richtig geschrieben?
+- ✓ 192.168.0.12
+- 192.168.0.256
+Falsch: Jede Zahl darf höchstens 255 sein. 256 ist zu groß.
+- 192.168.0
+Falsch: Hier fehlt eine Zahl. Eine IPv4-Adresse hat immer vier Zahlen.
+- 192,168,0,12
+Falsch: Zwischen den Zahlen stehen Punkte, keine Kommas.
+Erklärung: Eine IPv4-Adresse besteht aus vier Zahlen von 0 bis 255, getrennt durch Punkte.
+
+### Laptop-1 hat 192.168.0.10. Welche Adresse kann Laptop-2 bekommen?
+- ✓ 192.168.0.11
+- 192.168.0.10
+Falsch: Diese Adresse hat schon Laptop-1. Zwei Geräte dürfen nie dieselbe IPv4-Adresse haben.
+- 255.255.255.0
+Falsch: Das ist die Netzmaske, keine Adresse für ein Gerät.
+- 192.168.0.300
+Falsch: 300 ist größer als 255. So eine Adresse gibt es nicht.
+Erklärung: Jedes Gerät braucht eine eigene Adresse. 192.168.0.11 ist frei und richtig geschrieben.
+
+### Was gehört bei uns immer zur IPv4-Adresse dazu?
+- ✓ Die Netzmaske 255.255.255.0
+- Ein Passwort, zum Beispiel 1234
+Falsch: Für eine IPv4-Adresse braucht man kein Passwort. Du trägst nur Adresse und Netzmaske ein.
+- Der Name des Geräts wie Laptop-1
+Falsch: Der Name hilft dir beim Erkennen in Filius. Für die Adresse spielt er keine Rolle.
+- Die Farbe des Netzwerkkabels
+Falsch: Kabel haben in Filius keine Farbe, die etwas bedeutet.
+Erklärung: Zur IPv4-Adresse gehört immer eine Netzmaske. Bei uns ist sie überall 255.255.255.0.
+
+### Wozu dient ping?
+- ✓ Um zu prüfen, ob ein anderes Gerät erreichbar ist
+- Um eine Webseite von einem anderen Gerät zu öffnen
+Falsch: Webseiten öffnest du mit dem Webbrowser. ping schickt nur kleine Anfragen.
+- Um einem anderen Gerät eine neue IPv4-Adresse zu geben
+Falsch: Adressen trägst du in den Einstellungen ein. ping prüft nur, ob jemand antwortet.
+- Um ein neues Kabel zwischen zwei Geräten zu verlegen
+Falsch: Kabel ziehst du im Entwurfsmodus mit „Verbindung“.
+Erklärung: ping schickt kleine Anfragen an ein Gerät. Kommen Antworten zurück, ist es erreichbar.
+
+### ping zeigt keine Antworten. Was prüfst du zuerst?
+- ✓ Kabel und Adressen im Entwurfsmodus
+- Das eingestellte Tempo der Simulation
+Falsch: Das Tempo macht die Simulation nur schneller oder langsamer. Antworten kommen trotzdem, wenn alles stimmt.
+- Die Größe des Programmfensters von Filius
+Falsch: Die Fenstergröße hat mit dem Netz nichts zu tun.
+- Die Netzmaske überall auf 0.0.0.0 stellen
+Falsch: Bei uns ist die Netzmaske immer 255.255.255.0. Mit einer falschen Maske wird es schlimmer.
+Erklärung: Ohne Antwort liegt es meist an einem fehlenden Kabel oder an einer falschen Adresse. Beides siehst du im Entwurfsmodus.
+
+### Was zeigt der Datenaustausch?
+- ✓ Jede Nachricht, die ein Gerät sendet oder empfängt
+- Nur die Nachrichten, bei denen ein Fehler aufgetreten ist
+Falsch: Er zeigt alle Nachrichten, nicht nur fehlerhafte.
+- Alle Kabel, mit denen ein Gerät verbunden ist
+Falsch: Die Kabel siehst du auf der Arbeitsfläche, nicht im Datenaustausch.
+- Die Einstellungen des Geräts wie Name und Netzmaske
+Falsch: Die Einstellungen stehen unten im Entwurfsmodus. Der Datenaustausch zeigt Nachrichten.
+Erklärung: Im Datenaustausch steht jede Nachricht als eigene Zeile, mit Absender (Quelle) und Empfänger (Ziel).
+
+### Wie öffnest du den Datenaustausch von Laptop-1?
+- ✓ In der Simulation mit einem Rechtsklick auf Laptop-1
+- Im Entwurfsmodus mit einem Klick links in der Leiste
+Falsch: In der Leiste liegen die Bauteile zum Bauen.
+- Mit dem Befehl datenaustausch in der Befehlszeile
+Falsch: Diesen Befehl gibt es nicht. Der Datenaustausch ist ein eigenes Fenster.
+- Im Dokumentationsmodus mit einem Doppelklick auf Laptop-1
+Falsch: Dort beschriftest du dein Netz. Die Simulation ist dann angehalten.
+Erklärung: In der Simulation klickst du das Gerät mit der rechten Maustaste an und wählst „Datenaustausch anzeigen“.
+
+## Glossar
+
+- **Netzwerk** – Geräte, die miteinander verbunden sind und Daten austauschen. Das kleinste Netzwerk sind zwei Laptops mit einem Kabel, das größte ist das Internet. In Filius baust du Netzwerke im Entwurfsmodus.
+- **IPv4-Adresse** – Adresse eines Geräts im Netzwerk, zum Beispiel 192.168.0.10. Sie besteht aus vier Zahlen von 0 bis 255. Jede IPv4-Adresse darf im Netz nur einmal vorkommen.
+- **Netzmaske** – gehört zu jeder IPv4-Adresse und zeigt, welche Geräte im selben Netz liegen. Bei uns ist sie immer 255.255.255.0. Genauer lernst du sie in Kapitel 2 kennen.
+- **Ping** – Befehl, der prüft, ob ein Gerät erreichbar ist, zum Beispiel `ping 192.168.0.11`. Er schickt kleine Anfragen, das Ziel antwortet. Kommt keine Antwort, stimmt etwas nicht, oft ein Kabel oder eine Adresse.
+- **Datenaustausch** – Fenster in Filius, das alle Nachrichten eines Geräts zeigt. Du öffnest es in der Simulation mit einem Rechtsklick auf das Gerät. Jede Zeile ist eine Nachricht mit Absender (Quelle) und Empfänger (Ziel).

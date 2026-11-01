@@ -1,0 +1,255 @@
+# Das Heimnetz: WLAN, Heimrouter und NAT
+Ziel: Ein Heimnetz wie zu Hause kommt dazu. Heim-Laptop und Tablet funken im WLAN und hängen hinter einem Heimrouter am Providernetz. Du entdeckst, dass der Shop nur die Adresse des Heimrouters sieht, und warum man von außen nicht ins Heimnetz kommt.
+
+## Lesen
+
+### Ein Netz wie zu Hause
+Zu Hause steht meist ein **Heimrouter**. Er verbindet das Heimnetz mit dem Netz des Providers und hat dafür zwei Anschlüsse:
+
+- Der **WAN-Anschluss** zeigt nach außen zum Provider (WAN = Wide Area Network),
+- der **LAN-Anschluss** zeigt nach innen ins Heimnetz.
+
+[Bild: k08-heimrouter.png | WAN- und LAN-Anschluss in den Einstellungen des Heimrouters]
+
+Anders als ein Vermittlungsrechner bringt der Heimrouter gleich mehrere Dienste mit: einen DHCP-Server, NAT und eine Firewall.
+
+### Zu Hause ein Kasten, in Filius zwei Geräte
+Das Gerät zu Hause ist eigentlich mehreres in einem Kasten: Router, Switch und WLAN. In Filius stehen Heimrouter und Switch Heimnetz getrennt nebeneinander. So erkennst du besser, wer welche Aufgabe hat:
+
+- Der Switch verbindet die Geräte im Heimnetz. Er leitet Pakete anhand der MAC-Adresse an das richtige Gerät weiter, wie der Switch in der Schule.
+- Der Heimrouter kümmert sich um alles, was das Heimnetz verlässt. Er routet die Pakete nach außen zum Provider und tauscht dabei mit NAT die Absenderadresse.
+
+[Bild: k08-heimnetz.png | Heimrouter und Switch Heimnetz sind in Filius zwei Geräte]
+
+### Adressen automatisch
+Im Heimnetz trägt niemand Adressen von Hand ein. Wie der DHCP-Server der Schule aus Kapitel 7 verteilt sie der Heimrouter: IPv4-Adresse, Netzmaske, als Gateway sich selbst und den DNS-Server. Am Gerät setzt du dafür nur das Häkchen „DHCP zur Konfiguration verwenden“.
+
+[Bild: k08-dhcp.png | Der DHCP-Server des Heimrouters vergibt Adressen von .100 bis .150]
+
+Die Geräte holen sich ihre Einstellungen beim Start der Simulation. Änderst du danach etwas am DHCP-Server, kommt es erst beim nächsten Start an.
+
+### WLAN: das Heimnetz über Funk
+Zu Hause hängen Laptop, Tablet und Handy meist nicht am Kabel, sondern im **WLAN**. Das ist ein lokales Netz über Funk (Wireless LAN). Ausgesendet wird es von einem **Access Point**. In Filius übernimmt das der Switch: Er verbindet Geräte über Kabel und über Funk.
+
+Jedes WLAN hat einen Namen, die **SSID** (Service Set Identifier). Diesen Namen siehst du auf dem Handy in der Liste der WLANs. In Filius trägst du ihn am Switch unter „Name WLAN (SSID)“ ein. Am Laptop wählst du dann „Drahtlos (WLAN)“ und darunter die SSID. In der Liste stehen auch die anderen Switches mit zufälligen Namen, so wie auf dem Handy die WLANs der Nachbarn.
+
+[Bild: k08-wlan.png | Der Heim-Laptop ist per WLAN mit Heim-WLAN verbunden]
+
+Filius zeichnet eine WLAN-Verbindung gestrichelt. Sonst ändert sich nichts: Auch im WLAN hat jedes Gerät eine MAC-Adresse und eine IPv4-Adresse, und der Switch leitet die Pakete weiter wie über Kabel.
+
+> Merke: Ein echtes WLAN ist mit einem Passwort geschützt (WPA2 oder WPA3), sonst könnte jeder in der Nähe mitfunken. Filius lässt das Passwort weg.
+
+### Private und öffentliche Adressen
+Einige Adressbereiche sind für Heim- und Unternehmensnetze reserviert. Adressen daraus heißen **private IPv4-Adressen**:
+
+- 10.0.0.0 bis 10.255.255.255
+- 172.16.0.0 bis 172.31.255.255
+- 192.168.0.0 bis 192.168.255.255
+
+Diese Adressen gibt es in Millionen Heimnetzen gleichzeitig. Im echten Internet werden sie deshalb nicht weitergeleitet. Nach außen braucht jedes Netz eine weltweit eindeutige **öffentliche IPv4-Adresse**.
+
+> Merke: Unser Schulnetz nutzt auch private Adressen und ist im Übungsnetz trotzdem erreichbar. Das ist eine Vereinfachung. In echt stünde an der Schule ebenfalls NAT.
+
+### NAT: ein Absender wird ausgetauscht
+Schickt der Heim-Laptop eine Anfrage an den Shop, tauscht der Heimrouter die private Absenderadresse gegen seine WAN-Adresse 203.0.113.3. Das heißt **NAT** (Network Address Translation).
+
+[Bild: k08-nat.png | Dieselbe Anfrage im Heimnetz und beim Shop: Der Absender ist ein anderer]
+
+Der Shop sieht nur den Heimrouter. Seine Antwort geht an 203.0.113.3, und der Heimrouter reicht sie an den richtigen Laptop weiter.
+
+### Die NAT-Tabelle
+Damit der Heimrouter weiß, wohin eine Antwort gehört, merkt er sich jede Verbindung in seiner **NAT-Tabelle**. Du öffnest sie in der Simulation mit einem Klick auf den Heimrouter.
+
+[Bild: k08-nat-tabelle.png | NAT-Tabelle des Heimrouters nach einem Aufruf des Shops]
+
+- „LAN-Adresse“ und „LAN-Port“: das Gerät im Heimnetz,
+- „Portfreigabe“: der Port, den der Heimrouter für diese Verbindung nach außen nutzt,
+- „WAN-Adresse“: die Gegenstelle draußen, hier der Shop.
+
+Von außen lässt der Heimrouter nur Antworten auf solche bekannten Verbindungen herein.
+
+## Praxis
+
+### 8.1
+Stelle einen Heimrouter und einen neuen Switch „Switch Heimnetz“ auf und verbinde sie. Netzmaske jeweils 255.255.255.0:
+| Anschluss | IPv4-Adresse | Kabel zum |
+|---|---|---|
+| WAN | 203.0.113.3 | Switch Provider |
+| LAN | 192.168.178.1 | Switch Heimnetz |
+Das Gateway des Heimrouters ist 203.0.113.1.
+Tipp: WAN zeigt zum Provider, LAN ins Heimnetz. Das Gateway des Heimrouters ist R1.
+
+### 8.2
+Richte den DHCP-Server des Heimrouters ein:
+| Feld | Wert |
+|---|---|
+| Adress-Untergrenze | 192.168.178.100 |
+| Adress-Obergrenze | 192.168.178.150 |
+| DNS-Server | 203.0.113.53 |
+Setze danach das Häkchen „DHCP aktivieren“.
+Tipp: Der Knopf „DHCP-Server einrichten“ sitzt beim LAN-Anschluss. Das Gateway trägt Filius selbst ein, den DNS-Server kennst du aus Kapitel 6.
+
+### 8.3
+Mach aus dem Switch Heimnetz ein WLAN und verbinde zwei neue Laptops per Funk damit:
+| Gerät | Einstellung |
+|---|---|
+| Switch Heimnetz | Name WLAN (SSID): Heim-WLAN |
+| Laptop „Heim-Laptop“ | Drahtlos (WLAN) mit Heim-WLAN |
+| Laptop „Tablet“ | Drahtlos (WLAN) mit Heim-WLAN |
+Beide Laptops sollen ihre Einstellungen automatisch bekommen.
+Tipp: Die Laptops brauchen kein Kabel, ein vorhandenes löschst du zuerst. Wähle in ihren Einstellungen „Drahtlos (WLAN)“ und darunter Heim-WLAN. Filius kennt kein Tablet, darum nehmen wir einen Laptop.
+
+### 8.4
+Starte die Simulation und frage auf dem Heim-Laptop seine Einstellungen ab.
+Frage: Welche IPv4-Adresse hat er bekommen?
+Eingabe: IPv4-Adresse
+Tipp: Dafür brauchst du auf dem Heim-Laptop die Befehlszeile.
+
+### 8.5
+Rufe vom Heim-Laptop den Shop über seinen Namen www.ravensberger24.de auf.
+Tipp: Klappt der Name nicht, prüfe den DNS-Server im DHCP-Server des Heimrouters. Neue Werte holt der Laptop erst beim nächsten Start der Simulation.
+
+### 8.6
+Öffne den Datenaustausch des Shops und finde die Anfrage des Heim-Laptops.
+Frage: Von welcher Absenderadresse kam sie?
+Eingabe: IPv4-Adresse
+Tipp: Es ist nicht die Adresse des Heim-Laptops.
+
+### 8.7
+Öffne in der Simulation die NAT-Tabelle des Heimrouters, solange sie einen Eintrag hat.
+Frage: Was merkt sich der Heimrouter in einem Eintrag?
+- Name und MAC-Adresse jedes Geräts im Heimnetz
+- Alle Webseiten, die im Heimnetz aufgerufen wurden
+- ✓ Adresse und Port des Geräts innen, den Port nach außen und die Gegenstelle
+- Die Adressen, die sein DHCP-Server vergeben hat
+Tipp: Heimrouter in der Simulation anklicken. Ist die Tabelle leer, rufe den Shop noch einmal auf.
+
+### 8.8
+Experiment: Pinge von Laptop-1 in der Schule den Heim-Laptop an.
+Frage: Warum scheitert das?
+- Die Firewall des Heimrouters blockiert alles
+- Der Heim-Laptop beantwortet keine Echo-Anfragen
+- ping funktioniert nicht über Router hinweg
+- ✓ Niemand draußen kennt einen Weg ins private Heimnetz, und NAT lässt nur Antworten herein
+Tipp: Denk an Kapitel 5: Wer müsste den Weg kennen?
+
+### 8.9
+Ergänze den Netzplan: Gib dem Heimnetz im Dokumentationsmodus eine Gliederungsfläche:
+- Etikett oben links (mit dem „+“ der Fläche): Name und Netzadresse mit /24, zum Beispiel „Heimnetz 192.168.178.0/24“
+- darunter ein Textfeld mit dem Hinweis, dass das Heimnetz privat ist und hinter NAT liegt, zum Beispiel „privat, hinter NAT“
+Tipp: Die Fläche umfasst den Switch Heimnetz und die Geräte daran. Der Heimrouter bleibt zwischen Providernetz und Heimnetz.
+
+## Quiz
+
+### Welche Adresse ist eine private IPv4-Adresse?
+- ✓ 192.168.178.20
+- 203.0.113.3
+Falsch: 203.0.113.3 liegt in keinem der privaten Bereiche. Im Übungsnetz ist es die öffentliche WAN-Adresse des Heimrouters.
+- 172.32.0.5
+Falsch: Knapp daneben: Der private Bereich reicht von 172.16 bis 172.31. 172.32 liegt schon außerhalb.
+- 198.51.100.80
+Falsch: Das ist die Adresse des Shops. Sie liegt in keinem der privaten Bereiche.
+Erklärung: 192.168.x.x ist privat. 172.32.0.5 liegt knapp außerhalb des privaten Bereichs 172.16 bis 172.31.
+
+### Welche Aufgabe übernimmt im Heimnetz der Heimrouter und nicht der Switch?
+- ✓ Er leitet Pakete aus dem Heimnetz nach außen weiter
+- Er bringt Pakete anhand der MAC-Adresse zum richtigen Gerät
+Falsch: Das ist die Aufgabe des Switches. Er merkt sich in seiner Switch-Tabelle, an welchem Anschluss welche MAC-Adresse hängt.
+- Er sendet in Filius das WLAN Heim-WLAN aus
+Falsch: In Filius ist der Switch der Access Point. Nur zu Hause steckt beides in einem Kasten.
+- Er verbindet Heim-Laptop und Tablet miteinander
+Falsch: Geräte im selben Netz verbindet der Switch. Den Heimrouter braucht ein Paket erst, wenn es das Heimnetz verlässt.
+Erklärung: Der Switch leitet Pakete im Heimnetz anhand der MAC-Adressen weiter. Der Heimrouter routet alles für draußen und tauscht dabei mit NAT die Absenderadresse. Zu Hause stecken beide in einem Kasten, in Filius stehen sie getrennt.
+
+### Was macht NAT im Heimrouter?
+- ✓ Es tauscht die private Absenderadresse gegen die WAN-Adresse
+- Es verschlüsselt den Verkehr ins Internet
+Falsch: NAT verschlüsselt nichts. Es tauscht nur Adressen und Ports aus, der Inhalt bleibt lesbar.
+- Es übersetzt Namen in IPv4-Adressen
+Falsch: Namen übersetzt DNS (Kapitel 6). NAT übersetzt Adressen, keine Namen.
+- Es verteilt Adressen im Heimnetz
+Falsch: Adressen verteilt der DHCP-Server im Heimrouter. NAT ändert Adressen in Paketen, die durch den Router gehen.
+Erklärung: NAT ersetzt die private Absenderadresse durch die WAN-Adresse des Heimrouters. Der Heimrouter merkt sich die Zuordnung, damit die Antwort beim richtigen Gerät ankommt.
+
+### Welche Absenderadresse sieht der Shop, wenn der Heim-Laptop ihn aufruft?
+- ✓ 203.0.113.3
+- Die Adresse des Heim-Laptops aus .100 bis .150
+Falsch: Diese private Adresse tauscht der Heimrouter gegen seine WAN-Adresse aus, bevor das Paket das Heimnetz verlässt.
+- 192.168.178.1
+Falsch: Das ist die LAN-Adresse des Heimrouters. Sie gilt nur im Heimnetz und ist draußen nicht zu sehen.
+- 203.0.113.1
+Falsch: Das ist R1, über den das Paket läuft. Ein Router ändert die Absenderadresse nicht, das tut nur der Heimrouter mit NAT.
+Erklärung: Nach außen tritt das ganze Heimnetz mit der WAN-Adresse des Heimrouters auf. 203.0.113.1 ist nur R1, über den der Weg läuft.
+
+### Woran erkennt der Heimrouter, zu welchem Gerät im Heimnetz eine Antwort gehört?
+- ✓ An der Portnummer in seiner NAT-Tabelle
+- An der MAC-Adresse des Heim-Laptops
+Falsch: Die Antwort kommt von draußen und enthält keine MAC-Adresse aus dem Heimnetz. MAC-Adressen gelten nur im eigenen Netz.
+- An der Absenderadresse der Antwort
+Falsch: Absender der Antwort ist der Shop. Daran sieht man nicht, welches Gerät im Heimnetz gefragt hat, es könnten auch mehrere sein.
+- Am Domainnamen des Shops
+Falsch: Namen spielen bei NAT keine Rolle. In den Paketen stehen nur Adressen und Ports.
+Erklärung: Jede Verbindung bekommt nach außen einen eigenen Port, die NAT-Tabelle ordnet ihn zu.
+
+### Was ist der WAN-Anschluss eines Heimrouters?
+- ✓ Der Anschluss zum Provider
+- Der Anschluss für das Heimnetz
+Falsch: Das ist der LAN-Anschluss (Local Area Network).
+- Der Anschluss für das WLAN
+Falsch: WLAN ist Funk im lokalen Netz und gehört zum Heimnetz, nicht zum Anschluss nach außen.
+- Der Anschluss für einen Drucker
+Falsch: Ein Drucker gehört ins Heimnetz und hängt am LAN-Anschluss oder an einem Switch.
+Erklärung: Der WAN-Anschluss zeigt nach außen zum Provider. WAN steht für Wide Area Network, LAN für das lokale Heimnetz.
+
+### Was ist die SSID?
+- ✓ Der Name eines WLANs
+- Das Passwort des WLANs
+Falsch: Das Passwort ist ein eigener Schlüssel (WPA2 oder WPA3). Die SSID sieht dagegen jeder in der Liste der WLANs.
+- Die IPv4-Adresse des Access Points
+Falsch: Die SSID ist keine Adresse, sondern ein frei wählbarer Name. Im Heimnetz hat der Switch nicht einmal eine IPv4-Adresse.
+- Die Nummer des Funkkanals
+Falsch: Auf welchem Kanal gefunkt wird, ist eine eigene Einstellung. Die SSID ist der Name, unter dem das WLAN auftaucht.
+Erklärung: Die SSID ist der Name eines WLANs, bei uns „Heim-WLAN“. Ein Gerät verbindet sich mit dem WLAN, dessen SSID es auswählt.
+
+### Warum können Millionen Haushalte dieselben Adressen 192.168.178.x nutzen?
+- ✓ Jeder Heimrouter übersetzt sie in seine eigene öffentliche Adresse
+- Das Internet erlaubt doppelte Adressen
+Falsch: Im Internet muss jede Adresse eindeutig sein. Die privaten Adressen kommen dort gar nicht an.
+- Private Adressen gelten nur im WLAN
+Falsch: Private Adressen gelten im ganzen lokalen Netz, mit Kabel genauso wie im WLAN.
+- Jeder Haushalt nutzt eine andere Netzmaske
+Falsch: Die meisten Heimnetze haben sogar dieselbe Netzmaske. Das löst das Problem nicht.
+Erklärung: Die privaten Adressen verlassen das Heimnetz nie, NAT ersetzt sie durch die öffentliche Adresse des Heimrouters. Eindeutig sein muss deshalb nur die öffentliche Adresse.
+
+### Warum erreicht Laptop-1 in der Schule den Heim-Laptop nicht?
+- ✓ Kein Router kennt den Weg ins Heimnetz, und NAT lässt nur Antworten herein
+- Die Firewall des Heimrouters blockiert grundsätzlich alles
+Falsch: Die Firewall ist in diesem Kapitel noch gar nicht eingeschaltet. Es liegt an den fehlenden Wegen und an NAT.
+- Der Heim-Laptop beantwortet keine Echo-Anfragen
+Falsch: Im Heimnetz antwortet der Heim-Laptop ganz normal. Die Anfrage aus der Schule kommt bei ihm nur gar nicht an.
+- ping funktioniert nicht über Router hinweg
+Falsch: Doch: In Kapitel 5 hast du den Shop über zwei Router angepingt.
+Erklärung: Die privaten Adressen des Heimnetzes kennt kein Router draußen, und NAT lässt nur Antworten auf Anfragen von innen herein. Gezielte Freigaben kommen in Kapitel 10.
+
+### Welches Gerät ist das Standard-Gateway des Heim-Laptops?
+- ✓ Der Heimrouter mit 192.168.178.1
+- R1 mit 203.0.113.1
+Falsch: R1 liegt im Providernetz, nicht im Heimnetz. Ein Gateway muss im eigenen Netz liegen.
+- Der Switch Heimnetz
+Falsch: Ein Switch kann nicht in andere Netze weiterleiten und hat keine IPv4-Adresse, die als Gateway dienen könnte.
+- Der Shop mit 198.51.100.80
+Falsch: Der Shop ist das Ziel, nicht der Weg dorthin. Er liegt in einem ganz anderen Netz.
+Erklärung: Der Heim-Laptop schickt alles nach außen an den Heimrouter, der es an sein eigenes Gateway R1 weitergibt.
+
+## Glossar
+
+- **Heimrouter** – verbindet das Heimnetz mit dem Provider und bringt NAT, DHCP und Firewall mit. Er hat einen WAN-Anschluss nach außen und einen LAN-Anschluss nach innen. Zu Hause stecken Router, Switch und WLAN meist in einem Kasten, in Filius stehen Heimrouter und Switch getrennt. Für das ganze Heimnetz hat er nach außen nur eine öffentliche Adresse.
+- **WAN-Anschluss** – Anschluss des Heimrouters nach außen zum Provider (WAN = Wide Area Network). Er bekommt eine öffentliche Adresse, in unserem Netz 203.0.113.3. Über ihn läuft der gesamte Verkehr zwischen Heimnetz und Internet. Von außen ist das Heimnetz nur über diese Adresse zu erreichen.
+- **LAN-Anschluss** – Anschluss des Heimrouters nach innen ins Heimnetz. Er hat eine private Adresse, in unserem Netz 192.168.178.1. Diese Adresse ist das Gateway aller Geräte im Heimnetz. Am LAN-Anschluss hängt der Switch Heimnetz mit den Geräten.
+- **WLAN** – lokales Netz über Funk statt über Kabel (Wireless LAN). Zu Hause sind Laptops, Tablets und Handys meist per WLAN verbunden. An den Adressen ändert sich nichts: Auch im WLAN hat jedes Gerät eine MAC-Adresse und eine IPv4-Adresse. Filius zeichnet eine WLAN-Verbindung gestrichelt.
+- **Access Point** – Gerät, das ein WLAN aussendet und die Geräte darin mit dem übrigen Netz verbindet. Zu Hause steckt er meist mit im Heimrouter. In Filius übernimmt der Switch diese Aufgabe. Er leitet Pakete aus dem WLAN genauso weiter wie Pakete vom Kabel.
+- **SSID** – Name eines WLANs (Service Set Identifier), in unserem Heimnetz „Heim-WLAN“. Diesen Namen zeigt das Handy in der Liste der WLANs an. In Filius stellst du ihn am Switch unter „Name WLAN (SSID)“ ein. Ein Laptop verbindet sich mit dem WLAN, dessen SSID du bei ihm auswählst.
+- **Private IPv4-Adresse** – Adresse aus einem reservierten Bereich (10.x, 172.16–31.x, 192.168.x), die im echten Internet nicht weitergeleitet wird. Jeder darf diese Bereiche im eigenen Netz nutzen, ohne sie anzumelden. Darum haben Millionen Heimnetze dieselben Adressen wie 192.168.178.x. Nach draußen kommen sie nur mit NAT.
+- **Öffentliche IPv4-Adresse** – weltweit eindeutige Adresse, unter der ein Gerät im Internet erreichbar ist. Solche Adressen werden zentral vergeben, ein Heimanschluss bekommt meist eine vom Provider. Im Übungsnetz hat der Heimrouter die öffentliche Adresse 203.0.113.3. Alle Geräte im Heimnetz teilen sich diese eine Adresse.
+- **NAT** – Adressübersetzung: Der Heimrouter tauscht private Absenderadressen gegen seine öffentliche Adresse. Dabei vergibt er für jede Verbindung einen eigenen Port und merkt sich die Zuordnung in der NAT-Tabelle. Kommt die Antwort zurück, tauscht er die Adresse wieder zurück. Anfragen von außen lässt NAT nur herein, wenn es eine Portfreigabe gibt.
+- **NAT-Tabelle** – Liste, in der sich der Heimrouter merkt, welche Verbindung zu welchem Gerät im Heimnetz gehört. Ein Eintrag enthält Adresse und Port des Geräts innen, den Port nach außen und die Gegenstelle. Anhand des Ports ordnet der Heimrouter jede Antwort dem richtigen Gerät zu. Einträge verschwinden nach einiger Zeit wieder, in Filius auch beim Start der Simulation.

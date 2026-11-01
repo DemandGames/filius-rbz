@@ -1,0 +1,173 @@
+# Netze verbinden: Schule und RGG
+Ziel: Ein Router in der Mitte verbindet das Schulnetz mit dem Netz der Ravensberger Getränke GmbH (RGG). Danach öffnet die Schule den Online-Shop der RGG.
+
+## Lesen
+
+### Zwei Netze, zwei Netzadressen
+Die RGG hat ein eigenes Netz. Jedes Netz hat eine **Netzadresse**: den Netzanteil mit einer 0 am Ende.
+
+- Schulnetz: Netzadresse 192.168.0.0, Geräte 192.168.0.10, 192.168.0.11 und so weiter
+- RGG-Netz: Netzadresse 192.168.1.0, Geräte 192.168.1.10, 192.168.1.11 und so weiter
+
+[Bild: s04-netzadresse.png | Schulnetz und RGG-Netz haben verschiedene Netzadressen]
+
+Der Netzanteil ist verschieden. Ein Switch allein kann die beiden Netze darum nicht verbinden.
+
+### Der Router in der Mitte
+Netze verbindet ein **Vermittlungsrechner**, meist Router genannt. Er hat für jedes Netz eine eigene Netzwerkkarte mit einer Adresse aus diesem Netz. Unser Router bekommt drei Karten: für die Schule, für die RGG und ab Kapitel 5 für den DNS-Anbieter.
+
+[Bild: s04-router.png | Der Router hat für jedes Netz eine eigene Karte]
+
+Bei uns hat der Router in jedem Netz die Adresse mit der 1 am Ende: 192.168.0.1 in der Schule, 192.168.1.1 bei der RGG und 192.168.2.1 beim DNS-Anbieter.
+
+> Merke: Jede neue Karte hat in Filius zuerst die Adresse 192.168.0.10, genau wie Laptop-1. Gib darum gleich allen drei Karten ihre Adresse, auch denen, die noch kein Kabel haben.
+
+Alle Netze hängen direkt an diesem einen Router. Darum kennt er den Weg zu jedem Netz von selbst, du musst am Router keine Wege eintragen.
+
+### Das Standard-Gateway
+Ein Laptop schickt alles, was nicht in sein eigenes Netz gehört, an sein **Standard-Gateway**. Das ist die Adresse des Routers in seinem Netz. In der Schule ist es 192.168.0.1, bei der RGG 192.168.1.1. In Filius heißt das Feld „Gateway“.
+
+[Bild: s04-gateway.png | Das Gateway steht in den Einstellungen von Laptop-1]
+
+[Bild: s04-weg.png | Der Weg eines Pakets von Laptop-1 über den Router zum Shop]
+
+> Merke: Ohne Gateway erreicht ein Gerät nur sein eigenes Netz.
+
+## Praxis
+
+### 4.1
+Stelle einen Vermittlungsrechner mit dem Namen „Router“ und drei Schnittstellen auf und verbinde ihn mit dem Switch Schule. Gib gleich allen drei Karten ihre Adressen, Netzmaske jeweils 255.255.255.0:
+| Karte | IPv4-Adresse | Kabel zum |
+|---|---|---|
+| 1. Karte | 192.168.0.1 | Switch Schule (jetzt) |
+| 2. Karte | 192.168.1.1 | Switch RGG (in Aufgabe 4.3) |
+| 3. Karte | 192.168.2.1 | Switch DNS-Anbieter (in Kapitel 5) |
+Tipp: Beim Aufstellen fragt Filius nach der Zahl der Schnittstellen. Jede Karte hat einen eigenen Reiter. Filius steckt jedes neue Kabel in die nächste freie Karte, darum passt die Reihenfolge.
+
+### 4.2
+Trage bei allen Geräten im Schulnetz das Gateway 192.168.0.1 ein.
+Tipp: Laptop-1 bis Laptop-4 und den Webserver nicht vergessen.
+
+### 4.3
+Baue das RGG-Netz:
+- Switch „Switch RGG“, verbunden mit dem Router (zweite Karte, 192.168.1.1)
+- PC „Shop“ und Laptop „Büro-Laptop“ am Switch RGG
+Adressen, Netzmaske überall 255.255.255.0:
+| Gerät | IPv4-Adresse | Gateway |
+|---|---|---|
+| Shop | 192.168.1.10 | 192.168.1.1 |
+| Büro-Laptop | 192.168.1.11 | 192.168.1.1 |
+Tipp: Der Shop ist ein Server, darum ein PC. Im Reiter der zweiten Karte muss unter „Verbunden mit“ jetzt der Switch RGG stehen.
+
+### 4.4
+Mache den Shop zum Webserver und ändere die Überschrift seiner Startseite in „Ravensberger24 – Getränke online“.
+Tipp: Wie in Kapitel 3: Webserver und Text-Editor installieren, Überschrift ändern, Webserver starten.
+
+### 4.5
+Teste die Verbindung zwischen den Netzen:
+- Pinge von Laptop-1 aus den Shop mit `ping 192.168.1.10`.
+- Öffne im Browser von Laptop-2 die Seite http://192.168.1.10.
+Tipp: Klappt es nicht, prüfe die Gateways und die Adressen des Routers.
+
+### 4.6
+Experiment: Lösche bei Laptop-3 das Gateway und pinge von Laptop-3 aus den Shop. Trage das Gateway danach wieder ein.
+Frage: Warum klappt der ping ohne Gateway nicht?
+- Der Shop ist ausgeschaltet
+- ✓ Laptop-3 weiß nicht, wohin er Pakete für ein anderes Netz schicken soll
+- Ohne Gateway hat Laptop-3 keine MAC-Adresse
+- Der Switch Schule lässt nur Laptop-1 durch
+Tipp: Auf Laptop-3 musst du die Befehlszeile vielleicht erst installieren.
+
+### 4.7
+Beschrifte das RGG-Netz im Dokumentationsmodus: eine Gliederungsfläche um Switch RGG, Shop und Büro-Laptop und oben links ein Etikett mit dem Namen und der Netzadresse des Netzes.
+Frage: Welche Netzadresse schreibst du auf das Etikett?
+Eingabe: IPv4-Adresse
+Tipp: Netzanteil und eine 0 am Ende. Der Router gehört zu mehreren Netzen und bleibt zwischen den Flächen.
+
+## Quiz
+
+### Wie lautet die Netzadresse des Schulnetzes?
+- ✓ 192.168.0.0
+- 192.168.0.1
+Falsch: 192.168.0.1 ist die Adresse des Routers im Schulnetz, also ein Gerät.
+- 255.255.255.0
+Falsch: Das ist die Netzmaske, keine Netzadresse.
+- 192.168.1.0
+Falsch: Das ist die Netzadresse des RGG-Netzes.
+Erklärung: Die Netzadresse ist der Netzanteil mit einer 0 am Ende. Für die Schule ist das 192.168.0.0.
+
+### Warum kann ein Switch das Schulnetz und das RGG-Netz nicht verbinden?
+- ✓ Die beiden Netze haben verschiedene Netzanteile, dafür braucht man einen Router
+- Ein Switch hat zu wenige Anschlüsse für die Geräte aus beiden Netzen zusammen
+Falsch: Anschlüsse hätte der Switch genug. Es liegt an den verschiedenen Netzen.
+- Die RGG nutzt andere Kabel, die nicht in die Anschlüsse des Switch Schule passen
+Falsch: Die Kabel sind gleich. Entscheidend sind die Netzanteile der Adressen.
+- Ein Switch funktioniert nur mit Laptops, der Shop der RGG ist aber ein PC
+Falsch: Am Switch hängen auch PCs wie der Webserver.
+Erklärung: Ein Switch verbindet Geräte im selben Netz. Zwischen Netzen mit verschiedenem Netzanteil vermittelt ein Router.
+
+### Was ist ein Vermittlungsrechner?
+- ✓ Ein Router, der Netze miteinander verbindet
+- Ein PC, auf dem die Webseiten des Shops liegen
+Falsch: Das ist ein Webserver wie der Shop.
+- Ein Laptop, mit dem das Büro der RGG arbeitet
+Falsch: Der Büro-Laptop ist ein Client im RGG-Netz.
+- Ein besonders großer Switch mit vielen Anschlüssen
+Falsch: Ein Switch verbindet Geräte im selben Netz. Der Vermittlungsrechner verbindet verschiedene Netze.
+Erklärung: Vermittlungsrechner ist das Wort in Filius für einen Router. Er hat für jedes Netz eine eigene Netzwerkkarte.
+
+### Wie viele Netzwerkkarten hat unser Router am Ende?
+- ✓ Drei, eine für jedes Netz
+- Eine für alle Netze zusammen
+Falsch: Ein Router braucht in jedem Netz eine eigene Karte mit einer Adresse aus diesem Netz.
+- Zwei, mehr geht nicht
+Falsch: Ein Router kann auch mehr als zwei Karten haben. Unserer hat drei.
+- Keine, er arbeitet ohne Kabel
+Falsch: Der Router hängt mit je einem Kabel an jedem Switch.
+Erklärung: Schule, RGG und DNS-Anbieter sind drei Netze. Der Router hat für jedes eine eigene Karte.
+
+### Was ist das Standard-Gateway von Laptop-1?
+- ✓ 192.168.0.1, die Adresse des Routers im Schulnetz
+- 192.168.1.1, die Adresse des Routers im RGG-Netz
+Falsch: Laptop-1 steht im Schulnetz. Das Gateway muss im eigenen Netz liegen.
+- 192.168.0.14, die Adresse des Webservers im Schulnetz
+Falsch: Der Webserver ist kein Router. Er leitet keine Pakete in andere Netze weiter.
+- 255.255.255.0, die Netzmaske im Schulnetz
+Falsch: Das ist die Netzmaske. Das Gateway ist die Adresse eines Routers.
+Erklärung: Das Gateway ist die Adresse des Routers im eigenen Netz. Für die Schule ist das 192.168.0.1.
+
+### Welches Gateway bekommt der Büro-Laptop?
+- ✓ 192.168.1.1
+- 192.168.0.1
+Falsch: Das ist das Gateway der Schule. Der Büro-Laptop steht im RGG-Netz.
+- 192.168.1.10
+Falsch: Das ist der Shop. Er ist ein Webserver, kein Router.
+- Kein Gateway
+Falsch: Ohne Gateway erreicht der Büro-Laptop nur das RGG-Netz.
+Erklärung: Jedes Gerät bekommt als Gateway die Adresse des Routers in seinem eigenen Netz.
+
+### Laptop-3 hat kein Gateway. Was erreicht er noch?
+- ✓ Nur die Geräte im Schulnetz
+- Alle Geräte in allen Netzen
+Falsch: Für andere Netze braucht er das Gateway. Ohne Gateway weiß er nicht, wohin damit.
+- Kein einziges Gerät mehr
+Falsch: Im eigenen Netz geht alles über den Switch, dafür braucht er kein Gateway.
+- Nur den Router unter 192.168.0.1
+Falsch: Er erreicht alle Geräte im Schulnetz, auch die Karte des Routers dort.
+Erklärung: Ohne Gateway bleibt ein Gerät in seinem eigenen Netz. Alles andere schickt es über das Gateway.
+
+### Warum musst du am Router keine Wege eintragen?
+- ✓ Alle Netze hängen direkt an ihm, darum kennt er sie von selbst
+- Der Switch Schule kennt die Wege und gibt sie an den Router weiter
+Falsch: Ein Switch kennt keine Wege zwischen Netzen.
+- Die Laptops sagen dem Router über ihr Gateway, welche Wege es gibt
+Falsch: Die Laptops kennen nur ihr Gateway, keine Wege.
+- Filius braucht gar keine Wege, die Pakete finden ihr Ziel von selbst
+Falsch: Wege sind nötig. Bei einem Router, an dem alle Netze direkt hängen, ergeben sie sich nur von selbst.
+Erklärung: Jedes Netz hängt an einer eigenen Karte des Routers. Er weiß darum, an welcher Karte welches Netz liegt.
+
+## Glossar
+
+- **Netzadresse** – Adresse eines ganzen Netzes: der Netzanteil mit einer 0 am Ende. Das Schulnetz hat 192.168.0.0, das RGG-Netz 192.168.1.0. Sie steht auf dem Etikett im Netzplan.
+- **Vermittlungsrechner** – verbindet verschiedene Netze, meist heißt er Router. Er hat für jedes Netz eine eigene Netzwerkkarte mit einer Adresse aus diesem Netz. Unser Router hat drei Karten: 192.168.0.1, 192.168.1.1 und 192.168.2.1. Jede neue Karte hat in Filius zuerst 192.168.0.10, darum bekommen alle sofort ihre Adresse.
+- **Standard-Gateway** – Adresse des Routers im eigenen Netz. Dorthin schickt ein Gerät alles, was in ein anderes Netz soll. In der Schule ist es 192.168.0.1, bei der RGG 192.168.1.1, in Filius heißt das Feld „Gateway“.

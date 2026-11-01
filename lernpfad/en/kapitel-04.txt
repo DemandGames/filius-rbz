@@ -1,0 +1,263 @@
+# Encryption: HTTPS with TLS
+Goal: Anna signs in to the internal class area of the school website with name and password. You find her password in the data exchange and then encrypt the web server with HTTPS, so that nobody can read along any more.
+
+## Read
+
+### Who is reading along?
+The website of your web server has an area "Internal". Anna signs in there with her name and her password:
+
+| Name | Password |
+|---|---|
+| anna | Schulfest |
+
+So far all data travels through the network as **plain text**: every device that a message passes on its way can read it, like a postcard. That is why you find Anna's name and password openly in the data exchange.
+
+[Picture: k04-klartext.png | Name and password are in plain text in the data exchange]
+
+What helps is **encryption**: the data is changed so that only the right receiver can read it again. The result is a **ciphertext**, which is just a jumble of characters for everybody else. To encrypt and decrypt you need a **key**. There are two very different methods.
+
+### Method 1: symmetric encryption
+Imagine a box with a padlock. You put your message inside, lock it and send the box off. Your partner can only open it if they have the matching key, so the same key as you. This is **symmetric encryption**: both need the same key, for locking and for opening.
+
+The method is fast and secure. But it has a problem: at the beginning only you have the key. How does it get to your partner? If you simply send it along, everybody who catches the box on its way can also catch the key and open the box. Handing over the key is the difficult part.
+
+[Picture: k04-symmetrisch.png | Symmetric: both need the same key, but how does it get safely to the partner?]
+
+### Method 2: asymmetric encryption
+With **asymmetric encryption** there are two different keys. It works like this: everybody who wants to talk to you gets an open padlock from you, but without a key. With it, they can lock a box for you. After that nobody can open it any more, not even they themselves. Only you have the key to open it.
+
+The open padlock is called the **public key**: everybody may see it and have it, even an attacker. The key for opening is called the **private key**. It never leaves your device.
+
+If you want to answer your partner, you need their open padlock. Only they have the matching private key, so only they can open your answer.
+
+[Picture: k04-asymmetrisch.png | Asymmetric: everybody may have the open padlock, only the owner of the private key can open]
+
+This way a secret key never has to be sent. But the method is much slower. For whole web pages with pictures it would be too slow.
+
+### TLS: both methods one after the other
+**TLS** encrypts the connection between browser and web server. It takes the advantage of each method: only one key is handed over asymmetrically, after that everything is symmetric. At the beginning there is the **handshake** in four steps:
+
+1. ClientHello: the browser greets the server and names the methods it knows.
+2. ServerHello: the server sends its open padlock, that is its public key, together with its certificate.
+3. ClientKeyExchange: the browser makes up a new key just for this connection, the **session key**. It puts it into a box and locks it with the padlock of the server. This is the asymmetric part: only the server can open the box with its private key.
+4. Finished: now both have the same session key and confirm it.
+
+From now on browser and server lock everything with the session key: requests, pages, passwords. This is the symmetric part. It is fast, and only the two of them have the key.
+
+[Picture: k04-tls.png | TLS: only the session key is handed over asymmetrically, after that everything is symmetric]
+
+**HTTPS** is HTTP with TLS underneath. Instead of port 80 the web server waits at port 443. The address bar shows `https://` with a lock in front of it.
+
+[Picture: k04-schloss.png | A page over HTTPS: https:// in the address bar with the lock in front of it]
+
+You switch HTTPS on at the web server, in the area "Encryption (HTTPS)" of its window.
+
+[Picture: k04-https.png | In the window of the web server you switch HTTPS on]
+
+### Certificates: the ID card of the server
+How does the browser know that the padlock really comes from the real web server? An attacker could get in between and send their own padlock. That is why the server also sends a **certificate**. It is the ID card of the server and guarantees that this is the real server. The certificate contains:
+
+- the names and addresses it is valid for,
+- the public key of the server,
+- who issued it and until when it is valid.
+
+The ID card is signed by a **certificate authority**. It checks who owns the server and guarantees with its signature that the certificate is genuine. The browser knows the certificate authorities it trusts. In Filius this is the "Filius Certificate Authority". A click on the lock shows the certificate.
+
+[Picture: k04-zertifikat.png | A click on the lock shows the certificate]
+
+If something does not match, the browser warns you: if the certificate is valid for another name, or if it is **self-signed**, which means that no known certificate authority has signed it.
+
+[Picture: k04-warnung.png | The warning for a certificate the browser does not trust]
+
+### Encryption in the data exchange
+In the data exchange these messages are called TLS. You see the four steps of the handshake and after them "TLS Application Data" with a jumble of characters. Laptop and web server also show the decrypted content below, because they have the session key. In the OSI model, TLS is in layer 6, the presentation layer.
+
+[Picture: k04-datenaustausch.png | Encrypted data in the data exchange, with the content for laptop and server below]
+
+> Note: HTTPS protects the content. Who talks to whom, that is IPv4 addresses and ports, stays visible for everybody.
+
+## Practice
+
+### 4.1
+Sign in to the internal class area on Laptop-1:
+- In the web browser of Laptop-1, open http://192.168.10.10/intern/.
+- Name: anna, password: Schulfest
+Tip: On the home page, the menu item "Internal" leads there. If your web server does not have this area, load the start setup of this chapter.
+
+### 4.2
+Open the data exchange of Laptop-1 and look for the message that took the sign-in to the web server.
+Question: How do name and password appear in it?
+- ✓ Readable in plain text: name=anna&password=Schulfest
+- Encrypted as a jumble of characters
+- As stars: ********
+- Not at all, passwords are never sent over the network
+Tip: Look for an HTTP message that starts with POST.
+
+### 4.3
+Switch on the encryption at the web server. The window of the web server has the area "Encryption (HTTPS)" for this:
+| Setting | Value |
+|---|---|
+| Offer HTTPS (port 443) | ticked |
+| Certificate for | 192.168.10.10 |
+| Self-signed | not ticked |
+Tip: Enter the address at "Certificate for" yourself, otherwise the certificate is valid for no server. The Filius Certificate Authority issues the certificate. "Show certificate" shows you the ID card of your server.
+
+### 4.4
+On Laptop-1, open https://192.168.10.10/intern/ and click the lock in front of the address.
+Question: Who issued the certificate of the web server?
+- ✓ The Filius Certificate Authority
+- The web server itself
+- Laptop-1
+- The School switch
+Tip: Look out for the "s" in https.
+
+### 4.5
+Sign in as anna again, this time over HTTPS. Then look for the four steps of the handshake in the data exchange of Laptop-1.
+Question: What does the server send in the second step of the handshake?
+- ✓ Its certificate with the public key
+- The session key
+- The page of the internal area
+- Anna's password
+Tip: The TLS messages are between the TCP connection setup and the encrypted data.
+
+### 4.6
+Try out what happens without a certificate authority:
+- Tick "Self-signed" at the web server.
+- On Laptop-2, open https://192.168.10.10.
+Question: Why does the browser warn you?
+- ✓ No certificate authority it knows has signed the certificate
+- The web server is switched off
+- The page is too big to be encrypted
+- HTTPS only works with names, not with IPv4 addresses
+Tip: Do not open the page anyway. With a real website this would be risky.
+
+### 4.7
+From now on nobody should be able to sign in without encryption:
+- Untick "Self-signed" at the web server again.
+- Untick "Offer HTTP (port 80)".
+- Test on Laptop-2: http://192.168.10.10 does not load any more, https://192.168.10.10 does.
+Tip: Without HTTP, port 80 is closed. The browser does not get an answer there any more.
+
+### 4.8
+Complete the network plan: in Documentation mode, write a text field "HTTPS, port 443" next to the web server.
+Tip: The text field belongs right next to the web server, inside the field of the school network.
+
+## Quiz
+
+### What does plain text mean?
+- ✓ Data that everybody who catches it on its way can read
+- Data that only the receiver can read
+Wrong: That would be a ciphertext. Plain text can be read by everybody, like a postcard.
+- A very short text
+Wrong: Plain text has nothing to do with the length. It is about whether it is encrypted.
+- Text in a programming language
+Wrong: HTML can also be plain text or encrypted. Plain text means: not encrypted.
+Explanation: Over HTTP all data travels in plain text. That is why Anna's password was readable in the data exchange.
+
+### What is the problem of symmetric encryption?
+- ✓ The shared key has to get safely to the partner
+- It is very slow
+Wrong: Symmetric encryption is fast. The asymmetric method is the slow one.
+- You need three keys
+Wrong: You need exactly one key, and both have to have it.
+- Everybody can read the ciphertext
+Wrong: Without the key nobody can read the ciphertext. The problem is handing over the key safely.
+Explanation: Both need the same key. Whoever catches it while it is handed over can read everything.
+
+### What may everybody have with asymmetric encryption?
+- ✓ The public key, that is the open padlock
+- The private key
+Wrong: Only its owner has the private key. It never leaves the device.
+- The session key
+Wrong: Only browser and server know the session key. It is handed over locked.
+- Both keys
+Wrong: Whoever had both keys could open everything. You never give away the private key.
+Explanation: With the public key everybody can lock something. Only the owner of the private key can open it.
+
+### Laptop-1 locks something with the public key of the web server. Who can open it?
+- ✓ Only the web server with its private key
+- Laptop-1 itself
+Wrong: Laptop-1 cannot open the box any more either. Only the web server has the key to open it.
+- Everybody who knows the public key
+Wrong: The public key is the open padlock. You can only lock with it, not open.
+- The switch that the message passes
+Wrong: The switch only forwards the message. It has no key.
+Explanation: What is locked with the public key can only be opened with the matching private key.
+
+### What does TLS use asymmetric encryption for?
+- ✓ To bring the session key safely to the server
+- To encrypt all pages and pictures
+Wrong: The asymmetric method would be too slow for that. TLS encrypts pages symmetrically.
+- To hide the IPv4 addresses
+Wrong: IPv4 addresses and ports stay visible with TLS. The content is protected.
+- To encrypt the certificate
+Wrong: The certificate is public. Everybody may see it, like an ID card.
+Explanation: In the third step of the handshake the browser locks the session key with the public key of the server.
+
+### Why does TLS encrypt the web pages symmetrically?
+- ✓ Because it is fast and both have the same session key after the handshake
+- Because asymmetric is not secure
+Wrong: Asymmetric is secure, but much slower. For whole pages it would be too slow.
+- Because the server has no private key
+Wrong: The server has a private key. With it, it opens the box with the session key in the handshake.
+- Because the browser has no certificate
+Wrong: Only the server needs a certificate. It does not matter for choosing the method.
+Explanation: TLS takes the advantage of each method: asymmetric for handing over safely, symmetric for the fast work.
+
+### Which port does HTTPS use by default?
+- ✓ 443
+- 80
+Wrong: Port 80 belongs to HTTP without encryption.
+- 25
+Wrong: Port 25 belongs to SMTP, for sending e-mails.
+- 53
+Wrong: Port 53 belongs to DNS.
+Explanation: A web server with HTTPS waits at port 443. Port 80 can be switched off, then there are only encrypted connections.
+
+### What does a certificate guarantee?
+- ✓ That the public key really belongs to the real server
+- That the server answers fast
+Wrong: The certificate has nothing to do with speed.
+- That the page has no errors
+Wrong: The certificate says nothing about the content of the page. It is the ID card of the server.
+- That nobody sees the IPv4 addresses
+Wrong: Addresses and ports stay visible. The certificate confirms who the server is.
+Explanation: The certificate authority signs that name and public key belong together. This way no attacker can pretend to be the server.
+
+### The browser reports: the certificate is valid for www.rbz-wirtschaft-kiel.de, not for 192.168.10.10. What does this mean?
+- ✓ The certificate was issued for another name than the one you opened
+- The web server is switched off
+Wrong: Then there would be no answer at all and no certificate either.
+- The connection is secure anyway
+Wrong: The browser cannot check whether it talks to the right server. That is why it warns you.
+- The password is wrong
+Wrong: The warning comes before signing in, already in the handshake.
+Explanation: A certificate is only valid for the names and addresses in it. If the name you opened does not match, the browser warns you.
+
+### What can devices on the way still see with HTTPS?
+- ✓ The IPv4 addresses and ports of sender and receiver
+- Anna's password
+Wrong: The password is inside the encrypted data. Without the session key it is a jumble of characters.
+- The content of the web page
+Wrong: The page is encrypted as well. Only browser and server can read it.
+- The session key
+Wrong: The session key is handed over locked. Only the server can open it.
+Explanation: TLS protects the content. But addresses and ports must stay readable so that the packets arrive.
+
+## Glossary
+
+- **Plain text** – data that is not encrypted. Every device that it passes on its way can read it, like a postcard. Over HTTP everything travels as plain text, passwords too. In the data exchange you see plain text directly in the details.
+- **Encryption** – changing data so that only the right receiver can read it again. You need a key for it. For everybody else the result is a jumble of characters. There are two methods: symmetric and asymmetric encryption.
+- **Ciphertext** – encrypted data. Without the matching key it is just a jumble of characters. In the data exchange you find it with TLS after "Encrypted data". With the key it becomes plain text again.
+- **Key** – secret information used to encrypt and decrypt data. In the picture it is the key of a padlock. Whoever has it can open the box. That is why it has to be protected well.
+- **Symmetric encryption** – method in which both sides use the same key, for locking and for opening. It is fast. Its problem is handing it over: how does the key get safely to the partner? TLS uses it to encrypt all data after the handshake.
+- **Asymmetric encryption** – method with two different keys: a public key for locking and a private key for opening. In the picture you hand out open padlocks and keep the key for them. It is slower than the symmetric method. TLS uses it to hand over the session key.
+- **Public key** – key for locking, in the picture the open padlock. Everybody may have it, even an attacker. What is locked with it can only be opened with the matching private key. The web server sends its public key along in its certificate.
+- **Private key** – key for opening that matches the public key. Only its owner has it, and it never leaves the device. In the handshake the web server opens the box with the session key with it.
+- **TLS** – protocol that encrypts the connection between browser and web server (Transport Layer Security). In the handshake it hands over a session key asymmetrically and after that encrypts everything symmetrically. In the data exchange the messages are called TLS. In the OSI model, TLS is in layer 6, the presentation layer.
+- **Handshake** – greeting at the beginning of a TLS connection in four steps: ClientHello, ServerHello with certificate, ClientKeyExchange with the locked session key, and Finished. After it, browser and server have the same session key. It follows the three-way handshake of TCP.
+- **Session key** – key that the browser makes up for one single connection. It travels in the handshake, locked with the public key of the server. After that both use it to encrypt all data symmetrically. The next connection gets a new one.
+- **HTTPS** – HTTP with TLS underneath, that is encrypted HTTP. The web server waits at port 443, the address bar shows https:// with a lock in front of it. Requests, pages and passwords cannot be read by devices on the way. Addresses and ports stay visible.
+- **Certificate** – ID card of the server. It guarantees that this is the real server. It contains the names and addresses it is valid for, the public key, the issuer and the expiry date. A certificate authority signs it. A click on the lock in the browser shows it.
+- **Certificate authority** – organisation that issues and signs certificates. It first checks who owns the server and guarantees with its signature that the certificate is genuine. Browsers know the certificate authorities they trust. In Filius this is the Filius Certificate Authority.
+- **Self-signed** – certificate that the server has issued itself, without a certificate authority. Nobody confirms that it is really the real server. That is why the browser does not trust it and shows a warning.

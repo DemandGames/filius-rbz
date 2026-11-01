@@ -1,0 +1,191 @@
+# Ein Netz mit Switch
+Ziel: Aus zwei Laptops wird das Schulnetz mit vier Laptops an einem Switch. Du lernst die MAC-Adresse kennen, verstehst die Netzmaske und beschriftest dein Netz.
+
+## Lesen
+
+### Der Switch verbindet alle
+Mit einem Kabel kannst du nur zwei Geräte verbinden. Für mehr Geräte brauchst du einen **Switch**. Jedes Gerät bekommt ein eigenes Kabel zum Switch. So entsteht ein **LAN**, ein lokales Netz, zum Beispiel in einem Klassenraum.
+
+[Bild: s02-stern.png | Vier Laptops hängen am Switch Schule]
+
+In Filius heißt das Bauteil „Switch / WLAN“.
+
+### Die MAC-Adresse
+Jede Netzwerkkarte hat ab Werk eine feste Nummer, die **MAC-Adresse**, zum Beispiel 4A:8C:12:03:E7:B1. Du findest sie in den Einstellungen des Geräts.
+
+[Bild: s02-mac.png | Die MAC-Adresse steht in den Einstellungen von Laptop-4]
+
+Der Switch arbeitet mit diesen MAC-Adressen. Er merkt sich, an welchem Anschluss welches Gerät hängt, und schickt jede Nachricht nur dorthin, wo sie hin soll. Seine Liste siehst du in der Simulation mit einem Klick auf den Switch. Beim Start der Simulation ist sie leer: Ein Gerät steht erst darin, wenn es etwas gesendet hat.
+
+[Bild: s02-switch-tabelle.png | Der Switch merkt sich MAC-Adresse und Anschluss]
+
+> Merke: Die IPv4-Adresse kannst du ändern. Die MAC-Adresse gehört fest zur Netzwerkkarte.
+
+Ein neues Gerät hat in Filius zuerst immer die IPv4-Adresse 192.168.0.10. Das ist schon die Adresse von Laptop-1. Ändere sie darum bei jedem neuen Gerät sofort, sonst gibt es sie doppelt.
+
+### Die Netzmaske genauer
+Bei uns ist die Netzmaske 255.255.255.0. Sie teilt die IPv4-Adresse in zwei Teile: Wo in der Maske 255 steht, gehört die Zahl zum Netz. Wo 0 steht, gehört die Zahl zum Gerät.
+
+[Bild: s02-netzmaske.png | Die Netzmaske teilt die IPv4-Adresse in Netzanteil und Hostanteil]
+
+- Der **Netzanteil** sind die ersten drei Zahlen, bei uns 192.168.0. Er ist für alle Geräte im Schulnetz gleich.
+- Der **Hostanteil** ist die letzte Zahl, zum Beispiel 10 bei Laptop-1. Er ist für jedes Gerät anders. Host heißt Gerät.
+
+Nur Geräte mit gleichem Netzanteil erreichen sich direkt. Ein Laptop mit 192.168.5.13 liegt in einem anderen Netz, auch wenn er am selben Switch hängt.
+
+[Bild: s02-anderes-netz.png | 192.168.0.13 und 192.168.5.13: anderer Netzanteil, anderes Netz]
+
+### Das Netz beschriften
+Im **Dokumentationsmodus** beschriftest du dein Netz. Die Simulation ist dort angehalten.
+
+Eine **Gliederungsfläche** ist ein Rahmen um alle Geräte eines Netzes. Oben links in die Fläche kommt das Etikett mit dem Namen des Netzes und der Adresse des ganzen Netzes, zum Beispiel „Schulnetz 192.168.0.0“. Am Ende steht eine 0, weil diese Adresse für das ganze Netz steht und nicht für ein Gerät.
+
+Das Etikett schreibst du am schnellsten mit dem kleinen „+“ oben links in der Gliederungsfläche: Ein Klick darauf, und du tippst den Namen des Netzes direkt in die Fläche. Das Etikett gehört dann zur Fläche und wandert mit ihr. Alle weiteren Beschriftungen ergänzt du mit Textfeldern aus der Leiste.
+
+[Bild: s02-etikett.png | Das Schulnetz mit Gliederungsfläche und Etikett]
+
+## Praxis
+
+### 2.1
+Baue das Netz um:
+- Lösche das Kabel zwischen Laptop-1 und Laptop-2.
+- Stelle einen Switch mit dem Namen „Switch Schule“ auf.
+- Schließe Laptop-1 und Laptop-2 an den Switch an.
+Tipp: Jedes Gerät braucht ein eigenes Kabel zum Switch.
+
+### 2.2
+Ergänze zwei Laptops am Switch Schule, Netzmaske jeweils 255.255.255.0:
+| Gerät | IPv4-Adresse |
+|---|---|
+| Laptop-3 | 192.168.0.12 |
+| Laptop-4 | 192.168.0.13 |
+Tipp: Ein neues Gerät hat in Filius zuerst die Adresse 192.168.0.10. Die hat schon Laptop-1, darum änderst du sie gleich.
+
+### 2.3
+Starte die Simulation und teste von Laptop-1 aus `ping 192.168.0.13`.
+Tipp: Die Befehlszeile ist auf Laptop-1 schon installiert.
+
+### 2.4
+Klicke im Entwurfsmodus Laptop-4 an.
+Frage: Welche MAC-Adresse hat Laptop-4?
+Eingabe: MAC-Adresse
+Tipp: Sie steht unten in den Einstellungen, unter dem Namen.
+
+### 2.5
+Schau in die Liste des Switches:
+- Starte die Simulation und pinge von Laptop-1 aus noch einmal `ping 192.168.0.13`.
+- Klicke dann den Switch Schule an. Es öffnet sich seine Liste.
+Frage: An welchem Anschluss hängt Laptop-4?
+Eingabe: Nummer
+Tipp: Beim Start der Simulation ist die Liste leer. Der Switch trägt ein Gerät erst ein, wenn es etwas gesendet hat. Darum zuerst der ping.
+
+### 2.6
+Experiment: Gib Laptop-4 die Adresse 192.168.5.13 und pinge sie von Laptop-1 aus an.
+Frage: Warum kommt keine Antwort?
+- Der Switch Schule ist kaputt
+- ✓ Laptop-4 hat jetzt einen anderen Netzanteil als Laptop-1
+- Die MAC-Adresse von Laptop-4 hat sich geändert
+- ping funktioniert nur zwischen zwei Laptops
+Tipp: Vergleiche die ersten drei Zahlen der beiden Adressen.
+
+### 2.7
+Gib Laptop-4 wieder seine richtige Adresse 192.168.0.13 und prüfe mit ping, dass er wieder antwortet.
+Tipp: Adresse im Entwurfsmodus ändern, dann die Simulation neu starten.
+
+### 2.8
+Beschrifte das Schulnetz im Dokumentationsmodus:
+- Lege eine Gliederungsfläche um alle Laptops und den Switch Schule.
+- Schreibe oben links in die Fläche das Etikett „Schulnetz 192.168.0.0“.
+Tipp: Knopf „Dokumentation“. Die Fläche aus der Leiste ziehen und am Rand groß ziehen. Dann auf das + oben links in der Fläche klicken und das Etikett eintippen. Ein Textfeld oben links in der Fläche zählt auch.
+
+## Quiz
+
+### Wozu brauchst du einen Switch?
+- ✓ Um mehrere Geräte zu einem Netz zu verbinden
+- Um jedem Gerät eine IPv4-Adresse zu geben
+Falsch: Adressen trägst du selbst in den Einstellungen ein. Der Switch verteilt keine Adressen.
+- Um Webseiten für alle Geräte im Netz zu speichern
+Falsch: Webseiten liegen auf einem Webserver, nicht auf einem Switch.
+- Um zwei Laptops ohne Kabel zu verbinden
+Falsch: Auch am Switch braucht jedes Gerät ein Kabel.
+Erklärung: Am Switch bekommt jedes Gerät ein eigenes Kabel. So hängen viele Geräte im selben Netz.
+
+### Was ist ein LAN?
+- ✓ Ein lokales Netz, zum Beispiel alle Geräte in einem Klassenraum
+- Das ganze Internet, also alle Computer auf der Welt
+Falsch: Das Internet verbindet viele Netze weltweit. Ein LAN ist klein und lokal.
+- Ein einzelnes Kabel, zum Beispiel zwischen Laptop-1 und Laptop-2
+Falsch: Ein Kabel ist nur eine Verbindung. Ein LAN sind die verbundenen Geräte eines Ortes.
+- Die Adresse eines Laptops im Netz, zum Beispiel 192.168.0.10
+Falsch: Das ist die IPv4-Adresse eines einzelnen Laptops. Ein LAN ist ein ganzes lokales Netz.
+Erklärung: LAN steht für ein lokales Netz. Unser Schulnetz mit dem Switch Schule ist ein LAN.
+
+### Was stimmt über die MAC-Adresse?
+- ✓ Sie gehört fest zur Netzwerkkarte eines Geräts
+- Du denkst sie dir selbst aus, wie die IPv4-Adresse
+Falsch: Die IPv4-Adresse trägst du selbst ein. Die MAC-Adresse bekommt die Karte ab Werk.
+- Alle Geräte im Netz haben dieselbe MAC-Adresse
+Falsch: Jede Netzwerkkarte hat ihre eigene MAC-Adresse.
+- Der Switch teilt sie beim Start jedem Gerät zu
+Falsch: Der Switch verteilt keine MAC-Adressen. Er liest sie nur und merkt sie sich.
+Erklärung: Die MAC-Adresse ist eine feste Nummer der Netzwerkkarte, zum Beispiel 4A:8C:12:03:E7:B1.
+
+### Woran erkennt der Switch, wohin er eine Nachricht schickt?
+- ✓ An der MAC-Adresse des Empfängers
+- Am Gerätenamen des Empfängers
+Falsch: Namen wie „Laptop-4“ stehen nur in Filius, nicht in den Nachrichten.
+- An der Netzmaske des Empfängers
+Falsch: Die Netzmaske teilt die IPv4-Adresse. Der Switch arbeitet mit MAC-Adressen.
+- An der Farbe des Kabels zum Empfänger
+Falsch: Kabel haben keine Bedeutung durch ihre Farbe.
+Erklärung: Der Switch merkt sich, an welchem Anschluss welche MAC-Adresse hängt, und schickt die Nachricht nur dorthin.
+
+### Netzmaske 255.255.255.0: Was ist der Netzanteil von 192.168.0.12?
+- ✓ 192.168.0
+- 168.0.12
+Falsch: Hier ist der Hostanteil 12 dabei. Der Netzanteil sind die ersten drei Zahlen, dort wo die Netzmaske 255 hat.
+- 255.255.255
+Falsch: Das ist ein Teil der Netzmaske, nicht der Adresse.
+- 192.168
+Falsch: Der Netzanteil umfasst alle Zahlen, über denen in der Maske 255 steht. Das sind drei, nicht zwei.
+Erklärung: Wo in der Netzmaske 255 steht, gehört die Zahl zum Netz. Bei 255.255.255.0 sind das die ersten drei Zahlen.
+
+### Welcher Hostanteil gehört zu Laptop-3 mit 192.168.0.12?
+- ✓ 12
+- 192
+Falsch: 192 ist die erste Zahl. Sie gehört zum Netzanteil 192.168.0, der für alle Geräte im Schulnetz gleich ist.
+- 10
+Falsch: 10 ist der Hostanteil von Laptop-1. Jedes Gerät hat einen eigenen Hostanteil.
+- 255
+Falsch: 255 steht in der Netzmaske, nicht in der Adresse von Laptop-3.
+Erklärung: Der Hostanteil ist die letzte Zahl. Er ist für jedes Gerät im Netz anders.
+
+### Welches Gerät liegt NICHT im Schulnetz 192.168.0.0?
+- ✓ Ein Laptop mit 192.168.5.13
+- Ein Laptop mit 192.168.0.13
+Falsch: 192.168.0 ist genau der Netzanteil des Schulnetzes.
+- Ein Laptop mit 192.168.0.200
+Falsch: Der Hostanteil 200 ist frei wählbar bis 254. Der Netzanteil 192.168.0 passt.
+- Ein PC mit 192.168.0.14
+Falsch: Auch ein PC gehört zum Schulnetz, wenn der Netzanteil 192.168.0 ist.
+Erklärung: Bei 192.168.5.13 ist der Netzanteil 192.168.5. Das ist ein anderes Netz, auch am selben Switch.
+
+### Was ist eine Gliederungsfläche?
+- ✓ Ein Rahmen im Dokumentationsmodus um alle Geräte eines Netzes
+- Ein neues Netz mit eigenem Switch, das du im Entwurfsmodus baust
+Falsch: Die Fläche ändert am Netz nichts. Sie beschriftet es nur.
+- Die Liste des Switches mit allen MAC-Adressen und Anschlüssen
+Falsch: Die Liste des Switches öffnest du in der Simulation mit einem Klick auf den Switch.
+- Ein Fenster in der Simulation mit allen Nachrichten eines Geräts
+Falsch: Das ist der Datenaustausch. Die Gliederungsfläche zeigt keine Nachrichten.
+Erklärung: Die Gliederungsfläche zeigt, welche Geräte zu einem Netz gehören. Oben links steht das Etikett mit Name und Adresse des Netzes, zum Beispiel „Schulnetz 192.168.0.0“.
+
+## Glossar
+
+- **Switch** – verbindet die Geräte eines Netzes. Jedes Gerät bekommt ein eigenes Kabel zum Switch. Er schickt Nachrichten anhand der MAC-Adresse nur an den richtigen Anschluss.
+- **LAN** – lokales Netz, zum Beispiel alle Geräte eines Klassenraums. LAN steht für Local Area Network. Unser Schulnetz mit dem Switch Schule ist ein LAN.
+- **MAC-Adresse** – feste Nummer der Netzwerkkarte, zum Beispiel 4A:8C:12:03:E7:B1. Sie steht in den Einstellungen des Geräts. Anders als die IPv4-Adresse kannst du sie nicht frei wählen.
+- **Netzanteil** – vorderer Teil der IPv4-Adresse, der das Netz nennt. Bei der Netzmaske 255.255.255.0 sind es die ersten drei Zahlen, im Schulnetz 192.168.0. Alle Geräte im selben Netz haben denselben Netzanteil.
+- **Hostanteil** – letzte Zahl der IPv4-Adresse, die das Gerät im Netz nennt. Host heißt Gerät. Laptop-1 hat den Hostanteil 10, Laptop-2 den Hostanteil 11.
+- **Dokumentationsmodus** – Modus zum Beschriften des Netzes, du startest ihn mit dem Knopf „Dokumentation“ oben. Dort legst du Gliederungsflächen und Textfelder an. Die Simulation ist währenddessen angehalten.
+- **Gliederungsfläche** – Rahmen um alle Geräte eines Netzes im Dokumentationsmodus. Oben links steht ein Etikett mit Name und Adresse des Netzes, zum Beispiel „Schulnetz 192.168.0.0“; am schnellsten schreibst du es mit dem + der Fläche. So sieht jeder sofort, welche Geräte zusammengehören.

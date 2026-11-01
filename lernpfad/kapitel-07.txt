@@ -1,0 +1,198 @@
+# Adressen automatisch: DHCP
+Ziel: Die Schul-Laptops bekommen IPv4-Adresse, Netzmaske, Gateway und DNS-Server künftig von einem DHCP-Server. Statt jeden Laptop von Hand einzurichten, setzt du nur noch ein Häkchen.
+
+## Lesen
+
+### 30 Laptops, 30 Mal tippen?
+Die Schule bekommt einen neuen Raum mit 30 Laptops. Jede Adresse von Hand einzutragen, kostet Zeit und führt leicht zu Tippfehlern. Bekommen zwei Geräte dieselbe Adresse, entsteht eine **Adresskollision**: Keines der beiden ist dann zuverlässig erreichbar.
+
+Einfacher geht es mit **DHCP** (Dynamic Host Configuration Protocol). Ein **DHCP-Server** verteilt die Einstellungen. Am Laptop setzt du nur das Häkchen „DHCP zur Konfiguration verwenden“.
+
+[Bild: k07-dhcp-idee.png | Der Laptop fragt, der DHCP-Server antwortet mit allen Einstellungen]
+
+[Bild: k07-dhcp-haken.png | Ein Laptop holt seine Einstellungen per DHCP]
+
+> Merke: In der Schule sind die Adressen 192.168.10.1 bis 192.168.10.49 für Router und Server reserviert. Der DHCP-Server darf nur Adressen ab .50 vergeben.
+
+### Den DHCP-Server einrichten
+Der DHCP-Server ist ein Dienst auf einem Server mit fester Adresse. In seinem Fenster legst du den **Adressbereich** fest: die kleinste und die größte Adresse, die er vergeben darf. Mit „DHCP aktivieren“ schaltest du ihn ein.
+
+[Bild: k07-dhcp-server.png | Adressbereich und Manuelle Einstellungen im DHCP-Server]
+
+Neben der IPv4-Adresse liefert der Server auch Netzmaske, Gateway und DNS-Server. Ohne „Manuelle Einstellungen“ gibt er die Werte weiter, die auf seinem eigenen PC eingetragen sind.
+
+> Merke: In echten Netzen ist der DHCP-Server ein Programm (Dienst) auf dem Server, genau wie der DNS-Server. Filius hat ihn fest in jeden PC eingebaut: Du richtest ihn deshalb im Entwurfsmodus in den Einstellungen des PCs ein und nicht über die Software-Installation.
+
+### Vier Nachrichten: DORA
+Ein Laptop ohne Adresse kennt den DHCP-Server nicht. Er ruft deshalb per Broadcast in die Runde. Der Ablauf hat vier Schritte, die du dir mit **DORA** merkst:
+
+- Discover – Laptop: „Gibt es hier einen DHCP-Server?“
+- Offer – Server: „Du kannst 192.168.10.50 haben.“
+- Request – Laptop: „Die nehme ich.“
+- Acknowledge – Server: „Bestätigt.“
+
+[Bild: k07-dora.png | Die vier DHCP-Nachrichten im Datenaustausch]
+
+Weil der Laptop noch keine Adresse hat, schickt er mit dem Absender 0.0.0.0. Ziel ist 255.255.255.255, also alle im Netz. DHCP läuft über UDP.
+
+### Server behalten ihre Adresse
+Server brauchen eine verlässliche Adresse. Der DNS-Eintrag für www.rbz-wirtschaft-kiel.de zeigt fest auf 192.168.10.10. Darum haben Server feste Adressen außerhalb des DHCP-Bereichs. Läge die Adresse des Webservers im Bereich, könnte der DHCP-Server sie einem Laptop geben, und es käme zur Adresskollision.
+
+Soll ein Gerät DHCP nutzen und trotzdem immer dieselbe Adresse bekommen, hilft eine **statische Zuweisung**. Der DHCP-Server erkennt das Gerät an seiner MAC-Adresse und gibt ihm stets dieselbe IPv4-Adresse.
+
+[Bild: k07-statisch.png | Statische Adresszuweisung im DHCP-Server]
+
+## Praxis
+
+### 7.1
+Richte im Schulnetz einen DHCP-Server ein:
+- eigener PC „DHCP-Server“ mit 192.168.10.2 am Switch Schule
+- Adressbereich für mindestens 30 Laptops, ohne reservierte Adresse
+- Die Laptops sollen damit ins Internet kommen und Namen auflösen können.
+Tipp: Ohne „Manuelle Einstellungen“ verteilt der DHCP-Server Gateway und DNS-Server seines eigenen PCs.
+
+### 7.2
+Stelle Laptop-1 bis Laptop-4 auf automatische Konfiguration um.
+Tipp: Ein Häkchen pro Laptop.
+
+### 7.3
+Starte die Simulation und prüfe auf einem Laptop mit `ipconfig`, ob er alle Werte bekommen hat.
+Tipp: Bekommt ein Laptop nichts, prüfe, ob der DHCP-Server aktiviert ist.
+
+### 7.4
+Finde im Datenaustausch eines Schul-Laptops seine vier DHCP-Nachrichten.
+Frage: In welcher Reihenfolge kommen sie?
+- Request, Discover, Offer, Acknowledge
+- Offer, Discover, Acknowledge, Request
+- ✓ Discover, Offer, Request, Acknowledge
+- Discover, Acknowledge, Offer, Request
+Tipp: Alle Laptops starten gleichzeitig. Nimm die Nachrichten mit der MAC-Adresse deines Laptops.
+
+### 7.5
+Bleib bei der ersten DHCP-Nachricht deines Laptops.
+Frage: Welche Absenderadresse steht darin?
+Eingabe: IPv4-Adresse
+Tipp: Schau in die Vermittlungsschicht, Spalte Quelle.
+
+### 7.6
+Laptop-4 ist der Lehrer-Laptop. Die Schüler-Laptops verbinden sich mit ihm, deshalb soll er immer dieselbe Adresse haben. Löse das, ohne an Laptop-4 eine Adresse von Hand einzutragen. Die Adressen 192.168.10.1 bis 192.168.10.49 sind für Router und Server reserviert: Nimm eine freie Adresse ab 192.168.10.50. Wenn du magst, benenne Laptop-4 in „Lehrer-Laptop“ um.
+Tipp: Der DHCP-Server erkennt Geräte an ihrer MAC-Adresse. Damit Laptop-4 die neue Adresse holt, wechsle kurz in den Entwurfsmodus und wieder in die Simulation.
+
+### 7.7
+Teste mit einem Laptop, der seine Einstellungen per DHCP bekommen hat: Öffne www.ravensberger24.de.
+Tipp: Klappt es nicht, fehlt meist Gateway oder DNS-Server im DHCP-Server.
+
+### 7.8
+Ergänze den Netzplan: Ziehe im Dokumentationsmodus ein Textfeld in die Fläche des Schulnetzes unter das Etikett und schreibe den Adressbereich deines DHCP-Servers hinein, zum Beispiel „DHCP: 192.168.10.100 – 192.168.10.149“.
+Tipp: Schreibe beide Grenzen als vollständige IPv4-Adressen, so wie sie im DHCP-Server eingetragen sind.
+
+## Quiz
+
+### Was liefert ein DHCP-Server einem Laptop?
+- ✓ IPv4-Adresse, Netzmaske, Gateway und DNS-Server
+- IPv4-Adresse, MAC-Adresse und Gerätename
+Falsch: Die MAC-Adresse bringt die Netzwerkkarte selbst mit, und den Gerätenamen vergibt kein DHCP-Server. Außerdem fehlen hier Gateway und DNS-Server.
+- Nur eine freie IPv4-Adresse
+Falsch: Mit der Adresse allein käme der Laptop nicht aus dem eigenen Netz heraus und könnte keine Namen auflösen. Der DHCP-Server liefert mehr.
+- IPv4-Adresse und Weiterleitungstabelle
+Falsch: Weiterleitungstabellen gehören zu Routern. Ein Laptop braucht dafür nur sein Gateway.
+Erklärung: Mit diesen vier Werten ist ein Gerät voll einsatzbereit. Die MAC-Adresse hat es schon.
+
+### In welcher Reihenfolge laufen die DHCP-Nachrichten?
+- ✓ Discover, Offer, Request, Acknowledge
+- Offer, Discover, Acknowledge, Request
+Falsch: Der Server kann nichts anbieten, bevor ein Laptop gesucht hat. Am Anfang steht immer Discover.
+- Request, Discover, Offer, Acknowledge
+Falsch: Anfordern kann der Laptop erst, wenn ihm etwas angeboten wurde.
+- Discover, Acknowledge, Offer, Request
+Falsch: Die Bestätigung (Acknowledge) kommt ganz am Schluss, nach der Anforderung.
+Erklärung: Erst sucht der Laptop (Discover), dann bietet der Server eine Adresse an (Offer), der Laptop fordert sie an (Request) und der Server bestätigt (Acknowledge). Merkhilfe: DORA.
+
+### Warum schickt ein Laptop seine erste DHCP-Nachricht als Broadcast?
+- ✓ Er kennt weder den DHCP-Server noch seine eigene Adresse
+- Broadcasts kommen durch jeden Router
+Falsch: Umgekehrt: Router lassen Broadcasts nicht durch. Darum braucht jedes Netz einen eigenen DHCP-Server.
+- So bekommen alle Laptops gleichzeitig eine Adresse
+Falsch: Jeder Laptop fragt für sich selbst. Dass alle gleichzeitig fragen, liegt nur am gemeinsamen Start der Simulation.
+- DHCP funktioniert nur über den Switch
+Falsch: Der Switch leitet den Broadcast nur weiter. Der Grund für den Broadcast ist, dass der Laptop die Adresse des Servers noch nicht kennt.
+Erklärung: Ohne eigene Adresse und ohne die Adresse des Servers kann der Laptop niemanden gezielt ansprechen. Er ruft deshalb in die Runde: „Gibt es hier einen DHCP-Server?“
+
+### Welche Absenderadresse hat ein Laptop in seiner ersten DHCP-Nachricht?
+- ✓ 0.0.0.0
+- 255.255.255.255
+Falsch: Das ist die Zieladresse der Nachricht, also „an alle“, nicht der Absender.
+- 192.168.10.2
+Falsch: Das ist die Adresse des DHCP-Servers. Der Laptop kennt sie noch gar nicht und hat sie auch nicht selbst.
+- 169.254.0.1
+Falsch: Solche Adressen geben sich echte Rechner selbst, wenn DHCP scheitert. In der ersten DHCP-Nachricht hat der Laptop noch gar keine Adresse.
+Erklärung: 0.0.0.0 bedeutet: Ich habe noch keine Adresse. 255.255.255.255 ist das Ziel.
+
+### Warum bekommen Server meist feste Adressen statt DHCP?
+- ✓ Damit sie unter derselben Adresse erreichbar bleiben
+- Weil Server keine DHCP-Anfragen senden dürfen
+Falsch: Technisch könnten Server DHCP nutzen. Man verzichtet darauf, damit sich ihre Adresse nicht ändert.
+- Weil DHCP nur für Laptops gedacht ist
+Falsch: DHCP funktioniert für jedes Gerät. Für Server ist eine wechselnde Adresse aber unpraktisch.
+- Damit sie schneller antworten
+Falsch: Mit der Geschwindigkeit hat das nichts zu tun. Wichtig ist, dass alle den Server immer unter derselben Adresse finden.
+Erklärung: Andere Geräte und DNS-Einträge verlassen sich auf die Adresse eines Servers. Der A-Eintrag für www.rbz-wirtschaft-kiel.de zeigt zum Beispiel fest auf 192.168.10.10.
+
+### Was bewirkt eine statische Zuweisung im DHCP-Server?
+- ✓ Ein Gerät bekommt anhand seiner MAC-Adresse immer dieselbe IPv4-Adresse
+- Ein Gerät trägt seine Adresse selbst ein
+Falsch: Das wäre eine feste Adresse von Hand. Bei der statischen Zuweisung bleibt das Gerät bei DHCP.
+- Alle Geräte bekommen dieselbe Adresse
+Falsch: Das wäre eine Adresskollision. Die Zuweisung gilt nur für ein Gerät mit einer bestimmten MAC-Adresse.
+- Der DHCP-Server vergibt nur noch feste Adressen
+Falsch: Alle anderen Geräte bekommen weiter Adressen aus dem Bereich. Nur das eine Gerät bekommt immer seine Adresse.
+Erklärung: Der DHCP-Server erkennt das Gerät an seiner MAC-Adresse und gibt ihm immer dieselbe IPv4-Adresse. Das Gerät bleibt bei DHCP und hat trotzdem eine verlässliche Adresse.
+
+### Ein Laptop hat nach dem Start keine Adresse aus dem DHCP-Bereich. Was prüfst du zuerst?
+- ✓ Ob er DHCP nutzt und der DHCP-Server aktiviert ist
+- Ob der DNS-Server einen A-Eintrag für ihn hat
+Falsch: DNS spielt bei der Adressvergabe keine Rolle. Ein A-Eintrag hilft erst, wenn das Gerät schon eine Adresse hat.
+- Ob die Route in R1 stimmt
+Falsch: R1 ist an DHCP im Schulnetz nicht beteiligt. Laptop und DHCP-Server liegen im selben Netz.
+- Ob sein Webbrowser installiert ist
+Falsch: Programme wie der Browser haben mit der Adressvergabe nichts zu tun.
+Erklärung: Nur wenn der Laptop DHCP nutzt und der DHCP-Server aktiviert ist, findet eine Adressvergabe statt. Darum prüfst du diese beiden Punkte zuerst.
+
+### Was passiert, wenn mehr Laptops eine Adresse wollen, als der Bereich hat?
+- ✓ Die übrigen bekommen vom DHCP-Server keine Adresse
+- Zwei Laptops teilen sich eine Adresse
+Falsch: Der DHCP-Server vergibt jede Adresse nur einmal, gerade um Adresskollisionen zu vermeiden.
+- Der Bereich vergrößert sich automatisch
+Falsch: Der Bereich bleibt so, wie du ihn eingetragen hast. Größer wird er nur, wenn du ihn änderst.
+- Der Server nimmt Adressen aus dem Nachbarnetz
+Falsch: Adressen aus einem anderen Netz würden hier nicht funktionieren. Der Server vergibt nur Adressen aus seinem Bereich.
+Erklärung: Jede Adresse aus dem Bereich wird nur einmal vergeben. Sind alle weg, gehen die übrigen Laptops leer aus, deshalb muss der Bereich zur Zahl der Geräte passen.
+
+### Warum darf der DHCP-Bereich die Adresse des Webservers nicht enthalten?
+- ✓ Ein Laptop könnte die Adresse des Servers bekommen
+- Der Webserver würde sonst DHCP nutzen
+Falsch: Der Webserver hat eine feste Adresse und fragt gar nicht nach. Das Problem ist ein Laptop, der dieselbe Adresse bekommen könnte.
+- Der DNS-Eintrag würde sich ändern
+Falsch: DNS-Einträge ändern sich nicht von selbst. Der Eintrag zeigt weiter auf .10, nur antwortet dort vielleicht das falsche Gerät.
+- Der Webserver könnte keine Seiten speichern
+Falsch: Das Speichern von Dateien hat nichts mit der Adresse zu tun. Gestört wird die Erreichbarkeit im Netz.
+Erklärung: Zwei Geräte mit derselben Adresse stören sich gegenseitig, das ist eine Adresskollision.
+
+### Welches Transportprotokoll nutzt DHCP?
+- ✓ UDP
+- TCP
+Falsch: TCP braucht einen Verbindungsaufbau zwischen zwei Adressen. Der Laptop hat aber noch keine eigene Adresse.
+- ICMP
+Falsch: ICMP ist für Kontrollmeldungen wie ping da. Adressen werden damit nicht verteilt.
+- ARP
+Falsch: ARP sucht MAC-Adressen zu bekannten IPv4-Adressen. Eine IPv4-Adresse vergibt es nicht.
+Erklärung: Ohne eigene Adresse kann der Laptop keine TCP-Verbindung aufbauen, ein einzelnes UDP-Paket geht aber.
+
+## Glossar
+
+- **Adresskollision** – zwei Geräte im selben Netz mit derselben IPv4-Adresse. Keines ist dann zuverlässig erreichbar. Pakete landen mal beim einen, mal beim anderen Gerät, Verbindungen brechen ab. Das passiert zum Beispiel, wenn ein DHCP-Server eine Adresse vergibt, die ein Server schon fest hat; darum dürfen sich DHCP-Bereich und feste Adressen nicht überschneiden.
+- **DHCP** – Protokoll, über das Geräte ihre Netzwerkeinstellungen automatisch bekommen. DHCP steht für Dynamic Host Configuration Protocol. Statt jedes Gerät von Hand einzurichten, setzt man nur das Häkchen für DHCP. Beim Start fragt das Gerät per Broadcast nach einem DHCP-Server und bekommt seine Werte in vier Nachrichten (DORA).
+- **DHCP-Server** – Server, der Adressen aus einem Bereich vergibt und Gateway und DNS-Server mitliefert. Er merkt sich, welche Adresse er an welches Gerät gegeben hat, und vergibt keine doppelt. Weil DHCP über Broadcasts läuft, braucht jedes Netz seinen eigenen DHCP-Server. In Filius richtest du ihn im Entwurfsmodus in den Einstellungen eines PCs ein. Im Heimnetz (Kapitel 8) übernimmt das der Heimrouter.
+- **Adressbereich** – die Adressen, die ein DHCP-Server vergeben darf. Man legt ihn mit der kleinsten und der größten Adresse fest, zum Beispiel 192.168.10.100 bis 192.168.10.149. Er muss groß genug für alle Geräte sein und darf keine festen Adressen von Routern und Servern enthalten. Sind alle Adressen vergeben, bekommen weitere Geräte keine mehr.
+- **DORA** – die vier DHCP-Nachrichten Discover, Offer, Request, Acknowledge. Discover: Das Gerät sucht einen DHCP-Server. Offer: Der Server bietet eine Adresse an. Request: Das Gerät fordert sie an, und mit Acknowledge bestätigt der Server.
+- **Statische Zuweisung** – DHCP-Eintrag, der einem Gerät über seine MAC-Adresse immer dieselbe Adresse gibt (in Filius „Statische Adresszuweisung“). Das Gerät bleibt bei DHCP, an ihm muss nichts von Hand eingetragen werden. Trotzdem ist es immer unter derselben Adresse erreichbar, wie der Lehrer-Laptop in der Schule. Kein anderes Gerät darf diese Adresse haben.

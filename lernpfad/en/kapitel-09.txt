@@ -1,0 +1,255 @@
+# Email: Ordering from the RGG
+Goal: The school and the RGG each get a mail server. You set up mailboxes, DNS entries and email programs. Then you follow an order from the school through two mail servers to the reply, which is read at home.
+
+## Read
+
+### The path of an email
+For the school party, Anna orders a crate of sparkling apple juice from the RGG by email. Her email takes a long path:
+
+- Anna's **email program** sends the email via **SMTP** to the mail server of her domain rbz-wirtschaft-kiel.de.
+- This mail server asks the DNS server which mail server is responsible for ravensberger24.de.
+- It passes the email on via SMTP to the mail server of the RGG. There the email lands in the **mailbox** verkauf (the sales account).
+- The sales team reads it with their email program via **IMAP**. The email stays on the server.
+
+[Picture: k09-weg.png | The path of an email from Anna to the RGG sales team]
+
+Later you will find each of these steps again in the data exchange window.
+
+### Setting up a mail server
+A **mail server** accepts emails for a domain and stores them in mailboxes. In the "Email server" application, you first set the "Mail domain". Then you create accounts with a user name and a password. You can only change the domain while the server is stopped.
+
+[Picture: k09-mailserver.png | Mail domain and accounts in the Email server]
+
+The PC of the mail server also needs a DNS server. It has to ask for itself where emails for other domains belong.
+
+### The email program
+In the email program you set up an account:
+
+- **Email address**, for example anna@rbz-wirtschaft-kiel.de,
+- "IMAP server" for reading and "SMTP server" for sending – both are the mail server of your own domain,
+- User name and password of the mailbox.
+
+[Picture: k09-adresse.png | Before the @ is the mailbox, after it the domain]
+
+[Picture: k09-konto.png | Setting up an account in the Email program]
+
+> Note: With IMAP the emails stay in the mailbox on the server. The email program shows what is there. So every device with the same account shows the same emails. If you delete an email in the program, it is also gone on the server.
+
+### The MX record
+How does the school's mail server know where an email to verkauf@ravensberger24.de has to go? It asks the DNS server for the **MX record** of the domain. This record names the responsible mail server, for example mail.ravensberger24.de. An A record then gives the IPv4 address of this server.
+
+[Picture: k09-mx.png | A and MX records in the DNS server]
+
+With the command `host ravensberger24.de` you can see what the DNS server knows about a domain.
+
+### An SMTP conversation
+SMTP is a conversation in lines of text. The program greets the server with `HELO`. With `MAIL FROM` it gives the sender, and with `RCPT TO` the receiver. After `DATA` comes the email itself. The server confirms each step with a number, for example `250` for "OK".
+
+[Picture: k09-smtp.png | An SMTP conversation in the data exchange window of the mail server]
+
+### An IMAP conversation
+IMAP is a conversation in lines of text, too. The email program puts a tag like `A1` in front of every command, so that it can match each answer to its command:
+
+- `A1 LOGIN anna password` logs the program in with user name and password,
+- `A2 SELECT INBOX` opens the inbox,
+- `A3 FETCH 1:* (UID FLAGS BODY[])` gets all emails,
+- `A4 LOGOUT` ends the conversation.
+
+The server answers with lines that start with `*`. At the end it repeats the tag and reports `OK` (fine), `NO` (refused) or `BAD` (unknown command).
+
+[Picture: k09-imap.png | An IMAP conversation in the data exchange window of the mail server]
+
+SMTP uses port 25, IMAP uses port 143. With the command **netstat** you can see on which ports a server is waiting.
+
+> Note: In Filius emails travel in plain text, the password at LOGIN too. Real mail servers encrypt SMTP and IMAP with TLS, just like web pages (chapter 4).
+
+## Practice
+
+### 9.1
+Set up the school's mail server:
+| Setting | Value |
+|---|---|
+| PC on the School switch | "School mail server" |
+| IPv4 address | 192.168.10.20 |
+| Gateway | 192.168.10.1 |
+| DNS server | 203.0.113.53 |
+| Software | Email server |
+| Mail domain | rbz-wirtschaft-kiel.de |
+| Accounts | anna and ben |
+Tip: You can only set the mail domain while the server is stopped. Servers have fixed addresses, no DHCP.
+
+### 9.2
+Set up the RGG's mail server:
+| Setting | Value |
+|---|---|
+| PC on the RGG switch | "RGG mail server" |
+| IPv4 address | 198.51.100.25 |
+| Gateway | 198.51.100.1 |
+| DNS server | 203.0.113.53 |
+| Software | Email server |
+| Mail domain | ravensberger24.de |
+| Account | verkauf |
+Tip: Same as 9.1, but in the RGG network. The netmask is 255.255.255.0 again.
+
+### 9.3
+Use the DNS server to make sure that
+- both mail servers can be reached as mail.rbz-wirtschaft-kiel.de and mail.ravensberger24.de, and
+- other servers know where emails for the two domains belong.
+Tip: You need two types of entries.
+
+### 9.4
+On Laptop-1, use `host ravensberger24.de` to check what the DNS server knows about the domain.
+Tip: The Command Line is installed on Laptop-1.
+
+### 9.5
+Set up the Email program and enter the servers by their names:
+| Device | Email address |
+|---|---|
+| Laptop-1 | anna@rbz-wirtschaft-kiel.de |
+| Office laptop | verkauf@ravensberger24.de |
+Tip: The mailbox is on the mail server of your own domain.
+
+### 9.6
+Anna sends ben a test email.
+Tip: Sending is enough. ben does not have to retrieve it.
+
+### 9.7
+Anna sends an email to verkauf@ravensberger24.de and orders a crate of sparkling apple juice.
+Tip: The school mail server passes the email on by itself. How does it know the destination?
+
+### 9.8
+The RGG answers:
+- The sales team retrieves the order on the Office laptop and replies with an order confirmation.
+- In the evening, Anna reads the confirmation on the Home laptop.
+Tip: Something is still missing on the Home laptop. With IMAP the email stays on the server: you can retrieve it on Laptop-1 and on the Home laptop.
+
+### 9.9
+Install the Command Line on the School mail server and enter `netstat`.
+Question: On which ports is the mail server waiting?
+Input: Ports
+Tip: These are the ports of the two mail protocols.
+
+### 9.10
+Anna uses her account on two devices:
+- Retrieve Anna's emails on Laptop-1, too.
+- Delete the order confirmation on the Home laptop.
+- Then retrieve the emails on Laptop-1 again.
+Question: What does Laptop-1 show now?
+- The order confirmation, because every device has its own copy
+- ✓ No order confirmation any more, because it was deleted in the mailbox on the server
+- No emails at all, because with IMAP only one device may use an account
+- An error message, because the mailbox is locked
+Tip: Click the email, then "Delete email".
+
+## Quiz
+
+### Which protocol does the email program use to read the emails in the mailbox?
+- ✓ IMAP
+- SMTP
+Wrong: SMTP delivers emails: from the program to the server and from server to server. It is not meant for reading the mailbox.
+- HTTP
+Wrong: HTTP transfers web pages between browser and web server. The email program does not retrieve emails via HTTP.
+- DNS
+Wrong: DNS translates names into addresses. The program uses it to find the mail server, but it does not retrieve emails with it.
+Explanation: SMTP only delivers emails. To read them in the mailbox, you use IMAP.
+
+### Which protocol does the school mail server use to pass Anna's order on to the RGG mail server?
+- ✓ SMTP
+- IMAP, because the server fetches the email from the other server
+Wrong: Nothing is fetched between the servers: the school mail server actively delivers the email to the RGG server. Only the recipient's program uses IMAP.
+- HTTP, because both servers have web addresses
+Wrong: Mail servers do not have web addresses, they have names like mail.ravensberger24.de. HTTP is for web pages.
+- DNS
+Wrong: DNS only helps to find the destination server (with the MX record). The email itself is not transferred with it.
+Explanation: SMTP carries the email from the program to the server and from server to server. Only the receiver's program uses IMAP.
+
+### What is an MX record for?
+- It names the IPv4 address of a web server
+Wrong: That is what an A record does. The MX record names no web server and no IPv4 address, it names the mail server.
+- ✓ It names the mail server of a domain
+- It stores the mailbox of a domain
+Wrong: Mailboxes are on the mail server. DNS only contains entries about names, no emails.
+- It defines which accounts exist
+Wrong: You create the accounts in the Email server itself. The DNS server knows nothing about users.
+Explanation: An MX record names the mail server that is responsible for a domain. MX stands for mail exchanger; the IPv4 address of this server then comes from the A record.
+
+### How does mail.rbz-wirtschaft-kiel.de know where the email to verkauf@ravensberger24.de has to go?
+- From Anna's email program, which sends the destination server along with the email
+Wrong: Anna's program only knows her own mail server. The school mail server looks for the RGG server itself.
+- It sends the email to all servers in the provider network
+Wrong: Emails go to one particular server, not to all of them. Otherwise anybody could read other people's mail.
+- ✓ It asks the DNS server for the MX record of ravensberger24.de
+- From its forwarding table
+Wrong: The forwarding table knows networks and routes, but no domains. Which server is responsible for a domain is in DNS.
+Explanation: The school mail server asks the DNS server which mail server is responsible for ravensberger24.de. That is why the mail server PCs need a DNS server and DNS needs the MX records.
+
+### What are the parts of anna@rbz-wirtschaft-kiel.de?
+- Device name and port
+Wrong: An email address contains neither device names nor ports. The mailbox is in front of the @, the domain is behind it.
+- First name and last name
+Wrong: anna is a first name here, but technically it is the user name of the mailbox. Behind the @ there is no last name, but the domain.
+- IPv4 address and netmask
+Wrong: An email address does not contain any network details. The domain only becomes an address through DNS.
+- ✓ User name and domain
+Explanation: The domain says which mail server is responsible. The user name says which mailbox.
+
+### On which port does the mail server accept emails via SMTP?
+- 143
+Wrong: Port 143 belongs to IMAP, which is for reading the mailbox. The server accepts incoming emails via SMTP.
+- ✓ 25
+- 80
+Wrong: Port 80 belongs to HTTP, the web server.
+- 53
+Wrong: Port 53 belongs to DNS.
+Explanation: SMTP uses port 25. You saw that with netstat on the mail server.
+
+### On which port does the mail server wait for IMAP?
+- 25
+Wrong: Port 25 belongs to SMTP, which the server uses to accept emails. Reading the mailbox uses a different port.
+- 80
+Wrong: Port 80 belongs to HTTP and web pages.
+- ✓ 143
+- 67
+Wrong: Port 67 belongs to the DHCP server.
+Explanation: The mail server waits on both ports: 25 for SMTP, 143 for IMAP.
+
+### Emails inside the school arrive, but emails to the RGG do not. What is most likely missing?
+- An IMAP account for anna on the RGG mail server
+Wrong: Anna wants to send an email to the RGG, not read emails there. She does not need an account at the RGG for that.
+- ✓ A DNS entry for the RGG, or the DNS server on the school mail server
+- A new cable between R1 and R2
+Wrong: The route to the RGG works, the web pages of the RGG arrive after all. What is missing is not the connection but the information where the email belongs.
+- A second email program on Laptop-1
+Wrong: One program is enough. The email arrives at the school mail server and only fails on the way to the RGG.
+Explanation: For its own domain the school mail server does not need DNS, but for another domain it does: it has to look up the MX record of the RGG. If the record is missing or it knows no DNS server, the email stays where it is.
+
+### Anna read the order confirmation at school on Laptop-1. What does the email program on the Home laptop show after retrieving the emails?
+- ✓ The same email, because with IMAP it stays in the mailbox on the server
+- Nothing, because the email was deleted on the server when it was read
+Wrong: With IMAP the email stays on the server until somebody deletes it. Reading alone deletes nothing.
+- Nothing, because the Home router blocks port 143
+Wrong: The Home router lets connections from inside to outside through. The mailbox can be reached from home, too.
+- Only the subject, because the text is only on Laptop-1
+Wrong: The whole email is in the mailbox on the server. Every device that reads the mailbox gets all of it.
+Explanation: With IMAP the email is in the mailbox on the school mail server. Every device with Anna's account shows the same emails, at school and at home.
+
+### In which order does an email program send the SMTP commands?
+- DATA, HELO, RCPT TO, MAIL FROM
+Wrong: DATA starts the actual text. Before that, it must be clear who is writing and to whom.
+- ✓ HELO, MAIL FROM, RCPT TO, DATA
+- RCPT TO, MAIL FROM, HELO, DATA
+Wrong: At the start, the program greets the server with HELO. The sender (MAIL FROM) comes before the recipient.
+- HELO, DATA, MAIL FROM, RCPT TO
+Wrong: After the greeting, the sender and recipient come first. The text (DATA) comes at the very end.
+Explanation: First the program greets the server (HELO), then it names the sender (MAIL FROM) and the recipient (RCPT TO), and the text (DATA) comes last.
+
+## Glossary
+
+- **Email program** – client that you use to write emails, send them via SMTP and read them in the mailbox via IMAP. In it you set up an account: email address, user name, password and the names of the mail servers. The program only talks to the mail server of its own domain. That server takes care of the way to other domains.
+- **SMTP** – protocol for sending emails and passing them on, port 25. The email program delivers an email to its own mail server via SMTP. That server passes it on, also via SMTP, to the mail server of the destination domain. The commands come in a fixed order: HELO, MAIL FROM, RCPT TO, DATA.
+- **Mailbox** – storage for the emails of one account on the mail server. Incoming emails stay there, also when an email program reads them via IMAP. They are only deleted when somebody deletes them in the program. Every account, for example anna or verkauf, has its own mailbox.
+- **IMAP** – protocol for reading emails in the mailbox, port 143 (Internet Message Access Protocol). The email program logs in with user name and password, opens the inbox and gets the emails. The emails stay on the server, so all devices with the same account show the same emails. If you delete an email in the program, IMAP deletes it on the server, too. In real networks IMAP runs encrypted on port 993.
+- **Mail server** – accepts emails for a domain, stores them in mailboxes and passes on emails for other domains. In Filius this is a PC with the software Email server, in which you enter the domain and the accounts. It waits on port 25 (SMTP) and port 143 (IMAP). For other domains it asks the DNS server for the MX record.
+- **Email address** – user name and domain, joined by @. In front of the @ is the mailbox, for example anna. Behind the @ is the domain, which tells you which mail server is responsible. Every email address exists only once in the world.
+- **MX record** – DNS entry that names the mail server of a domain. MX stands for mail exchanger. Example: ravensberger24.de → mail.ravensberger24.de. The address of this mail server then comes from an A record.
+- **netstat** – command that shows on which ports a device is waiting for connections. A mail server, for example, waits on ports 25 and 143. With it you check whether a server program is really running and can accept requests. If the port is missing from the list, the service is stopped.

@@ -1,0 +1,187 @@
+# Port mapping and firewall
+Goal: A web server for a blog runs in the home network. You make it reachable from outside with a port mapping. Then you use a firewall rule to block one specific access.
+
+## Read
+
+### Closed from outside
+At home, you run a blog on your own PC, the Blog server. Your classmates should be able to read it from school.
+
+But from outside, only the Home router with 203.0.113.3 is visible. When a new request arrives there, the Home router does not know which device in the home network should get it. Its NAT table only contains connections that were started from inside to outside.
+
+[Picture: k10-geschlossen.png | A SYN to 203.0.113.3, port 8080, gets no answer]
+
+### The port mapping
+A **port mapping** is a fixed entry in the Home router: it forwards requests to a certain port of its WAN address to a device in the home network.
+
+[Picture: k10-portfreigabe.png | Port Mapping: TCP 8080 to 192.168.178.10, port 80]
+
+The outside port and the inside port can be different. Inside, the blog runs on port 80. From outside, you reach it at `http://203.0.113.3:8080`. The number after the colon is the **port in the URL**. If there is no number, the browser uses port 80.
+
+### Firewall Rules
+A **firewall** checks every packet that wants to pass through the Home router. It compares the packet with its **firewall rules**: source, destination, protocol and port. Every rule ends with an action: accept or drop.
+
+[Picture: k10-firewall.png | The Firewall settings dialog with one rule]
+
+- The rules are checked from top to bottom. The first rule that matches decides.
+- If no rule matches, the **default action** applies. "accept (blacklist)" allows everything that no rule forbids: the rules are a black list. "drop (whitelist)" blocks everything that no rule allows: the rules are a white list.
+- For a single address, you use the netmask 255.255.255.255.
+
+> Note: In the factory settings, the Default action is "drop (whitelist)". If you switch on the firewall like this, it also blocks DHCP and DNS. The firewall checks packets from the home network before NAT replaces the source address. So it sees the private addresses.
+
+### Which rule matched?
+The Home router has its own admin page. You open it in the browser of a device in the home network, using the router's LAN address.
+
+[Picture: k10-log.png | The log of the Home router shows which rule matched]
+
+For every packet it checked, the **log** shows which rule matched and whether the packet was accepted or dropped.
+
+## Practice
+
+### 10.1
+In the home network, set up a blog server:
+- a PC called "Blog server" on the Home switch
+- the fixed IPv4 address 192.168.178.10, netmask 255.255.255.0 (by hand at the blog server, or as a static assignment in the DHCP of the Home router)
+- the Webserver with your own start page, heading "My blog"
+Tip: The address is outside the DHCP range of the Home router. The gateway is the Home router. With a static assignment, the Home router recognizes the blog server by its MAC address.
+
+### 10.2
+Try to open the blog from a school laptop at http://203.0.113.3:8080.
+Question: What happens?
+- The page opens because the Home router forwards everything
+- ✓ The Home router does not let the request into the home network
+- The DNS server does not know the address
+- The browser cannot handle ports in the address
+Tip: The number after the colon is the port. Here, an error is the expected result.
+
+### 10.3
+Your classmates should be able to reach the blog at http://203.0.113.3:8080. Set this up on the Home router and test it from a school laptop.
+Tip: Outside port 8080, inside port 80 of the Blog server.
+
+### 10.4
+The Tablet should always get the address 192.168.178.50.
+Tip: Do it like for Laptop-4 in chapter 7, but in the DHCP server of the Home router.
+
+### 10.5
+Install the Webbrowser on the Tablet. Then use a firewall rule on the Home router to block the Tablet's access to the Shop. Everything else must keep working:
+- The Tablet gets its address and opens the school website at https://www.rbz-wirtschaft-kiel.de.
+- The Home laptop can still buy in the Shop.
+- The blog stays reachable from outside.
+Test everything.
+Tip: Set the Default action to "accept (blacklist)". Inside, the firewall sees the private address. A single address needs the netmask 255.255.255.255.
+
+### 10.6
+On the Home laptop, open the admin page of the Home router. In the log, find the entry for the Tablet.
+Question: Which rule (number) dropped the access?
+Input: Number
+Tip: You reach the admin page via the LAN address of the Home router.
+
+## Quiz
+
+### What does a firewall do?
+- ✓ It checks packets against rules and lets them through or drops them
+- It translates private addresses into public addresses
+Wrong: That is what NAT does. The firewall lets packets through or drops them, but it does not change them.
+- It encrypts all connections to the internet
+Wrong: A firewall does not encrypt anything. It only decides by rules which packets may pass.
+- It spreads packets over several lines
+Wrong: That would be load balancing. A firewall checks packets, it does not spread them.
+Explanation: A firewall compares every packet with its rules and lets it through or drops it, like a bouncer with a list.
+
+### What is a port mapping for?
+- ✓ It forwards a port of the Home router to a device in the home network
+- It opens all ports of the Home router to the outside
+Wrong: A port mapping only counts for one particular port. All other ports stay closed.
+- It gives a device its own public address
+Wrong: The device keeps its private address. From outside you still use the address of the Home router.
+- It gives the home network access to the internet
+Wrong: The home network already has access to the internet through NAT. The mapping is about the way in from outside.
+Explanation: A port mapping forwards requests to a particular port of the Home router to a device in the home network. It is a fixed entry in the NAT Table.
+
+### Why could nobody reach the blog from outside before the port mapping?
+- ✓ The Home router did not know which device to forward the request to
+- The firewall of the Home router blocked port 8080
+Wrong: At that point the firewall was not even switched on. The Home router simply did not know where to send the request.
+- The Blog server had no default gateway
+Wrong: The Blog server had the Home router as its gateway. In the home network the blog could be reached, after all.
+- The Webserver was not listening on port 8080
+Wrong: The web server listens on port 80, and that is correct. Port 8080 only exists outside, on the Home router.
+Explanation: From outside, people only know the address of the Home router, and NAT only lets answers in.
+
+### What does the port mapping 8080 → 192.168.178.10:80 do?
+- ✓ Requests to port 8080 of the Home router go to port 80 of the Blog server
+- The Blog server now listens on port 8080
+Wrong: Nothing changes on the Blog server. It still listens on port 80, and the Home router translates port 8080.
+- The Home router shows the blog on port 80
+Wrong: The mapping is for port 8080 outside. The blog cannot be reached via port 80 of the Home router.
+- The home network can only use port 8080 to surf the web
+Wrong: The mapping is only about requests from outside. Surfing from the home network stays as it was.
+Explanation: The outside port and the inside port can be different. The Home router also translates the port.
+
+### At which address can your classmates reach the blog?
+- ✓ http://203.0.113.3:8080
+- http://192.168.178.10:8080
+Wrong: This is the private address of the Blog server. It cannot be reached from outside, and besides, the server listens on port 80, not 8080.
+- http://192.168.178.1:8080
+Wrong: This is the LAN address of the Home router. It only counts in the home network.
+- http://203.0.113.3
+Wrong: Without a port, the browser uses port 80. But port 8080 is the one that is mapped.
+Explanation: From outside, you can only reach the home network through the public address of the Home router, 203.0.113.3. Add the mapped port 8080.
+
+### In which order are firewall rules checked?
+- ✓ From top to bottom, the first matching rule decides
+- All at the same time, the strictest rule wins
+Wrong: The firewall compares the rules one after the other. The first matching rule wins, not the strictest one.
+- From bottom to top, the last rule decides
+Wrong: The check starts at the top with the first rule, not at the bottom.
+- First all blocking rules, then all allowing rules
+Wrong: The kind of rule does not matter for the order, only its place in the list.
+Explanation: The firewall goes through the rules from top to bottom, and the first matching rule decides. That is why a specific rule comes before a general one.
+
+### What does the Default action of a firewall define?
+- ✓ What happens to packets that no rule matches
+- Which rule is checked first
+Wrong: The order comes from the list, from top to bottom. The Default action only applies if no rule matches.
+- What happens to packets that several rules match
+Wrong: If several rules match, the first matching rule decides. The Default action does not come into play.
+- Whether the firewall is active at startup
+Wrong: Whether the firewall is active is set with "Activate firewall". That is something different from the Default action.
+Explanation: The Default action applies to all packets that no rule matches. "Drop" then blocks everything except what is allowed, "accept" allows everything except what is forbidden.
+
+### Which details can a firewall rule in Filius contain?
+- ✓ Source and destination address with netmask, protocol, port, action
+- Device name, domain name and action
+Wrong: Names are not in the packets. A firewall rule works with addresses and ports.
+- MAC address, port and time of day
+Wrong: MAC addresses only count in their own network, and the firewall in Filius has no rules by time of day.
+- User name, password and action
+Wrong: The firewall does not know users. It checks packets, not logins.
+Explanation: A rule names source and destination address with netmask, protocol and port, because exactly that is in the packet. You also set the action.
+
+### Why does the rule block the Tablet by its IPv4 address and not by its name?
+- ✓ In the packets, the firewall sees addresses and ports, not names
+- Anyone in the home network can change names
+Wrong: That is true, but it is not the reason. Even a fixed name would not be in the packets at all.
+- Upper and lower case letters would cause problems
+Wrong: This has nothing to do with spelling. Names simply do not appear in the packets.
+- The firewall only knows the names of servers
+Wrong: The firewall does not know any names at all, neither of servers nor of other devices.
+Explanation: The name "Tablet" only exists in Filius, not in the packets.
+
+### Why did the Tablet need a fixed address for this?
+- ✓ So that the rule always hits the Tablet
+- Because firewall rules only work for fixed addresses
+Wrong: A rule checks every address in a packet, no matter where it comes from. It just has to belong to the right device.
+- Because otherwise NAT hides the address
+Wrong: NAT only changes packets that leave the home network. Inside, the firewall sees the private address, with or without a fixed assignment.
+- Because DHCP devices get around the firewall
+Wrong: Devices with DHCP also have to pass the Home router and its firewall. Only their address can change.
+Explanation: With DHCP, it could get a different address, and then the rule would no longer hit it.
+
+## Glossary
+
+- **Port mapping** – forwards requests to a port of the Home router to a device in the home network. Without it, NAT only lets replies to your own requests in, and requests from outside go nowhere. An entry names the protocol, the port outside and the address and port inside, for example TCP 8080 → 192.168.178.10:80. This way a server in the home network, like the blog, can be reached from outside.
+- **Port in the URL** – number after the colon, for example :8080 in http://203.0.113.3:8080. Without it, the browser uses port 80 for http. You need it when a service cannot be reached on its default port. A DNS entry does not know ports, so the port always belongs in the URL.
+- **Firewall** – checks packets against rules and lets them through or drops them. It sits at the border between networks, in our network in the Home router. It does not change the packets, it only decides. With it you can block certain connections, for example from the Tablet to the Shop.
+- **Firewall rule** – entry with source, destination, protocol, port and action. The first rule that matches decides. Source and destination are written as an address with netmask, and a single address needs the netmask 255.255.255.255. The action is "accept" or "drop".
+- **Default action** – what happens to packets that no rule matches. With "drop", everything is blocked that no rule allows (whitelist). With "accept", everything is allowed that no rule forbids (blacklist). In the factory settings of Filius it is "drop", which is why a firewall that has just been switched on also blocks DHCP and DNS.
+- **Log** – list in which the firewall records which rule matched. On the Home router you find it on its admin page, at http://192.168.178.1/log. Each entry names the packet and the rule that dropped it. This way you can see whether a rule really works as planned.

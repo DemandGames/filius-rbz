@@ -1,0 +1,232 @@
+# Ein lokales Netz mit Switch
+Ziel: Aus zwei Laptops wird das Schulnetz mit vier Laptops an einem Switch. Du lernst MAC-Adressen und ARP kennen und beschriftest dein Netz zum ersten Mal.
+
+## Lesen
+
+### Mehr als zwei Geräte
+Ein Kabel verbindet immer genau zwei Geräte. Für mehr Geräte brauchst du einen **Switch**: Jedes Gerät bekommt ein eigenes Kabel zum Switch.
+
+[Bild: k02-stern.png | Das Schulnetz: vier Laptops an einem Switch]
+
+Weil alle Kabel zur Mitte laufen, heißt diese Anordnung **Stern-Topologie**. Alle Geräte am Switch bilden zusammen ein lokales Netz, ein **LAN**.
+
+### Zwei Adressen pro Gerät
+Jede Netzwerkkarte hat eine **MAC-Adresse**. Sie ist fest eingebaut, wie eine Seriennummer, zum Beispiel 0A:3F:5C:12:9B:44. Die IPv4-Adresse dagegen vergibst du selbst, wie eine Postanschrift.
+
+[Bild: k02-mac.png | MAC-Adresse und IPv4-Adresse in den Einstellungen]
+
+Der Switch arbeitet nur mit MAC-Adressen. Er merkt sich in seiner **Switch-Tabelle**, an welchem Anschluss welche MAC-Adresse hängt.
+
+### Wer gehört zu meinem Netz?
+Mit der Netzmaske 255.255.255.0 zerfällt die IPv4-Adresse 192.168.10.11 in zwei Teile:
+
+- **Netzanteil** 192.168.10 – gleich für alle Geräte im Netz
+- **Hostanteil** 11 – verschieden für jedes Gerät (Host heißt Endgerät)
+
+[Bild: k02-netzmaske.png | Die Netzmaske teilt die IPv4-Adresse in Netzanteil und Hostanteil]
+
+Ein Laptop schickt Nachrichten an Geräte mit gleichem Netzanteil direkt über den Switch. Hat ein Gerät einen anderen Netzanteil, liegt es in einem anderen Netz, auch wenn es am selben Switch hängt.
+
+[Bild: k02-anderes-netz.png | 192.168.10.14 und 192.168.20.14: anderer Netzanteil, anderes Netz]
+
+### „Wer hat 192.168.10.14?“
+Bevor Laptop-1 an 192.168.10.14 senden kann, braucht er dessen MAC-Adresse. Dazu fragt er mit **ARP** alle Geräte im Netz gleichzeitig. So eine Nachricht an alle heißt **Broadcast**. Nur das gesuchte Gerät antwortet.
+
+[Bild: k02-arp.png | ARP-Anfrage und -Antwort im Datenaustausch]
+
+Die Antworten merkt sich der Laptop in seiner ARP-Tabelle. Du siehst sie mit dem Befehl `arp`.
+
+### Das Netz beschriften
+Ein Netz mit vielen Geräten wird schnell unübersichtlich. Im **Dokumentationsmodus** (gelb) beschriftest du es. So entsteht ein **Netzplan**: eine beschriftete Zeichnung aller Netze mit ihren Geräten und Adressen. Mit dem Netzplan versteht jeder schnell, wie dein Netz aufgebaut ist, und Fehler lassen sich leichter finden. Du ergänzt ihn in jedem Kapitel.
+
+Links in der Leiste findest du die **Gliederungsfläche** und das Textfeld. In unserem Netzplan sieht jedes Netz gleich aus:
+
+- Eine Gliederungsfläche liegt um alle Geräte des Netzes. Ihre Größe ziehst du am Rand mit der Maus.
+- Oben links in der Fläche steht das Etikett. Es nennt den Namen des Netzes und seine Netzadresse, zum Beispiel „Schulnetz 192.168.10.0/24“.
+
+Das Etikett schreibst du am schnellsten mit dem kleinen „+“ oben links in der Gliederungsfläche: Ein Klick darauf, und du tippst den Namen des Netzes direkt in die Fläche. Das Etikett gehört dann zur Fläche und wandert mit ihr. Du kannst das Etikett auch als neues Textfeld aus der Leiste oben links in die Fläche ziehen. Alle weiteren Beschriftungen ergänzt du mit Textfeldern.
+
+[Bild: k02-etikett.png | Das Schulnetz mit Gliederungsfläche und Etikett]
+
+Die Angabe **/24** ist eine Kurzform der Netzmaske: Die ersten 24 Bit, also drei Zahlen, bilden den Netzanteil. 192.168.10.0/24 bedeutet dasselbe wie 192.168.10.0 mit 255.255.255.0.
+
+> Merke: Im Dokumentationsmodus läuft keine Simulation. Zum Weiterbauen wechselst du zurück in den Entwurf.
+
+## Praxis
+
+### 2.1
+Baue das Netz um:
+- Entferne das Kabel zwischen Laptop-1 und Laptop-2.
+- Stelle einen Switch mit dem Namen „Switch Schule“ auf.
+Tipp: Ein Kabel löschst du per Rechtsklick auf eines der verbundenen Geräte.
+
+### 2.2
+Schließe Laptop-1 und Laptop-2 an den Switch an.
+Tipp: Jedes Gerät braucht ein eigenes Kabel zum Switch.
+
+### 2.3
+Ergänze zwei Laptops und schließe sie an den Switch Schule an. Netzmaske jeweils 255.255.255.0:
+| Gerät | IPv4-Adresse |
+|---|---|
+| Laptop-3 | 192.168.10.13 |
+| Laptop-4 | 192.168.10.14 |
+Tipp: Zieh zwei weitere Laptops aus der Leiste.
+
+### 2.4
+Teste von Laptop-1 aus `ping 192.168.10.14`.
+Tipp: Simulation starten nicht vergessen.
+
+### 2.5
+Gib auf Laptop-1 den Befehl `arp` ein.
+Frage: Welche MAC-Adresse hat Laptop-4?
+Eingabe: MAC-Adresse
+Tipp: Die Tabelle ordnet jeder IPv4-Adresse eine MAC-Adresse zu.
+
+### 2.6
+Klicke in der Simulation den Switch an. Es öffnet sich seine Tabelle.
+Frage: An welchem Anschluss hängt Laptop-4?
+Eingabe: Nummer
+Tipp: Der Switch trägt ein Gerät erst ein, wenn es etwas gesendet hat. Pinge notfalls noch einmal.
+
+### 2.7
+Suche im Datenaustausch von Laptop-1 die ARP-Anfrage und klicke sie an.
+Frage: An welche MAC-Adresse geht die ARP-Anfrage?
+- An die MAC-Adresse von Laptop-4
+- An die MAC-Adresse des Switches
+- ✓ An FF:FF:FF:FF:FF:FF
+- An 00:00:00:00:00:00
+Tipp: Schau unten in der Netzzugangsschicht in die Spalte „Ziel“.
+
+### 2.8
+Beginne den Netzplan: Lege im Dokumentationsmodus eine Gliederungsfläche um das ganze Schulnetz:
+- Die Fläche umfasst alle Laptops und den Switch Schule.
+- Oben links in der Fläche steht das Etikett „Schulnetz 192.168.10.0/24“.
+Tipp: Oben auf den gelben Knopf „Dokumentation“ klicken. Die Gliederungsfläche aus der Leiste auf die Arbeitsfläche ziehen und am Rand so groß ziehen, dass alle Laptops und der Switch darin liegen. Dann auf das „+“ oben links in der Fläche klicken und das Etikett eintippen (oder ein Textfeld oben links in die Fläche ziehen). Wichtig ist das /24 hinter der Netzadresse.
+
+## Quiz
+
+### Was macht ein Switch mit einem eingehenden Paket?
+- ✓ Er schickt es an den Anschluss, hinter dem die Ziel-MAC liegt
+- Er schickt es immer an alle Anschlüsse
+Falsch: So arbeitet ein Hub. Ein Switch schickt nur dann an alle Anschlüsse, wenn er das Ziel noch nicht kennt oder wenn es ein Broadcast ist.
+- Er schickt es an den Anschluss mit der Ziel-IPv4-Adresse
+Falsch: IPv4-Adressen liest ein Switch gar nicht. Er arbeitet nur mit MAC-Adressen.
+- Er schickt es an den nächsten Vermittlungsrechner
+Falsch: An einen Router geht ein Paket nur, wenn das Ziel in einem anderen Netz liegt. Das entscheidet der Absender, nicht der Switch.
+Erklärung: Der Switch merkt sich in seiner Tabelle, welche MAC-Adresse an welchem Anschluss hängt. IPv4-Adressen beachtet er nicht.
+
+### Woher weiß ein Switch, an welchem Anschluss ein Gerät hängt?
+- ✓ Aus den Absender-MAC-Adressen ankommender Pakete
+- Aus den Ziel-IPv4-Adressen der Pakete
+Falsch: Der Switch beachtet keine IPv4-Adressen. Außerdem verrät das Ziel eines Pakets nicht, wo der Absender angeschlossen ist.
+- Aus einer Liste, die man von Hand einträgt
+Falsch: Einen Switch muss man nicht einrichten: Er lernt seine Tabelle selbst, während Pakete durchlaufen.
+- Aus den Antworten des DNS-Servers
+Falsch: DNS übersetzt Namen in IPv4-Adressen. Mit den Anschlüssen eines Switches hat DNS nichts zu tun.
+Erklärung: Darum taucht ein Gerät erst in der Switch-Tabelle auf, wenn es selbst etwas gesendet hat.
+
+### Was ist eine MAC-Adresse?
+- ✓ Eine feste Adresse der Netzwerkkarte
+- Eine Adresse, die der Nutzer frei vergibt
+Falsch: Frei vergeben wird die IPv4-Adresse. Die MAC-Adresse bringt die Netzwerkkarte ab Werk mit.
+- Die Adresse des Netzes, zu dem ein Gerät gehört
+Falsch: Das wäre die Netzadresse, zum Beispiel 192.168.10.0. Die MAC-Adresse gehört zu genau einer Netzwerkkarte, nicht zu einem Netz.
+- Der Name, unter dem ein Gerät erscheint
+Falsch: Der Name ist eine Beschriftung für Menschen. Die MAC-Adresse ist eine Zahl in hexadezimaler Schreibweise, zum Beispiel 0A:1B:2C:3D:4E:5F.
+Erklärung: Die MAC-Adresse gehört zur Karte wie eine Seriennummer, die IPv4-Adresse wird vergeben.
+
+### Wozu dient ARP?
+- ✓ Zu einer IPv4-Adresse im eigenen Netz die MAC-Adresse finden
+- Zu einem Namen die IPv4-Adresse finden
+Falsch: Das macht DNS (Kapitel 6). ARP arbeitet eine Ebene tiefer: von der IPv4-Adresse zur MAC-Adresse.
+- Einem Gerät eine IPv4-Adresse zuteilen
+Falsch: Das macht DHCP (Kapitel 7). ARP vergibt keine Adressen, es fragt nur nach.
+- Den Weg in ein anderes Netz finden
+Falsch: Den Weg in andere Netze finden Router mit ihrer Weiterleitungstabelle. ARP funktioniert nur im eigenen Netz.
+Erklärung: Im lokalen Netz werden Pakete an MAC-Adressen geschickt. Bevor Laptop-1 an 192.168.10.14 senden kann, fragt er deshalb per ARP nach der MAC-Adresse dazu.
+
+### An wen geht eine ARP-Anfrage?
+- ✓ An alle Geräte im lokalen Netz
+- Nur an das gesuchte Gerät
+Falsch: Dafür bräuchte der Absender die MAC-Adresse des Ziels, und genau die sucht er ja erst.
+- An den Switch, der sie beantwortet
+Falsch: Der Switch beantwortet keine ARP-Anfragen. Er leitet den Broadcast nur an alle Anschlüsse weiter.
+- An das Standard-Gateway
+Falsch: Das Gateway ist nur für Ziele in anderen Netzen zuständig. Die ARP-Anfrage fragt im eigenen Netz alle Geräte.
+Erklärung: Der Absender kennt die MAC-Adresse des Ziels ja noch nicht und fragt deshalb alle.
+
+### Welche Ziel-MAC-Adresse hat ein Broadcast?
+- ✓ FF:FF:FF:FF:FF:FF
+- 00:00:00:00:00:00
+Falsch: Lauter Nullen stehen für eine noch unbekannte Adresse, zum Beispiel in der ARP-Anfrage im Feld für die gesuchte MAC-Adresse. Als Ziel „an alle“ gelten sie nicht.
+- 192.168.10.255
+Falsch: Das ist eine IPv4-Adresse, keine MAC-Adresse. MAC-Adressen bestehen aus sechs Paaren hexadezimaler Zeichen.
+- 01:00:00:00:00:00
+Falsch: Das ist keine Adresse für alle Geräte. Die Broadcast-MAC besteht aus lauter F.
+Erklärung: FF:FF:FF:FF:FF:FF ist die Broadcast-Adresse: Lauter F bedeutet „an alle im Netz“. Jedes Gerät im lokalen Netz nimmt eine solche Nachricht an.
+
+### Welche zwei Adressen liegen bei Netzmaske 255.255.255.0 im selben Netz?
+- ✓ 192.168.10.11 und 192.168.10.200
+- 192.168.10.11 und 192.168.11.11
+Falsch: Die dritte Zahl unterscheidet sich (10 und 11). Damit liegen die Adressen in zwei verschiedenen Netzen.
+- 10.0.0.1 und 10.0.1.1
+Falsch: Bei 255.255.255.0 zählen die ersten drei Zahlen: 10.0.0 und 10.0.1 sind verschieden.
+- 192.168.10.11 und 192.169.10.11
+Falsch: Die zweite Zahl ist anders (168 und 169). Schon das macht zwei verschiedene Netze.
+Erklärung: Bei 255.255.255.0 bilden die ersten drei Zahlen den Netzanteil. 192.168.10.11 und 192.168.10.200 haben beide 192.168.10 und unterscheiden sich nur im Hostanteil, sie liegen also im selben Netz.
+
+### Was ist bei 192.168.10.14 mit Netzmaske 255.255.255.0 der Hostanteil?
+- ✓ 14
+- 192.168.10
+Falsch: Das ist der Netzanteil, also der Teil, den alle Geräte im Netz gemeinsam haben.
+- 10.14
+Falsch: Die 10 gehört noch zum Netzanteil. Bei 255.255.255.0 ist nur die letzte Zahl der Hostanteil.
+- 255
+Falsch: 255 steht in der Netzmaske, nicht in der Adresse. Die Maske zeigt nur, wo Netz- und Hostanteil liegen.
+Erklärung: Der Netzanteil ist 192.168.10, der Hostanteil die letzte Zahl.
+
+### Welche Topologie entsteht, wenn alle Geräte an einem Switch hängen?
+- ✓ Stern
+- Ring
+Falsch: Beim Ring ist jedes Gerät mit zwei Nachbarn verbunden, alles bildet einen Kreis. Am Switch hat jedes Gerät nur ein Kabel zur Mitte.
+- Bus
+Falsch: Beim Bus hängen alle Geräte an einer gemeinsamen Leitung. Am Switch hat jedes Gerät sein eigenes Kabel.
+- Baum
+Falsch: Ein Baum entsteht erst, wenn mehrere Switches hintereinander verbunden sind. Ein einzelner Switch mit seinen Geräten ist ein Stern.
+Erklärung: Alle Kabel laufen sternförmig zum Switch in der Mitte.
+
+### Was zeigt der Befehl arp?
+- ✓ Die IPv4- und MAC-Paare, die das Gerät schon kennt
+- Alle Geräte, die am Switch hängen
+Falsch: Was am Switch hängt, zeigt die Tabelle des Switches. arp zeigt nur, was das eigene Gerät schon kennt.
+- Die MAC-Adressen aller Geräte im Netz
+Falsch: In der ARP-Tabelle stehen nur Geräte, mit denen das Gerät schon Kontakt hatte. Wer noch nie angesprochen wurde, fehlt.
+- Die Weiterleitungstabelle des Geräts
+Falsch: Die Weiterleitungstabelle zeigt Wege in Netze (Befehl route). arp zeigt Paare aus IPv4- und MAC-Adresse.
+Erklärung: arp zeigt die ARP-Tabelle des eigenen Geräts. Sie füllt sich mit jeder beantworteten ARP-Anfrage, darum stehen dort nur Geräte, mit denen es schon Kontakt hatte.
+
+### Was ist ein Netzplan?
+- ✓ Eine beschriftete Zeichnung aller Netze mit ihren Geräten und Adressen
+- Eine Liste aller Passwörter im Netz
+Falsch: Passwörter gehören nie in einen Netzplan. Er zeigt, wie das Netz aufgebaut ist.
+- Die Tabelle des Switches
+Falsch: Die Switch-Tabelle zeigt nur MAC-Adressen und Anschlüsse eines Switches. Der Netzplan zeigt alle Netze.
+- Der Datenaustausch eines Laptops
+Falsch: Der Datenaustausch zeigt Nachrichten, die ein Gerät gesendet und empfangen hat, keine Zeichnung des Netzes.
+Erklärung: Im Dokumentationsmodus bekommt jedes Netz eine Gliederungsfläche mit Etikett. So entsteht der Netzplan, den du in jedem Kapitel ergänzt.
+
+## Glossar
+
+- **Switch** – verbindet die Geräte eines Netzes und leitet Pakete anhand der MAC-Adresse an den richtigen Anschluss. Jedes Gerät bekommt ein eigenes Kabel zum Switch. Welches Gerät an welchem Anschluss hängt, lernt der Switch selbst aus den Paketen, die durchlaufen. Mit IPv4-Adressen arbeitet er nicht, deshalb kann er keine verschiedenen Netze verbinden.
+- **Stern-Topologie** – alle Geräte hängen einzeln an einem zentralen Gerät. In unserem Schulnetz ist das der Switch Schule. Fällt ein Kabel aus, ist nur das eine Gerät betroffen, die anderen arbeiten weiter. Fällt aber der Switch in der Mitte aus, steht das ganze Netz.
+- **LAN** – lokales Netz, zum Beispiel alle Geräte eines Klassenraums. LAN steht für Local Area Network. Die Geräte eines LAN stehen nah beieinander und gehören meist zu einem Netz mit demselben Netzanteil. Das Gegenstück ist das WAN, das große Entfernungen überbrückt (Kapitel 8).
+- **MAC-Adresse** – feste Hardware-Adresse einer Netzwerkkarte. Sie besteht aus sechs Paaren hexadezimaler Zeichen, zum Beispiel 0A:1B:2C:3D:4E:5F. Anders als die IPv4-Adresse wird sie nicht vergeben, sondern gehört zur Karte wie eine Seriennummer. Switches leiten Pakete im lokalen Netz anhand der MAC-Adresse weiter.
+- **Switch-Tabelle** – Liste, in der der Switch sich merkt, welche MAC-Adresse an welchem Anschluss hängt. Er trägt ein Gerät ein, sobald es etwas gesendet hat, und zwar mit dessen Absender-MAC-Adresse. Kennt der Switch ein Ziel noch nicht, schickt er das Paket an alle Anschlüsse. In Filius öffnet ein Klick auf den Switch im Simulationsmodus diese Tabelle.
+- **Netzanteil** – vorderer Teil der IPv4-Adresse, der das Netz bezeichnet. Bei der Netzmaske 255.255.255.0 sind es die ersten drei Zahlen. Alle Geräte eines Netzes haben denselben Netzanteil, im Schulnetz 192.168.10. Ist der Netzanteil von Absender und Ziel verschieden, liegt das Ziel in einem anderen Netz.
+- **Hostanteil** – hinterer Teil der IPv4-Adresse, der das Gerät (den Host, also das Endgerät) im Netz bezeichnet. Bei 192.168.10.14 mit der Netzmaske 255.255.255.0 ist es die 14. Innerhalb eines Netzes muss jedes Gerät einen anderen Hostanteil haben. Der Hostanteil 0 steht für das Netz selbst und wird keinem Gerät gegeben.
+- **ARP** – Protokoll, das zu einer IPv4-Adresse im eigenen Netz die MAC-Adresse herausfindet. Die Antworten stehen in der ARP-Tabelle, die der Befehl arp zeigt. Ein Gerät fragt per Broadcast: „Wer hat 192.168.10.14?“ Nur dieses Gerät antwortet mit seiner MAC-Adresse, und erst dann kann die eigentliche Nachricht verschickt werden.
+- **Broadcast** – Nachricht an alle Geräte im lokalen Netz. Ihre Ziel-MAC-Adresse ist FF:FF:FF:FF:FF:FF. Man nutzt sie, wenn man den Empfänger noch nicht kennt, zum Beispiel bei ARP oder DHCP. Router leiten Broadcasts nicht weiter, sie bleiben also im eigenen Netz.
+- **Dokumentationsmodus** – Modus, in dem du das Netz mit Gliederungsflächen und Textfeldern beschriftest. Die Simulation läuft dabei nicht. Du erreichst ihn über den gelben Knopf „Dokumentation“ in der Kopfleiste. So entsteht ein Netzplan, mit dem andere dein Netz schnell verstehen.
+- **Netzplan** – beschriftete Zeichnung aller Netze mit ihren Geräten und Adressen. In Filius entsteht er im Dokumentationsmodus aus Gliederungsflächen und Etiketten. Jedes Netz bekommt eine Fläche mit Name und Netzadresse, Router liegen zwischen den Flächen. Du ergänzt ihn in jedem Kapitel, und bei der Fehlersuche ist er dein wichtigstes Werkzeug.
+- **Gliederungsfläche** – Fläche im Dokumentationsmodus, die alle Geräte eines Netzes umfasst. Oben links steht das Etikett mit Name und Netzadresse, das du mit dem „+“ der Fläche schreibst. Du ziehst sie aus der Leiste auf die Arbeitsfläche und vergrößerst sie am Rand, bis alle Geräte des Netzes darin liegen. Router gehören zu zwei Netzen und bleiben zwischen den Flächen.
+- **/24** – Kurzschreibweise der Netzmaske: Die ersten 24 Bit gehören zum Netzanteil, das entspricht 255.255.255.0. Eine IPv4-Adresse hat 32 Bit, jede der vier Zahlen steht für 8 Bit. 24 Bit sind also genau die ersten drei Zahlen. Das Schulnetz schreibt man damit kurz als 192.168.10.0/24.

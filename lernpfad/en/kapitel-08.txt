@@ -1,0 +1,255 @@
+# The home network: Wi-Fi, router and NAT
+Goal: Now a home network is added, like the one you have at home. The Home laptop and the Tablet use Wi-Fi and are connected to the provider network behind a Home router. You find out that the Shop only sees the address of the Home router, and why nobody can get into the home network from outside.
+
+## Read
+
+### A network like at home
+At home there is usually a **home router**. It connects the home network with the network of the provider. For this, it has two ports:
+
+- the **WAN port** points outside to the provider (WAN = Wide Area Network),
+- the **LAN port** points inside to the home network.
+
+[Picture: k08-heimrouter.png | WAN port and LAN port in the settings of the Home router]
+
+Unlike a normal Router, the Home router comes with several services built in: a DHCP server, NAT and a firewall.
+
+### One box at home, two devices in Filius
+The device at home is really several things in one box: router, switch and Wi-Fi. In Filius, the Home router and the Home switch stand separately side by side. This makes it easier to see who does which job:
+
+- The switch connects the devices in the home network. It forwards packets to the right device by their MAC address, just like the switch at school.
+- The Home router takes care of everything that leaves the home network. It routes the packets outside to the provider and replaces the sender address with NAT.
+
+[Picture: k08-heimnetz.png | In Filius, the Home router and the Home switch are two devices]
+
+### Addresses automatically
+In the home network, nobody types in addresses by hand. Like the DHCP server of the school in chapter 7, the Home router hands them out: IPv4 address, netmask, itself as the gateway, and the DNS server. On the device, you only tick the box "Use DHCP for configuration".
+
+[Picture: k08-dhcp.png | The DHCP server of the Home router gives out addresses from .100 to .150]
+
+The devices get their settings when the simulation starts. If you change something on the DHCP server after that, it only arrives at the next start.
+
+### Wi-Fi: the home network by radio
+At home, laptops, tablets and phones are usually not connected by cable but by **Wi-Fi**. This is a local network by radio (also called wireless LAN or WLAN). It is sent out by an **access point**. In Filius, the switch does this job: it connects devices by cable and by radio.
+
+Every Wi-Fi network has a name, the **SSID** (Service Set Identifier). You see this name in the list of Wi-Fi networks on your phone. In Filius, you enter it on the switch under "Wi-Fi Name (SSID)". On the laptop, you then choose "Wireless (Wi-Fi)" and below it the SSID. The list also shows the other switches with random names, just like the neighbours' Wi-Fi networks on your phone.
+
+[Picture: k08-wlan.png | The Home laptop is connected by Wi-Fi to Home-WiFi]
+
+Filius draws a Wi-Fi connection as a dashed line. Nothing else changes: in Wi-Fi, too, every device has a MAC address and an IPv4 address, and the switch forwards the packets just like over a cable.
+
+> Note: A real Wi-Fi network is protected with a password (WPA2 or WPA3). Otherwise anybody nearby could join in. Filius leaves out the password.
+
+### Private and public addresses
+Some address ranges are reserved for home and company networks. Addresses from them are called **private IPv4 addresses**:
+
+- 10.0.0.0 to 10.255.255.255
+- 172.16.0.0 to 172.31.255.255
+- 192.168.0.0 to 192.168.255.255
+
+These addresses are used in millions of home networks at the same time. That is why the real internet does not forward them. To the outside, every network needs a **public IPv4 address** that is unique in the whole world.
+
+> Note: Our school network also uses private addresses, but you can still reach it in our practice network. This is a simplification. In real life, the school would also use NAT.
+
+### NAT: the sender is replaced
+When the Home laptop sends a request to the Shop, the Home router replaces the private sender address with its WAN address 203.0.113.3. This is called **NAT** (Network Address Translation).
+
+[Picture: k08-nat.png | The same request in the home network and at the Shop: the sender is different]
+
+The Shop only sees the Home router. Its reply goes to 203.0.113.3, and the Home router passes it on to the right laptop.
+
+### The NAT Table
+The Home router must know where a reply belongs. So it remembers every connection in its **NAT Table**. In the simulation, you open it by clicking on the Home router.
+
+[Picture: k08-nat-tabelle.png | NAT Table of the Home router after a visit to the Shop]
+
+- "LAN Address" and "LAN Port": the device in the home network,
+- "Port Mapping": the port that the Home router uses to the outside for this connection,
+- "WAN Address": the other side outside, here the Shop.
+
+From outside, the Home router only lets in replies to these known connections.
+
+## Practice
+
+### 8.1
+Set up a Home router and a new switch called "Home switch", and connect them. Use the netmask 255.255.255.0 for both ports:
+| Port | IPv4 address | Cable to |
+|---|---|---|
+| WAN | 203.0.113.3 | Provider switch |
+| LAN | 192.168.178.1 | Home switch |
+The gateway of the Home router is 203.0.113.1.
+Tip: WAN points to the provider, LAN points into the home network. The gateway of the Home router is R1.
+
+### 8.2
+Set up the DHCP server of the Home router:
+| Field | Value |
+|---|---|
+| Lower bound of address | 192.168.178.100 |
+| Upper bound of address | 192.168.178.150 |
+| DNS server | 203.0.113.53 |
+Then select the checkbox "Activate DHCP".
+Tip: The button "DHCP server setup" is next to the LAN port. Filius fills in the gateway by itself. You know the DNS server from chapter 6.
+
+### 8.3
+Turn the Home switch into a Wi-Fi network and connect two new laptops to it by radio:
+| Device | Setting |
+|---|---|
+| Home switch | Wi-Fi Name (SSID): Home-WiFi |
+| Laptop "Home laptop" | Wireless (Wi-Fi) with Home-WiFi |
+| Laptop "Tablet" | Wireless (Wi-Fi) with Home-WiFi |
+Both laptops should get their settings automatically.
+Tip: The laptops do not need a cable. If there is one, delete it first. In their settings, choose "Wireless (Wi-Fi)" and below it Home-WiFi. Filius has no tablet, so we use a laptop.
+
+### 8.4
+Start the simulation and check the settings on the Home laptop.
+Question: Which IPv4 address did it get?
+Input: IPv4 address
+Tip: For this, you need the Command Line on the Home laptop.
+
+### 8.5
+Open the Shop from the Home laptop by its name www.ravensberger24.de.
+Tip: If the name does not work, check the DNS server in the DHCP server of the Home router. The laptop only gets new values when the simulation starts again.
+
+### 8.6
+Open the data exchange of the Shop and find the request from the Home laptop.
+Question: From which sender address did it come?
+Input: IPv4 address
+Tip: It is not the address of the Home laptop.
+
+### 8.7
+In the simulation, open the NAT Table of the Home router while it has an entry.
+Question: What does the Home router remember in an entry?
+- Name and MAC address of every device in the home network
+- All web pages that were opened in the home network
+- ✓ Address and port of the device inside, the port to the outside, and the other side
+- The addresses that its DHCP server has given out
+Tip: Click on the Home router in the simulation. If the table is empty, open the Shop again.
+
+### 8.8
+Experiment: Ping the Home laptop from Laptop-1 at school.
+Question: Why does this fail?
+- The firewall of the Home router blocks everything
+- The Home laptop does not answer echo requests
+- ping does not work across routers
+- ✓ Nobody outside knows a route into the private home network, and NAT only lets replies in
+Tip: Think of chapter 5: Who would need to know the route?
+
+### 8.9
+Complete the network plan: in Documentation mode, give the home network a structure field:
+- label at the top left (with the "+" of the field): name and network address with /24, for example "Home network 192.168.178.0/24"
+- below it a text field with the note that the home network is private and behind NAT, for example "private, behind NAT"
+Tip: The field contains the Home switch and the devices on it. The Home router stays between the provider network and the home network.
+
+## Quiz
+
+### Which address is a private IPv4 address?
+- ✓ 192.168.178.20
+- 203.0.113.3
+Wrong: 203.0.113.3 is not in any of the private ranges. In the practice network it is the public WAN address of the Home router.
+- 172.32.0.5
+Wrong: Close, but no: the private range goes from 172.16 to 172.31. 172.32 is already outside.
+- 198.51.100.80
+Wrong: This is the address of the Shop. It is not in any of the private ranges.
+Explanation: 192.168.x.x is private. 172.32.0.5 is just outside the private range 172.16 to 172.31.
+
+### Which job in the home network does the Home router do, and not the switch?
+- ✓ It forwards packets from the home network to the outside
+- It brings packets to the right device by their MAC address
+Wrong: That is the job of the switch. In its switch table, it remembers which MAC address is connected to which port.
+- In Filius, it sends out the Wi-Fi network Home-WiFi
+Wrong: In Filius, the switch is the access point. Only at home are both in one box.
+- It connects the Home laptop and the Tablet with each other
+Wrong: Devices in the same network are connected by the switch. A packet only needs the Home router when it leaves the home network.
+Explanation: The switch forwards packets in the home network by their MAC addresses. The Home router routes everything for the outside and replaces the sender address with NAT. At home both are in one box, in Filius they are separate.
+
+### What does NAT do in the Home router?
+- ✓ It replaces the private sender address with the WAN address
+- It encrypts the traffic to the internet
+Wrong: NAT does not encrypt anything. It only replaces addresses and ports, and the content stays readable.
+- It translates names into IPv4 addresses
+Wrong: Names are translated by DNS (chapter 6). NAT translates addresses, not names.
+- It hands out addresses in the home network
+Wrong: Addresses are handed out by the DHCP server in the Home router. NAT changes addresses in packets that pass through the router.
+Explanation: NAT replaces the private sender address with the WAN address of the Home router. The Home router remembers the pairing so that the reply reaches the right device.
+
+### Which sender address does the Shop see when the Home laptop opens it?
+- ✓ 203.0.113.3
+- The address of the Home laptop from .100 to .150
+Wrong: The Home router replaces this private address with its WAN address before the packet leaves the home network.
+- 192.168.178.1
+Wrong: This is the LAN address of the Home router. It only counts in the home network and cannot be seen outside.
+- 203.0.113.1
+Wrong: This is R1, which the packet passes. A router does not change the sender address, only the Home router does that with NAT.
+Explanation: To the outside, the whole home network appears with the WAN address of the Home router. 203.0.113.1 is only R1, the router that the packets pass through.
+
+### How does the Home router know which device in the home network a reply belongs to?
+- ✓ By the port number in its NAT Table
+- By the MAC address of the Home laptop
+Wrong: The reply comes from outside and contains no MAC address from the home network. MAC addresses only count in their own network.
+- By the sender address of the reply
+Wrong: The sender of the reply is the Shop. That does not show which device in the home network asked, there could be several.
+- By the domain name of the Shop
+Wrong: Names do not matter for NAT. The packets only contain addresses and ports.
+Explanation: Each connection gets its own port to the outside. The NAT Table links this port to the device.
+
+### What is the WAN port of a home router?
+- ✓ The port to the provider
+- The port for the home network
+Wrong: That is the LAN port (local area network).
+- The port for the Wi-Fi
+Wrong: Wi-Fi is radio in the local network and belongs to the home network, not to the connection to the outside.
+- The port for a printer
+Wrong: A printer belongs in the home network and is connected to the LAN port or to a switch.
+Explanation: The WAN port points outside to the provider. WAN stands for wide area network, LAN for the local home network.
+
+### What is the SSID?
+- ✓ The name of a Wi-Fi network
+- The password of the Wi-Fi network
+Wrong: The password is a separate key (WPA2 or WPA3). The SSID, on the other hand, is shown to everybody in the list of Wi-Fi networks.
+- The IPv4 address of the access point
+Wrong: The SSID is not an address but a name that you can choose. In the home network, the switch does not even have an IPv4 address.
+- The number of the radio channel
+Wrong: Which channel is used is a separate setting. The SSID is the name under which the Wi-Fi network appears.
+Explanation: The SSID is the name of a Wi-Fi network, in our network "Home-WiFi". A device connects to the Wi-Fi network whose SSID it chooses.
+
+### Why can millions of homes use the same addresses 192.168.178.x?
+- ✓ Each home router translates them into its own public address
+- The internet allows duplicate addresses
+Wrong: On the internet every address must be unique. Private addresses do not even get there.
+- Private addresses only work in Wi-Fi
+Wrong: Private addresses work in the whole local network, with cables as well as in Wi-Fi.
+- Each home uses a different netmask
+Wrong: Most home networks even have the same netmask. That does not solve the problem.
+Explanation: The private addresses never leave the home network, NAT replaces them with the public address of the Home router. So only the public address has to be unique.
+
+### Why can Laptop-1 at school not reach the Home laptop?
+- ✓ No router knows the route into the home network, and NAT only lets replies in
+- The firewall of the Home router always blocks everything
+Wrong: The firewall is not even switched on yet in this chapter. The reason is the missing routes and NAT.
+- The Home laptop does not answer echo requests
+Wrong: In the home network the Home laptop answers normally. The request from school simply never reaches it.
+- ping does not work across routers
+Wrong: Yes, it does: in chapter 5 you pinged the Shop across two routers.
+Explanation: No router outside knows the private addresses of the home network, and NAT only lets in replies to requests from inside. Port mappings for specific services come in chapter 10.
+
+### Which device is the default gateway of the Home laptop?
+- ✓ The Home router with 192.168.178.1
+- R1 with 203.0.113.1
+Wrong: R1 is in the provider network, not in the home network. A gateway must be in your own network.
+- The Home switch
+Wrong: A switch cannot forward into other networks and has no IPv4 address that could serve as a gateway.
+- The Shop with 198.51.100.80
+Wrong: The Shop is the destination, not the way there. It is in a completely different network.
+Explanation: The Home laptop sends everything for the outside to the Home router. The Home router passes it on to its own gateway, R1.
+
+## Glossary
+
+- **Home router** – connects the home network with the provider and comes with NAT, DHCP and a firewall. It has a WAN port to the outside and a LAN port to the inside. At home, router, switch and Wi-Fi are usually in one box, but in Filius the Home router and the switch are separate. For the whole home network it has only one public address to the outside.
+- **WAN port** – port of the Home router that points outside to the provider (WAN = Wide Area Network). It gets a public address, in our network 203.0.113.3. All traffic between the home network and the internet goes through it. From outside, the home network can only be reached through this address.
+- **LAN port** – port of the Home router that points inside to the home network. It has a private address, in our network 192.168.178.1. This address is the gateway of all devices in the home network. The Home switch with the devices is connected to the LAN port.
+- **Wi-Fi** – local network by radio instead of cable (also called WLAN, wireless LAN). At home, laptops, tablets and phones are usually connected by Wi-Fi. The addresses do not change: in Wi-Fi, too, every device has a MAC address and an IPv4 address. Filius draws a Wi-Fi connection as a dashed line.
+- **Access point** – device that sends out a Wi-Fi network and connects the devices in it with the rest of the network. At home, it is usually built into the home router. In Filius, the switch does this job. It forwards packets from Wi-Fi just like packets from a cable.
+- **SSID** – name of a Wi-Fi network (Service Set Identifier), in our home network "Home-WiFi". Your phone shows this name in the list of Wi-Fi networks. In Filius, you set it on the switch under "Wi-Fi Name (SSID)". A laptop connects to the Wi-Fi network whose SSID you choose on it.
+- **Private IPv4 address** – address from a reserved range (10.x, 172.16–31.x, 192.168.x). The real internet does not forward these addresses. Anybody may use these ranges in their own network without registering them. That is why millions of home networks have the same addresses, like 192.168.178.x. They only get outside with NAT.
+- **Public IPv4 address** – address that is unique in the whole world. With it, a device can be reached on the internet. These addresses are assigned centrally, and a home connection usually gets one from the provider. In the practice network the Home router has the public address 203.0.113.3. All devices in the home network share this one address.
+- **NAT** – address translation: the Home router replaces private sender addresses with its public address. It gives each connection its own port and remembers the pairing in the NAT Table. When the reply comes back, it changes the address back again. NAT only lets requests from outside in if there is a port mapping.
+- **NAT Table** – list in which the Home router remembers which connection belongs to which device in the home network. An entry contains the address and port of the device inside, the port to the outside and the other end. By the port, the Home router assigns every reply to the right device. Entries disappear again after some time, and in Filius also when the simulation starts.

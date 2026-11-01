@@ -1,0 +1,198 @@
+# Automatic addresses: DHCP
+Goal: From now on, the school laptops get their IPv4 address, netmask, gateway and DNS server from a DHCP server. Instead of setting up each laptop by hand, you only tick one box.
+
+## Read
+
+### 30 laptops, typing 30 times?
+The school gets a new room with 30 laptops. Entering every address by hand takes time. It also easily leads to typing errors. If two devices get the same address, there is an **address conflict**: then neither of them can be reached reliably.
+
+It is easier with **DHCP** (Dynamic Host Configuration Protocol). A **DHCP server** hands out the settings. On the laptop, you only select the checkbox "Use DHCP for configuration".
+
+[Picture: k07-dhcp-idee.png | The laptop asks, the DHCP server answers with all settings]
+
+[Picture: k07-dhcp-haken.png | A laptop gets its settings via DHCP]
+
+> Note: At school, the addresses 192.168.10.1 to 192.168.10.49 are reserved for routers and servers. The DHCP server may only hand out addresses from .50 upwards.
+
+### DHCP server setup
+The DHCP server is a service on a server with a fixed address. In its window you set the **address range**: the lowest and the highest address that it may hand out. With "Activate DHCP" you switch it on.
+
+[Picture: k07-dhcp-server.png | Address range and Manual configuration in the DHCP server]
+
+Besides the IPv4 address, the server also provides the netmask, gateway and DNS server. Without "Manual configuration", it passes on the values that are entered on its own PC.
+
+> Note: In real networks, the DHCP server is a program (service) on the server, just like the DNS server. Filius has built it into every PC: that is why you set it up in Design mode in the settings of the PC and not through "Software Installation".
+
+### Four messages: DORA
+A laptop without an address does not know the DHCP server. So it calls out to everyone with a broadcast. The process has four steps. You can remember them with **DORA**:
+
+- Discover – Laptop: "Is there a DHCP server here?"
+- Offer – Server: "You can have 192.168.10.50."
+- Request – Laptop: "I'll take it."
+- Acknowledge – Server: "Confirmed."
+
+[Picture: k07-dora.png | The four DHCP messages in the data exchange]
+
+Because the laptop does not have an address yet, it uses 0.0.0.0 as the source address. The destination is 255.255.255.255, which means everyone in the network. DHCP uses UDP.
+
+### Servers keep their address
+Servers need a reliable address. The DNS entry for www.rbz-wirtschaft-kiel.de always points to 192.168.10.10. That is why servers have fixed addresses outside the DHCP range. If the address of the web server were in the range, the DHCP server could give it to a laptop, and there would be an address conflict.
+
+Sometimes a device should use DHCP but still always get the same address. Then a **static assignment** helps. The DHCP server recognizes the device by its MAC address and always gives it the same IPv4 address.
+
+[Picture: k07-statisch.png | Static Address Assignment in the DHCP server]
+
+## Practice
+
+### 7.1
+Set up a DHCP server in the school network:
+- its own PC "DHCP server" with 192.168.10.2 on the School switch
+- an address range for at least 30 laptops, without any reserved address
+- With these settings, the laptops should reach the internet and be able to resolve names.
+Tip: Without "Manual configuration", the DHCP server hands out the gateway and DNS server of its own PC.
+
+### 7.2
+Switch Laptop-1 to Laptop-4 to automatic configuration.
+Tip: One checkbox per laptop.
+
+### 7.3
+Start the simulation. On one laptop, use `ipconfig` to check whether it got all values.
+Tip: If a laptop gets nothing, check whether the DHCP server is activated.
+
+### 7.4
+In the data exchange of a school laptop, find its four DHCP messages.
+Question: In which order do they come?
+- Request, Discover, Offer, Acknowledge
+- Offer, Discover, Acknowledge, Request
+- ✓ Discover, Offer, Request, Acknowledge
+- Discover, Acknowledge, Offer, Request
+Tip: All laptops start at the same time. Take the messages with the MAC address of your laptop.
+
+### 7.5
+Stay with the first DHCP message of your laptop.
+Question: Which source address does it contain?
+Input: IPv4 address
+Tip: Look at the Internet layer, in the Source column.
+
+### 7.6
+Laptop-4 is the teacher's laptop. The student laptops connect to it, so it should always have the same address. Solve this without entering an address by hand on Laptop-4. The addresses 192.168.10.1 to 192.168.10.49 are reserved for routers and servers: take a free address from 192.168.10.50. If you like, rename Laptop-4 to "Teacher laptop".
+Tip: The DHCP server recognizes devices by their MAC address. So that Laptop-4 fetches its new address, switch to Design mode for a moment and back to Simulation.
+
+### 7.7
+Test with a laptop that got its settings via DHCP: open www.ravensberger24.de.
+Tip: If it does not work, the gateway or the DNS server is usually missing in the DHCP server.
+
+### 7.8
+Complete the network plan: in Documentation mode, drag a text field into the structure field of the school network, below the label, and write the address range of your DHCP server into it, for example "DHCP: 192.168.10.100 – 192.168.10.149".
+Tip: Write both limits as complete IPv4 addresses, exactly as they are entered in the DHCP server.
+
+## Quiz
+
+### What does a DHCP server give to a laptop?
+- ✓ IPv4 address, netmask, gateway and DNS server
+- IPv4 address, MAC address and device name
+Wrong: The network card brings its own MAC address, and no DHCP server hands out device names. Also, the gateway and DNS server are missing here.
+- Only a free IPv4 address
+Wrong: With the address alone the laptop could not leave its own network and could not resolve names. The DHCP server provides more.
+- IPv4 address and forwarding table
+Wrong: Forwarding tables belong to routers. A laptop only needs its gateway for that.
+Explanation: With these four values, a device is fully ready to use. It already has its MAC address.
+
+### In which order are the DHCP messages sent?
+- ✓ Discover, Offer, Request, Acknowledge
+- Offer, Discover, Acknowledge, Request
+Wrong: The server cannot offer anything before a laptop has searched. Discover always comes first.
+- Request, Discover, Offer, Acknowledge
+Wrong: The laptop can only request something after it has been offered something.
+- Discover, Acknowledge, Offer, Request
+Wrong: The confirmation (Acknowledge) comes at the very end, after the request.
+Explanation: First the laptop searches (Discover), then the server offers an address (Offer), the laptop requests it (Request) and the server confirms (Acknowledge). Memory aid: DORA.
+
+### Why does a laptop send its first DHCP message as a broadcast?
+- ✓ It knows neither the DHCP server nor its own address
+- Broadcasts pass through every router
+Wrong: It is the other way round: routers do not let broadcasts through. That is why each network needs its own DHCP server.
+- This way, all laptops get an address at the same time
+Wrong: Each laptop asks for itself. That they all ask at the same time is only because the simulation starts for all of them together.
+- DHCP only works through the switch
+Wrong: The switch only passes the broadcast on. The reason for the broadcast is that the laptop does not know the server's address yet.
+Explanation: Without an address of its own and without the server's address, the laptop cannot address anybody directly. So it calls out to everybody: "Is there a DHCP server here?"
+
+### Which source address does a laptop use in its first DHCP message?
+- ✓ 0.0.0.0
+- 255.255.255.255
+Wrong: This is the destination address of the message, meaning "to all", not the sender.
+- 192.168.10.2
+Wrong: This is the address of the DHCP server. The laptop does not know it yet and does not have it itself either.
+- 169.254.0.1
+Wrong: Real computers give themselves addresses like this when DHCP fails. In the first DHCP message the laptop has no address at all yet.
+Explanation: 0.0.0.0 means: I do not have an address yet. 255.255.255.255 is the destination.
+
+### Why do servers usually get fixed addresses instead of using DHCP?
+- ✓ So that they can always be reached at the same address
+- Because servers are not allowed to send DHCP requests
+Wrong: Technically, servers could use DHCP. You do without it so that their address does not change.
+- Because DHCP is only meant for laptops
+Wrong: DHCP works for every device. But for servers a changing address is impractical.
+- So that they answer faster
+Wrong: This has nothing to do with speed. What matters is that everybody always finds the server at the same address.
+Explanation: Other devices and DNS entries rely on the address of a server. For example, the A record for www.rbz-wirtschaft-kiel.de always points to 192.168.10.10.
+
+### What does a static assignment in the DHCP server do?
+- ✓ A device always gets the same IPv4 address, based on its MAC address
+- A device enters its address itself
+Wrong: That would be a fixed address entered by hand. With a static assignment the device keeps using DHCP.
+- All devices get the same address
+Wrong: That would be an address collision. The assignment only counts for one device with a certain MAC address.
+- The DHCP server only hands out fixed addresses
+Wrong: All other devices still get addresses from the range. Only this one device always gets its address.
+Explanation: The DHCP server recognizes the device by its MAC address and always gives it the same IPv4 address. The device keeps using DHCP and still has a reliable address.
+
+### After the start, a laptop has no address from the DHCP range. What do you check first?
+- ✓ Whether it uses DHCP and whether the DHCP server is activated
+- Whether the DNS server has an A record for it
+Wrong: DNS does not matter for handing out addresses. An A record only helps once the device has an address.
+- Whether the route in R1 is correct
+Wrong: R1 is not involved in DHCP in the school network. The laptop and the DHCP server are in the same network.
+- Whether its Webbrowser is installed
+Wrong: Programs like the browser have nothing to do with handing out addresses.
+Explanation: Addresses are only handed out if the laptop uses DHCP and the DHCP server is activated. That is why you check these two points first.
+
+### What happens if more laptops want an address than the range has?
+- ✓ The remaining laptops get no address from the DHCP server
+- Two laptops share one address
+Wrong: The DHCP server hands out each address only once, exactly to avoid address collisions.
+- The range grows automatically
+Wrong: The range stays as you entered it. It only gets bigger if you change it.
+- The server takes addresses from the neighboring network
+Wrong: Addresses from another network would not work here. The server only hands out addresses from its range.
+Explanation: Each address from the range is handed out only once. When they are all taken, the remaining laptops get nothing, so the range must fit the number of devices.
+
+### Why must the DHCP range not contain the address of the Web server?
+- ✓ A laptop could get the address of the server
+- Otherwise the Web server would use DHCP
+Wrong: The Web server has a fixed address and does not ask at all. The problem is a laptop that could get the same address.
+- The DNS entry would change
+Wrong: DNS entries do not change by themselves. The entry still points to .10, but maybe the wrong device answers there.
+- The Web server could not save any pages
+Wrong: Saving files has nothing to do with the address. What is disturbed is reaching the server in the network.
+Explanation: Two devices with the same address disturb each other. This is called an address conflict.
+
+### Which transport protocol does DHCP use?
+- ✓ UDP
+- TCP
+Wrong: TCP needs a connection setup between two addresses. But the laptop has no address of its own yet.
+- ICMP
+Wrong: ICMP is for control messages like ping. It does not hand out addresses.
+- ARP
+Wrong: ARP finds MAC addresses for known IPv4 addresses. It does not hand out IPv4 addresses.
+Explanation: Without its own address, the laptop cannot set up a TCP connection. But it can send a single UDP packet.
+
+## Glossary
+
+- **Address conflict** – two devices in the same network with the same IPv4 address. Then neither of them can be reached reliably. Packets sometimes arrive at one device, sometimes at the other, and connections break off. This happens, for example, if a DHCP server hands out an address that a server already has as its fixed address; that is why the DHCP range and fixed addresses must not overlap.
+- **DHCP** – protocol that lets devices get their network settings automatically. DHCP stands for Dynamic Host Configuration Protocol. Instead of setting up every device by hand, you only select the checkbox for DHCP. When it starts, the device asks for a DHCP server with a broadcast and gets its values in four messages (DORA).
+- **DHCP server** – server that hands out addresses from a range and also provides the gateway and DNS server. It remembers which address it gave to which device and never hands out an address twice. Because DHCP works with broadcasts, each network needs its own DHCP server. In Filius you set it up in Design mode in the settings of a PC. In the home network (chapter 8) the Home router does this.
+- **Address range** – the addresses that a DHCP server may hand out. You set it with the lowest and the highest address, for example 192.168.10.100 to 192.168.10.149. It must be big enough for all devices and must not contain the fixed addresses of routers and servers. When all addresses are taken, further devices do not get one.
+- **DORA** – the four DHCP messages Discover, Offer, Request, Acknowledge. Discover: the device looks for a DHCP server. Offer: the server offers an address. Request: the device asks for it, and with Acknowledge the server confirms.
+- **Static assignment** – DHCP entry that always gives a device the same address, based on its MAC address (in Filius: "Static Address Assignment"). The device keeps using DHCP, so nothing has to be entered on it by hand. Still, it can always be reached at the same address, like the teacher's laptop at school. No other device may have this address.

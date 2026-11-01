@@ -1,0 +1,272 @@
+# Connecting networks: school and RGG
+Goal: The school network is connected to the company network of Ravensberger Getränke GmbH (RGG) through the network of a provider. You add two routers, let them learn their routes automatically and follow the path of the packets.
+
+## Read
+
+### Two networks, one problem
+RGG is a drinks company and our school's practice company. It gets its own company network with the online shop Ravensberger24. This network has the **network address** 198.51.100.0, and the school network has 192.168.10.0. Between them is the network of a **provider** with 203.0.113.0. A provider is an internet service provider, a company that connects its customers to the internet. Here the school and RGG are its customers: packets between them travel through the network of the provider.
+
+The network address is the first address of a network: its host part is 0. It stands for the whole network and is not given to any device.
+
+[Picture: k05-drei-netze.png | School network, provider network and RGG network]
+
+The network parts are different. So a laptop in the school network cannot reach the Shop directly. A switch does not help here: it only forwards by MAC addresses inside one network.
+
+### The router
+A **router** connects networks. It has its own network card (NIC) for each connected network, and each NIC has an address from its network.
+
+[Picture: k05-router.png | R1 has two NICs: one in the school network, one in the provider network]
+
+When you place a router, Filius asks how many interfaces it should have. In the settings, each NIC has its own tab. The tab also shows which device its cable is connected to.
+
+> Note: A router gets its own IPv4 address in every network that it is connected to.
+
+### The default gateway
+If Laptop-1 wants to send something to 198.51.100.80, it first compares the network part. If it is different from its own, the destination is in another network. Then the laptop sends the packet to its **default gateway**: the router in its network.
+
+[Picture: k05-weg.png | The way to the shop: through the gateway of Laptop-1, R1 and R2]
+
+[Picture: k05-gateway.png | The Gateway field in the settings of a laptop]
+
+Without a gateway, a device does not know where to send packets for other networks, so it drops them. Servers also need a gateway, or their answers cannot find the way back.
+
+### The forwarding table
+Every router uses its **forwarding table** to decide where to send a packet. An entry has the destination network, the netmask, the next router (gateway) and the router's own interface that the packet leaves through.
+
+A router already knows the networks that it is directly connected to. For all other networks it needs an entry. If you enter the entries by hand, this is called **static routing**. This works in small networks, but it gets harder with every new network.
+
+> Note: The way back also needs a route. The answer from the Shop must find its way back to the school network.
+
+### Automatic routing
+On the internet, nobody enters all routes by hand. Routers tell each other which networks they know, and so they learn the routes themselves: this is **automatic routing**. For this, Filius uses the protocol RIP (Routing Information Protocol).
+
+[Picture: k05-rip.png | The "Automatic Routing" checkbox in the General tab of a router]
+
+- Shortly after the simulation starts, the routers contact their neighbours, and after that about every 30 seconds.
+- For each network it has learned, the router stores the number of hops: 0 means directly connected, 1 means there is one more router in between.
+- The web page of the router shows the learned routes, for example `http://192.168.10.1/routes`.
+
+[Picture: k05-routen.png | The learned routes of R1 in the browser]
+
+> Note: All routers on the path must take part, or the way there or the way back is missing. When the checkbox is selected, a router only uses learned routes. Routes that were entered by hand no longer count.
+
+### Following the path
+Every IP packet has a lifetime, the **TTL** (time to live). Every router subtracts 1. When the TTL reaches 0, the router drops the packet and tells the sender with the ICMP message "Time exceeded".
+
+[Picture: k05-traceroute.png | traceroute from Laptop-1 to the Shop]
+
+The command **traceroute** (short form: `tracert`) uses this: it sends packets with TTL 1, 2, 3 and so on. This way, every router on the path reports once. Each section between two stations is called a **hop**.
+
+If you compare the same packet in the data exchange of Laptop-1 and of the Shop, you see: the MAC addresses are different on every section, but the IPv4 addresses stay the same from start to end.
+
+## Practice
+
+### 5.1
+Connect the school network to a provider network. For this, place:
+- a switch called "Provider switch"
+- a router called "R1 School router" with two interfaces
+R1 gets these addresses, both with the netmask 255.255.255.0:
+| Interface on the | IPv4 address |
+|---|---|
+| School switch | 192.168.10.1 |
+| Provider switch | 203.0.113.1 |
+Tip: When you place the router, Filius asks for the number of interfaces. In each tab, "Connected to" shows which switch the NIC is connected to.
+
+### 5.2
+Enter the gateway 192.168.10.1 on all devices in the school network.
+Tip: Do not forget the Web server.
+
+### 5.3
+Build the RGG company network. New devices:
+- a switch called "RGG switch"
+- a router called "R2 RGG router" with two interfaces
+- a PC called "Shop" and a laptop called "Office laptop", both on the RGG switch
+Addresses, with the netmask 255.255.255.0 everywhere:
+| Device | IPv4 address |
+|---|---|
+| R2 on the Provider switch | 203.0.113.2 |
+| R2 on the RGG switch | 198.51.100.1 |
+| Shop | 198.51.100.80 |
+| Office laptop | 198.51.100.30 |
+The Shop and the Office laptop get the gateway 198.51.100.1.
+Tip: The Shop is a server, so it is a PC.
+
+### 5.4
+Make the Shop a web server and change the heading of its start page to "Ravensberger24 – Drinks online".
+Tip: As in chapter 3: install the Webserver and the Text editor, change the heading, start the Webserver.
+
+### 5.5
+On Laptop-1, test `ping 198.51.100.80`. It does not work yet.
+Question: Why?
+- Laptop-1 has no default gateway
+- ✓ The routers do not know the route to the other network yet
+- The Shop does not answer echo requests
+- A switch cannot pass packets on to routers
+Tip: What is in the forwarding table of R1? You find it in Design mode in the last tab of the router.
+
+### 5.6
+Let the routers learn their routes themselves:
+- Select the checkbox "Automatic Routing" on R1 and on R2.
+- Start the simulation.
+- Open the page http://192.168.10.1/routes in the browser of Laptop-2.
+Question: According to this page, how many hops away from R1 is the RGG network 198.51.100.0?
+Input: Number of hops
+Tip: You find the checkbox in Design mode in the "General" tab of the router. After the simulation starts, the routers need a few seconds to exchange their routes.
+
+### 5.7
+Test the connection to the RGG network:
+- Repeat `ping 198.51.100.80` on Laptop-1.
+- Open http://198.51.100.80 in the browser of Laptop-2.
+Tip: If it does not work, check that the checkbox is selected on both routers.
+
+### 5.8
+Follow the path with `traceroute 198.51.100.80` on Laptop-1.
+Question: Which two router addresses does the path go through?
+Input: two IPv4 addresses
+Tip: Each line of the output is one station. Instead of traceroute, you can also type tracert.
+
+### 5.9
+Compare an echo request on both sides:
+- Open the data exchange of Laptop-1 and of the Shop.
+- Ping the Shop again.
+- Find the same echo request in both windows.
+Question: What has stayed the same on both sides?
+- Source and destination MAC address
+- ✓ Source and destination IPv4 address
+- Only the destination MAC address
+- Nothing, all addresses have changed
+Tip: Click the lines and compare the Internet layer and the Network (access) layer at the bottom.
+
+### 5.10
+Complete the network plan: in Documentation mode, also give these networks a structure field each, with a label at the top left:
+| Network | Label, for example |
+|---|---|
+| Provider network | Provider network 203.0.113.0/24 |
+| RGG network | RGG network 198.51.100.0/24 |
+Tip: As in chapter 2: click the "+" at the top left of the field and type the name and the network address with /24. The routers belong to two networks and stay between the fields. Filius assigns a label to the network whose switch is in the same field.
+
+### 5.11
+Anna does an internship at the RGG and looks at the internal class area from there:
+- On the Office laptop, sign in as anna at https://192.168.10.10/intern/.
+- Then open the data exchange of R1 School router and look for the sign-in.
+Question: What does R1 see of Anna's password?
+- ✓ Nothing, R1 only sees encrypted data
+- The password in plain text
+- The first letters of the password
+- The session key with which it can open the password
+Tip: The sign-in runs over TLS. R1 is neither sender nor receiver and has no session key.
+
+## Quiz
+
+### Why does a device need a default gateway?
+- ✓ To send packets to destinations in other networks
+- To find devices in its own network
+Wrong: In its own network a device sends directly, and it finds the MAC address with ARP. It does not need a gateway for that.
+- To translate names into addresses
+Wrong: Names are translated by the DNS server. The gateway only forwards packets.
+- To get an address from the switch
+Wrong: A switch does not hand out addresses. Addresses are entered by hand or come via DHCP.
+Explanation: The device sends everything that is not in its own network to its gateway.
+
+### Why can a switch not connect the school network with the RGG network?
+- ✓ It only forwards by MAC addresses in its own network
+- It does not forward broadcasts
+Wrong: A switch even forwards broadcasts to all ports. The problem is something else: it does not understand IPv4 addresses.
+- It needs its own IPv4 address for each network
+Wrong: A switch does not need an IPv4 address at all to work. The router needs its own IPv4 address in each network.
+- It can only handle one netmask
+Wrong: A switch does not handle netmasks at all. It only looks at MAC addresses.
+Explanation: Between networks, packets must be forwarded by IPv4 addresses. The router does this.
+
+### "Automatic Routing" is on for R1, but not for R2. What happens when Laptop-1 pings the Shop?
+- ✓ It fails: R1 can only learn the RGG network from R2, and R2 does not report anything
+- It works, one router with the checkbox is enough
+Wrong: R1 can only learn what a neighbor reports to it. Without the checkbox, R2 reports nothing, so R1 does not know the RGG network.
+- It works, but only after 30 seconds
+Wrong: Waiting does not help: without the checkbox on R2, no report comes even after 30 seconds.
+- The request arrives, only the answer is missing
+Wrong: The request already fails at R1, because R1 knows no route into the RGG network. It never reaches the Shop.
+Explanation: Automatic routing only works if all routers on the path take part. Without the checkbox, R2 does not report its networks and does not learn a way back itself.
+
+### What is in an entry of the forwarding table?
+- ✓ Destination network, netmask, next router, interface
+- Destination IP, destination MAC, port, protocol
+Wrong: These are details of a single packet. The table describes routes to whole networks, not single packets.
+- Device name, IPv4 address, MAC address
+Wrong: That sounds like a list of devices. Routers do not remember names, they remember routes to networks.
+- Source network, destination network, time
+Wrong: The sender does not matter for forwarding, and there is no time in the table.
+Explanation: An entry describes a route: packets for this destination network with this netmask leave through this next router and this interface.
+
+### What is the network address of 198.51.100.80 with the netmask 255.255.255.0?
+- ✓ 198.51.100.0
+- 198.51.100.1
+Wrong: This is the first address for a device, here the address of R2. The network address has the host part 0.
+- 198.51.100.255
+Wrong: This is the broadcast address of the network, the last address instead of the first one.
+- 198.51.0.0
+Wrong: Too many numbers were set to 0 here. With 255.255.255.0 only the last number becomes 0.
+Explanation: The host part is set to 0. 198.51.100.1 is only the address of R2 in this network.
+
+### Which addresses change when a packet passes a router?
+- ✓ Only the MAC addresses
+- Only the IPv4 addresses
+Wrong: The IPv4 addresses of sender and destination stay the same. Otherwise the Shop would not know whom to answer.
+- MAC and IPv4 addresses
+Wrong: The IPv4 addresses stay the same on the whole path. Only the MAC addresses are set again for each section.
+- Neither of them
+Wrong: The MAC addresses have to change: a MAC address only counts in its own network, and the next section needs new ones.
+Explanation: Each section has its own MAC addresses. The IPv4 addresses stay valid from start to end.
+
+### What does traceroute show?
+- ✓ The routers on the path to the destination
+- All devices in your own network
+Wrong: traceroute shows the path to a destination, not a list of the devices in your own network.
+- The forwarding table of the destination
+Wrong: traceroute does not look into other devices' tables. It only shows the stations that report back on the way.
+- The speed of each line
+Wrong: traceroute shows the stations on the path, not the speed of the lines.
+Explanation: traceroute lists the routers on the path. Each station reports when it drops a packet because its lifetime has run out.
+
+### What is the TTL value in an IP packet for?
+- ✓ It goes down by 1 at every router, and at 0 the packet is dropped
+- It says how long a packet is stored
+Wrong: Packets are not stored on the way. Despite the name "time to live", in practice the value counts routers, not time.
+- It counts how often a packet was sent again
+Wrong: TCP handles resending with its own means. The TTL goes down at every router.
+- It sets how fast a packet travels
+Wrong: Speed depends on lines and devices. The TTL only says how many more routers a packet may pass.
+Explanation: This way, no packet goes around in circles forever. traceroute uses this and sends packets with TTL 1, 2, 3 and so on.
+
+### Laptop-1 can reach 192.168.10.10, but not 198.51.100.80. Laptop-2 reaches the Shop without problems. What is most likely wrong?
+- ✓ The gateway of Laptop-1
+- The route in R1
+Wrong: Laptop-2 reaches the Shop through the same router R1. So R1 knows the route.
+- The cable from Laptop-1 to the switch
+Wrong: Laptop-1 reaches 192.168.10.10. So the cable works.
+- The web server of the Shop
+Wrong: Laptop-2 reaches the Shop without problems. So the Shop's web server is running.
+Explanation: The route, the Shop and the cable work. Otherwise Laptop-2 would not get through, and Laptop-1 would not reach 192.168.10.10.
+
+### What is a hop?
+- ✓ One section of the path between two stations that come one after the other
+- A packet that was dropped on the way
+Wrong: Dropped packets happen for example at TTL 0. But a hop is one section of the path.
+- An entry in the forwarding table
+Wrong: A table entry describes a route to a network. A hop is the step from one station to the next.
+- One NIC of a router
+Wrong: A NIC is a part of a device. A hop is the distance between two stations.
+Explanation: A hop is one step from one station to the next. Laptop-1 → R1 → R2 → Shop are three hops.
+
+## Glossary
+
+- **Network address** – The first address of a network, with host part 0, for example 198.51.100.0. It stands for the whole network. No device gets this address. Routers and forwarding tables use network addresses to name whole networks; together with the netmask it is often written as 198.51.100.0/24.
+- **Provider** – Internet service provider, a company that connects schools, companies and homes to the internet and to other networks. Here the network of the provider (203.0.113.0/24) connects the school network with the network of RGG.
+- **Router** – Connects networks and forwards packets based on the destination IPv4 address. It has its own network card for each network, with an address from that network. It decides which way a packet takes with its forwarding table. In our network, R1 and R2 connect the school, the provider and the RGG.
+- **Default gateway** – The router to which a device sends everything that is not in its own network. The gateway must be in your own network; in the school network it is R1 with 192.168.10.1. Without a gateway, a device can only reach devices in its own network. Servers need a gateway, too, so that their replies find their way back.
+- **Forwarding table** – A router's list: which destination network can be reached through which neighbour. Each entry contains the destination network, netmask, next router (gateway) and the router's own interface. The router knows the networks it is directly connected to by itself. For all others it needs an entry, by hand or through automatic routing.
+- **Static routing** – The entries of the forwarding table are entered by hand. This is easy to keep track of as long as there are only a few networks. If something changes in the network, you have to adjust every router concerned yourself. The way back also needs its own entry each time.
+- **Automatic routing (RIP)** – Routers tell each other which networks they know and learn the routes themselves. In Filius this is the checkbox "Automatic Routing" on the router, and the protocol is called RIP. The routers report to their neighbours regularly, about every 30 seconds. It only works if all routers on the path take part.
+- **TTL** – The lifetime of a packet. It goes down by 1 at every router. TTL stands for time to live. When the value reaches 0, the router drops the packet and sends the sender an ICMP message "time exceeded". This way, no packet can go round in circles forever.
+- **traceroute** – A command that shows all stations on the path to a destination, also called tracert for short. It sends packets with TTL 1, 2, 3 and so on, so that every router on the path reports once. If the output gets stuck at one point, the problem is there. Example: traceroute 198.51.100.80 shows R1 and R2.
+- **Hop** – A section of the path between two stations that a packet passes one after the other. From Laptop-1 via R1 and R2 to the Shop there are three hops. With automatic routing, the routers count the hops to a network. Fewer hops usually mean a shorter path.

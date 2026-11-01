@@ -1,0 +1,5 @@
+# build results and downloaded third-party parts
+/out/
+/.deps/
+__pycache__/
+*.pyc

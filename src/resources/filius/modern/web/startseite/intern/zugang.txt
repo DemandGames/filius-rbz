@@ -1,0 +1,2 @@
+# Name:Passwort (name:password), eine Zeile pro Person
+anna:Schulfest

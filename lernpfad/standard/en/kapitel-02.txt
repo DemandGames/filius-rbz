@@ -1,0 +1,191 @@
+# A network with a switch
+Goal: Two laptops become the school network with four laptops on a switch. You get to know the MAC address, understand the netmask and label your network.
+
+## Read
+
+### The switch connects everyone
+With one cable you can only connect two devices. For more devices you need a **switch**. Every device gets its own cable to the switch. This is how a **LAN** is made, a local network, for example in a classroom.
+
+[Picture: s02-stern.png | Four laptops are connected to the school switch]
+
+In Filius the component is called "Switch / Wi-Fi".
+
+### The MAC address
+Every network card has a fixed number from the factory, the **MAC address**, for example 4A:8C:12:03:E7:B1. You find it in the settings of the device.
+
+[Picture: s02-mac.png | The MAC address is in the settings of Laptop-4]
+
+The switch works with these MAC addresses. It remembers which device is connected to which port and sends every message only where it has to go. You see its list in the simulation with a click on the switch. When the simulation starts, the list is empty: a device only appears in it after it has sent something.
+
+[Picture: s02-switch-tabelle.png | The switch remembers MAC address and port]
+
+> Note: You can change the IPv4 address. The MAC address belongs to the network card for good.
+
+In Filius a new device always has the IPv4 address 192.168.0.10 first. That is already the address of Laptop-1. So change it right away for every new device, otherwise the address exists twice.
+
+### The netmask in detail
+For us the netmask is 255.255.255.0. It splits the IPv4 address into two parts: where the mask has 255, the number belongs to the network. Where it has 0, the number belongs to the device.
+
+[Picture: s02-netzmaske.png | The netmask splits the IPv4 address into network part and host part]
+
+- The **network part** is the first three numbers, for us 192.168.0. It is the same for all devices in the school network.
+- The **host part** is the last number, for example 10 for Laptop-1. It is different for every device. Host means device.
+
+Only devices with the same network part reach each other directly. A laptop with 192.168.5.13 is in another network, even if it is connected to the same switch.
+
+[Picture: s02-anderes-netz.png | 192.168.0.13 and 192.168.5.13: other network part, other network]
+
+### Labelling the network
+In the **documentation mode** you label your network. The simulation is paused there.
+
+A **structure field** is a frame around all devices of a network. At the top left of the field goes the label with the name of the network and the address of the whole network, for example "School network 192.168.0.0". It ends with a 0 because this address stands for the whole network and not for one device.
+
+The quickest way to write the label is the small "+" at the top left of the structure field: click it and type the name of the network right into the field. The label then belongs to the field and moves with it. You add all other labels with text fields from the bar.
+
+[Picture: s02-etikett.png | The school network with structure field and label]
+
+## Practice
+
+### 2.1
+Rebuild the network:
+- Delete the cable between Laptop-1 and Laptop-2.
+- Add a switch with the name "School switch".
+- Connect Laptop-1 and Laptop-2 to the switch.
+Tip: Every device needs its own cable to the switch.
+
+### 2.2
+Add two laptops to the school switch, netmask 255.255.255.0 for both:
+| Device | IPv4 address |
+|---|---|
+| Laptop-3 | 192.168.0.12 |
+| Laptop-4 | 192.168.0.13 |
+Tip: In Filius a new device first has the address 192.168.0.10. Laptop-1 already has it, so change it right away.
+
+### 2.3
+Start the simulation and test `ping 192.168.0.13` from Laptop-1.
+Tip: The command line is already installed on Laptop-1.
+
+### 2.4
+Click on Laptop-4 in the design mode.
+Question: Which MAC address does Laptop-4 have?
+Input: MAC address
+Tip: It is at the bottom in the settings, below the name.
+
+### 2.5
+Look at the list of the switch:
+- Start the simulation and ping once more from Laptop-1: `ping 192.168.0.13`.
+- Then click on the school switch. Its list opens.
+Question: To which port is Laptop-4 connected?
+Input: Number
+Tip: When the simulation starts, the list is empty. The switch only adds a device after it has sent something. That is why you ping first.
+
+### 2.6
+Experiment: Give Laptop-4 the address 192.168.5.13 and ping it from Laptop-1.
+Question: Why does no reply come back?
+- The school switch is broken
+- ✓ Laptop-4 now has a different network part than Laptop-1
+- The MAC address of Laptop-4 has changed
+- ping only works between two laptops
+Tip: Compare the first three numbers of both addresses.
+
+### 2.7
+Give Laptop-4 its right address 192.168.0.13 again and check with ping that it replies again.
+Tip: Change the address in the design mode, then start the simulation again.
+
+### 2.8
+Label the school network in the documentation mode:
+- Put a structure field around all laptops and the school switch.
+- Write the label "School network 192.168.0.0" at the top left of the field.
+Tip: Button "Documentation". Drag the field from the bar and make it bigger at its edge. Then click the + at the top left of the field and type the label. A text field at the top left of the field counts, too.
+
+## Quiz
+
+### What do you need a switch for?
+- ✓ To connect several devices to one network
+- To give every device an IPv4 address
+Wrong: You enter addresses yourself in the settings. The switch does not hand out addresses.
+- To store web pages for all devices in the network
+Wrong: Web pages are on a web server, not on a switch.
+- To connect two laptops without a cable
+Wrong: At the switch every device needs a cable as well.
+Explanation: At the switch every device gets its own cable. This way many devices are in the same network.
+
+### What is a LAN?
+- ✓ A local network, for example all devices in a classroom
+- The whole internet, that is all computers in the world
+Wrong: The internet connects many networks all over the world. A LAN is small and local.
+- A single cable, for example between Laptop-1 and Laptop-2
+Wrong: A cable is only one connection. A LAN is the connected devices of one place.
+- The address of a laptop in the network, for example 192.168.0.10
+Wrong: That is the IPv4 address of a single laptop. A LAN is a whole local network.
+Explanation: LAN stands for a local network. Our school network with the school switch is a LAN.
+
+### What is true about the MAC address?
+- ✓ It belongs to the network card of a device for good
+- You make it up yourself, like the IPv4 address
+Wrong: You enter the IPv4 address yourself. The card gets the MAC address from the factory.
+- All devices in the network have the same MAC address
+Wrong: Every network card has its own MAC address.
+- The switch assigns it to every device at the start
+Wrong: The switch does not hand out MAC addresses. It only reads them and remembers them.
+Explanation: The MAC address is a fixed number of the network card, for example 4A:8C:12:03:E7:B1.
+
+### How does the switch know where to send a message?
+- ✓ By the MAC address of the receiver
+- By the device name of the receiver
+Wrong: Names like "Laptop-4" exist only in Filius, not in the messages.
+- By the netmask of the receiver
+Wrong: The netmask splits the IPv4 address. The switch works with MAC addresses.
+- By the colour of the cable to the receiver
+Wrong: The colour of a cable has no meaning.
+Explanation: The switch remembers which MAC address is connected to which port and sends the message only there.
+
+### Netmask 255.255.255.0: what is the network part of 192.168.0.12?
+- ✓ 192.168.0
+- 168.0.12
+Wrong: The host part 12 is included here. The network part is the first three numbers, where the netmask has 255.
+- 255.255.255
+Wrong: This is part of the netmask, not of the address.
+- 192.168
+Wrong: The network part is all numbers that have 255 above them in the mask. These are three, not two.
+Explanation: Where the netmask has 255, the number belongs to the network. With 255.255.255.0 these are the first three numbers.
+
+### Which host part belongs to Laptop-3 with 192.168.0.12?
+- ✓ 12
+- 192
+Wrong: 192 is the first number. It belongs to the network part 192.168.0, which is the same for all devices in the school network.
+- 10
+Wrong: 10 is the host part of Laptop-1. Every device has its own host part.
+- 255
+Wrong: 255 is in the netmask, not in the address of Laptop-3.
+Explanation: The host part is the last number. It is different for every device in the network.
+
+### Which device is NOT in the school network 192.168.0.0?
+- ✓ A laptop with 192.168.5.13
+- A laptop with 192.168.0.13
+Wrong: 192.168.0 is exactly the network part of the school network.
+- A laptop with 192.168.0.200
+Wrong: You can choose the host part 200 freely, up to 254. The network part 192.168.0 fits.
+- A PC with 192.168.0.14
+Wrong: A PC also belongs to the school network if its network part is 192.168.0.
+Explanation: With 192.168.5.13 the network part is 192.168.5. That is another network, even at the same switch.
+
+### What is a structure field?
+- ✓ A frame in the documentation mode around all devices of a network
+- A new network with its own switch that you build in the design mode
+Wrong: The field does not change the network. It only labels it.
+- The list of the switch with all MAC addresses and ports
+Wrong: You open the list of the switch in the simulation with a click on the switch.
+- A window in the simulation with all messages of a device
+Wrong: That is the data exchange. The structure field shows no messages.
+Explanation: The structure field shows which devices belong to one network. At the top left is the label with name and address of the network, for example "School network 192.168.0.0".
+
+## Glossary
+
+- **Switch** – connects the devices of a network. Every device gets its own cable to the switch. It sends messages only to the right port, based on the MAC address.
+- **LAN** – local network, for example all devices of a classroom. LAN stands for Local Area Network. Our school network with the school switch is a LAN.
+- **MAC address** – fixed number of the network card, for example 4A:8C:12:03:E7:B1. It is in the settings of the device. Unlike the IPv4 address you cannot choose it freely.
+- **Network part** – front part of the IPv4 address that names the network. With the netmask 255.255.255.0 it is the first three numbers, in the school network 192.168.0. All devices in the same network have the same network part.
+- **Host part** – last number of the IPv4 address that names the device in the network. Host means device. Laptop-1 has the host part 10, Laptop-2 the host part 11.
+- **Documentation mode** – mode for labelling the network, you start it with the button "Documentation" at the top. There you add structure fields and text fields. The simulation is paused meanwhile.
+- **Structure field** – frame around all devices of a network in the documentation mode. At the top left is a label with name and address of the network, for example "School network 192.168.0.0"; the quickest way to write it is the + of the field. This way everyone sees at once which devices belong together.

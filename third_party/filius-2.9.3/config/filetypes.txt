@@ -1,0 +1,3 @@
+text;txt,cfg,bat,sh,html,htm,ini,php,xml,css,js,mjs,json,svg,csv,md
+sound;mp3,mp2,wav
+image;jpeg,jpg,bmp,tiff,png,gif,webp,ico

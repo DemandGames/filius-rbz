@@ -1,0 +1,3 @@
+# Keep every file byte for byte as it is (no line-ending conversion): the original Filius files must match
+# third_party/filius-2.9.3/SHA256SUMS, and some text files of Filius use Windows line endings.
+* -text

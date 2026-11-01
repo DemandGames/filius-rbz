@@ -1,0 +1,193 @@
+# Final project: troubleshooting
+Goal: Three faults are hidden in the finished network. You find them with a fixed plan, fix them and complete the network plan.
+
+## Read
+
+### The network plan
+Your network now consists of three networks at the router in the middle: school network, RGG network and the network of the DNS provider. With the structure fields and labels it has become a **network plan**: a labelled drawing of all networks with their devices and addresses.
+
+[Picture: s08-netzplan.png | The network plan: school network, RGG network and DNS provider at the router]
+
+The network plan helps with every fault. Ask yourself: In which network is the device? Where does the service run? Is the router in between?
+
+> Note: When this chapter starts, Filius loads the network with three built-in faults. Which ones is chosen at random.
+
+### Searching step by step
+In **systematic troubleshooting** you check in order, from the bottom up. Only when a step works do you go to the next one:
+
+- Step 1, cable and settings: Is the device connected to the switch? Are address, netmask, gateway and DNS server right? `ipconfig` shows it.
+- Step 2, own network: Does the gateway answer `ping`?
+- Step 3, other network: Does the target answer `ping` with its IPv4 address?
+- Step 4, name: Does the DNS server know the name? `nslookup` shows it.
+- Step 5, service: Does the software run on the server, for example web server or email server?
+
+[Picture: s08-stufen.png | The five steps of troubleshooting]
+
+[Picture: s08-fehlersuche.png | ping and nslookup while troubleshooting]
+
+A fault is only fixed when the test from the user's device to the server works.
+
+## Practice
+
+### Part A – Fixing faults
+Monday morning. The IT support has received three reports. You only see the report. A tick comes when the cause is fixed and the matching test has worked. Then Filius shows the cause.
+
+### A1
+Variant: 1
+"Laptop-2 reaches nothing at all, not even the school page at 192.168.0.14."
+Cause: On Laptop-2, DHCP was switched off and the fixed address 192.168.5.11 was entered.
+Tip: ipconfig on Laptop-2. Does the network part fit the school network? Passed when Laptop-2 is back in the school network (preferably with DHCP again, otherwise with gateway 192.168.0.1) and loads the school page http://192.168.0.14 in its browser.
+
+### A2
+Variant: 1
+"Laptop-1, Laptop-3 and the teacher laptop open the school page at 192.168.0.14, but reach nothing outside the school network."
+Cause: The DHCP server handed out the gateway 192.168.0.254.
+Tip: Which gateway does a school laptop have? Where does it get it from? Passed when the DHCP server hands out the right gateway and a school laptop then pings a device in the RGG network, for example `ping 192.168.1.10`. Restart the simulation for this, so the laptops fetch the new settings.
+
+### A3
+Variant: 1
+"In the office of the RGG the shop opens at 192.168.1.10, but not at www.ravensberger24.de."
+Cause: The A record www.ravensberger24.de pointed to 192.168.1.11.
+Tip: What does nslookup answer on the office laptop? Passed when the office laptop opens the shop at http://www.ravensberger24.de in the browser.
+
+### A4
+Variant: 2
+"In the office of the RGG the shop page does not load, not even at 192.168.1.10. The shop answers ping."
+Cause: The web server of the shop was stopped.
+Tip: ping works, so the way is right. Which step comes next? Passed when the office laptop opens the shop page in the browser.
+
+### A5
+Variant: 2
+"Anna's orders to verkauf@ravensberger24.de do not arrive. Mails to ben work."
+Cause: The MX record for ravensberger24.de was missing.
+Tip: How does the mail server of the school know where mails for ravensberger24.de belong? Passed when Anna then sends a new mail to verkauf@ravensberger24.de and it arrives at the mail server of the RGG.
+
+### A6
+Variant: 2
+"In the office of the RGG the school page opens at 192.168.0.14, but not at www.rbz-wirtschaft-kiel.de."
+Cause: The A record www.rbz-wirtschaft-kiel.de was missing.
+Tip: nslookup on the office laptop. Passed when the office laptop opens the school page at http://www.rbz-wirtschaft-kiel.de in the browser.
+
+### A7
+Variant: 3
+"At the RGG nobody gets out of the own network. Inside the RGG everything works."
+Cause: The card of the router to the RGG network had 192.168.1.254 instead of 192.168.1.1.
+Tip: Ping its gateway from the office laptop. Which address does the router have in the RGG network? Passed when the office laptop pings the web server of the school: `ping 192.168.0.14`.
+
+### A8
+Variant: 3
+"Nobody can fetch mails of @rbz-wirtschaft-kiel.de."
+Cause: The email server of the school was stopped.
+Tip: Everybody is affected. Can it be a single laptop then? Passed when someone from the school then fetches their mails, for example Anna on Laptop-1.
+
+### A9
+Variant: 3
+"Laptop-3 reaches nothing at all. The other school laptops work."
+Cause: The cable between Laptop-3 and the school switch was missing.
+Tip: Step 1: look closely at Laptop-3 in the design mode. Passed when Laptop-3 pings its gateway: `ping 192.168.0.1`.
+
+### Part B – Network plan
+
+### B1
+One label is missing in the network plan. Check: each of the three networks has a structure field with a label at the top left that names the network and its network address. Add what is missing.
+Tip: School network 192.168.0.0, RGG network 192.168.1.0, DNS provider 192.168.2.0. Quickest with the + at the top left of the field.
+
+### B2
+In documentation mode, add a text field next to the router with its three addresses 192.168.0.1, 192.168.1.1 and 192.168.2.1.
+Tip: The router is between the fields. The text field belongs right next to it.
+
+### B3
+Look it up in the network plan.
+Question: Which devices does a ping from Laptop-1 to the DNS server pass?
+- ✓ School switch, router, DNS provider switch
+- School switch, RGG switch, DNS provider switch
+- Router, RGG mail server, DNS provider switch
+- Only the school switch
+Tip: Follow the lines in the network plan from Laptop-1 to the DNS server.
+
+## Quiz
+
+### What is a network plan?
+- ✓ A labelled drawing of all networks with their devices and addresses
+- A list of all user names and passwords of the devices in the network
+Wrong: Passwords never belong in a network plan.
+- The list of the switch with the MAC addresses at its ports
+Wrong: The list of the switch only belongs to one switch. A network plan shows all networks.
+- The data exchange of a laptop with all the messages it sends
+Wrong: The data exchange shows messages, not a drawing of the network.
+Explanation: In the network plan you see all networks with structure field, label, devices and the router in between.
+
+### What does systematic troubleshooting start with?
+- ✓ With cable and settings of the affected device
+- With restarting all servers and the router
+Wrong: First you check, then you change. Otherwise you do not know what the fault was.
+- With the names and A records in the DNS server
+Wrong: DNS is only step 4. Before that, cables, settings and ways must be right.
+- With deleting and redrawing the whole network plan
+Wrong: The network plan is your most important tool in the search.
+Explanation: Step 1 is cable and settings, for example with ipconfig. Every further step builds on it.
+
+### ping to the gateway works, ping to the shop at 192.168.1.10 does not. Where do you search next?
+- ✓ On the way into the other network: router and settings of the shop
+- At the cable between your own laptop and its switch
+Wrong: The gateway answers, so your own cable is fine.
+- In the DNS server: the A record for www.ravensberger24.de
+Wrong: You used the IPv4 address. DNS does not play a role yet.
+- In the e-mail program: account and settings of the mailbox
+Wrong: The e-mail program has nothing to do with ping and web pages.
+Explanation: Step 2 works, step 3 does not. So the fault is between router and target.
+
+### A page opens with the IPv4 address, but not with the name. Which step is affected?
+- ✓ Step 4: the name, so the DNS server
+- Step 1: cable and settings of the laptop
+Wrong: With the IPv4 address everything works. So cable and settings are fine.
+- Step 3: the other network behind the router
+Wrong: The other network can be reached, otherwise the IPv4 address would not work either.
+- Step 5: the service, so the web server
+Wrong: The web server is running, it delivers the page with the IPv4 address after all.
+Explanation: Only the translation of the name is missing. Check the DNS server and its A records with nslookup.
+
+### The shop answers ping, but the page does not load. What do you check?
+- ✓ Whether the software Webserver runs on the shop
+- Whether the cable between shop and switch is plugged in
+Wrong: ping works, so the cable is plugged in.
+- Whether the right gateway is entered at the shop
+Wrong: The reply to ping comes back, so the way including the gateway is right.
+- Whether the DNS server has an MX record for the shop
+Wrong: The MX record belongs to e-mails, not to web pages.
+Explanation: Step 3 works. What is left is step 5: the service must run.
+
+### A laptop in the school network has the address 192.168.5.11. What is the problem?
+- ✓ Its network part does not fit the school network 192.168.0.0
+- The address is too long for a valid IPv4 address
+Wrong: It has four numbers like every IPv4 address.
+- The 11 is not allowed as host part in the school network
+Wrong: 11 is a completely normal host part.
+- It needs a new MAC address for the school network
+Wrong: The MAC address is fine. The IPv4 address is wrong.
+Explanation: In the school network the network part must be 192.168.0. With 192.168.5 the laptop is in another network.
+
+### When is a fault really fixed?
+- ✓ When the test from the user's device to the server works
+- When you have changed a setting in the affected device
+Wrong: A change alone proves nothing. Only the test shows that it works again.
+- When the server answers a ping from the user's device
+Wrong: ping only checks the way. The service can still be faulty.
+- When the network plan with all labels is finished
+Wrong: The network plan helps with the search. The fault is only fixed after the test.
+Explanation: Only when the user can use the service again, for example open the page, is the fault fixed.
+
+### All school laptops have a wrong gateway. Where is the best place to fix it?
+- ✓ In the DHCP server that hands out the settings
+- At every laptop separately by hand in its settings
+Wrong: That would be a lot of work, and at the next start the wrong value would come from the DHCP server again.
+- In the DNS server that all laptops use for names
+Wrong: The DNS server only knows names and addresses, no gateways of the laptops.
+- In the school switch that all laptops are connected to
+Wrong: The switch has no settings for gateways.
+Explanation: The laptops get their values from the DHCP server. There you correct the gateway once for all.
+
+## Glossary
+
+- **Network plan** – labelled drawing of all networks with their devices and addresses. In Filius it is made in the documentation mode from structure fields and labels. It is the starting point of every troubleshooting.
+- **Systematic troubleshooting** – searching for faults step by step from the bottom up: cable and settings, own network, other network, name, service. Only when a step works do you go to the next one. A fault is only fixed when the test from the user to the server works.

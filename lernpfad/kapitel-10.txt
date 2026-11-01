@@ -1,0 +1,187 @@
+# Portfreigabe und Firewall
+Ziel: Im Heimnetz läuft ein eigener Webserver für ein Blog. Du machst ihn mit einer Portfreigabe von außen erreichbar und sperrst mit einer Firewall-Regel gezielt einen Zugriff.
+
+## Lesen
+
+### Von außen geschlossen
+Du betreibst zu Hause ein Blog auf einem eigenen PC, dem Blog-Server. Deine Mitschülerinnen und Mitschüler sollen es von der Schule aus lesen.
+
+Von außen ist aber nur der Heimrouter mit 203.0.113.3 sichtbar. Kommt dort eine neue Anfrage an, weiß er nicht, an welches Gerät im Heimnetz sie gehen soll. In seiner NAT-Tabelle steht nur, was von innen nach außen aufgebaut wurde.
+
+[Bild: k10-geschlossen.png | Ein SYN an 203.0.113.3, Port 8080, bleibt ohne Antwort]
+
+### Die Portfreigabe
+Eine **Portfreigabe** ist ein fester Eintrag im Heimrouter: Anfragen an einen bestimmten Port seiner WAN-Adresse leitet er an ein Gerät im Heimnetz weiter.
+
+[Bild: k10-portfreigabe.png | Portfreigabe TCP 8080 an 192.168.178.10, Port 80]
+
+Außen und innen dürfen verschiedene Ports sein. Das Blog läuft innen auf Port 80, von außen erreichst du es über `http://203.0.113.3:8080`. Die Zahl nach dem Doppelpunkt ist der **Port in der URL**. Ohne diese Angabe nimmt der Browser Port 80.
+
+### Firewall-Regeln
+Eine **Firewall** prüft jedes Paket, das durch den Heimrouter will. Sie vergleicht es mit ihren **Firewall-Regeln**: Absender, Empfänger, Protokoll und Port. Jede Regel endet mit einer Aktion: akzeptieren oder verwerfen.
+
+[Bild: k10-firewall.png | Der Dialog Firewall einrichten mit einer Regel]
+
+- Die Regeln werden von oben nach unten geprüft. Die erste passende entscheidet.
+- Passt keine Regel, gilt die **Standardaktion**. „akzeptieren (Blacklist)“ erlaubt alles, was keine Regel verbietet: Die Regeln sind eine schwarze Liste. „verwerfen (Whitelist)“ sperrt alles, was keine Regel erlaubt: Die Regeln sind eine weiße Liste.
+- Eine einzelne Adresse gibst du mit der Netzmaske 255.255.255.255 an.
+
+> Merke: Ab Werk steht die Standardaktion auf „verwerfen (Whitelist)“. Schaltest du die Firewall so ein, sperrt sie auch DHCP und DNS. Die Firewall prüft Pakete aus dem Heimnetz, bevor NAT den Absender austauscht. Sie sieht also die privaten Adressen.
+
+### Was hat gegriffen?
+Der Heimrouter hat eine eigene Verwaltungsseite. Du öffnest sie im Browser eines Geräts im Heimnetz über seine LAN-Adresse.
+
+[Bild: k10-log.png | Das Log des Heimrouters zeigt, welche Regel gegriffen hat]
+
+Im **Log** steht für jedes geprüfte Paket, welche Regel gegriffen hat und ob es akzeptiert oder verworfen wurde.
+
+## Praxis
+
+### 10.1
+Richte im Heimnetz einen Blog-Server ein:
+- PC „Blog-Server“ am Switch Heimnetz
+- feste IPv4-Adresse 192.168.178.10, Netzmaske 255.255.255.0 (von Hand am Blog-Server oder als statische Zuweisung im DHCP des Heimrouters)
+- Webserver mit eigener Startseite, Überschrift „Mein Blog“
+Tipp: Die Adresse liegt außerhalb des DHCP-Bereichs des Heimrouters. Gateway ist der Heimrouter. Bei der statischen Zuweisung erkennt der Heimrouter den Blog-Server an seiner MAC-Adresse.
+
+### 10.2
+Versuche, das Blog von einem Schul-Laptop aus unter http://203.0.113.3:8080 zu öffnen.
+Frage: Was passiert?
+- Die Seite öffnet sich, weil der Heimrouter alles weiterleitet
+- ✓ Der Heimrouter lässt die Anfrage nicht ins Heimnetz durch
+- Der DNS-Server kennt die Adresse nicht
+- Der Browser kann keine Ports in der Adresse verarbeiten
+Tipp: Die Zahl nach dem Doppelpunkt ist der Port. Ein Fehler ist hier das erwartete Ergebnis.
+
+### 10.3
+Deine Mitschüler sollen das Blog unter http://203.0.113.3:8080 erreichen. Richte das am Heimrouter ein und teste es von einem Schul-Laptop aus.
+Tipp: Außen Port 8080, innen Port 80 des Blog-Servers.
+
+### 10.4
+Das Tablet soll immer die Adresse 192.168.178.50 bekommen.
+Tipp: Wie bei Laptop-4 in Kapitel 7, nur im DHCP-Server des Heimrouters.
+
+### 10.5
+Installiere auf dem Tablet einen Webbrowser. Sperre dem Tablet dann mit einer Firewall-Regel am Heimrouter den Shop. Alles andere soll weiter funktionieren:
+- Das Tablet bekommt seine Adresse und öffnet die Schulseite über https://www.rbz-wirtschaft-kiel.de.
+- Der Heim-Laptop kauft weiter im Shop ein.
+- Das Blog bleibt von außen erreichbar.
+Teste alles.
+Tipp: Stelle die Standardaktion auf „akzeptieren (Blacklist)“. Die Firewall sieht innen die private Adresse. Eine einzelne Adresse braucht die Maske 255.255.255.255.
+
+### 10.6
+Öffne auf dem Heim-Laptop die Verwaltungsseite des Heimrouters und finde im Log den Eintrag zum Tablet.
+Frage: Welche Regel (Nummer) hat den Zugriff verworfen?
+Eingabe: Nummer
+Tipp: Die Verwaltungsseite erreichst du über die LAN-Adresse des Heimrouters.
+
+## Quiz
+
+### Was macht eine Firewall?
+- ✓ Sie prüft Pakete nach Regeln und lässt sie durch oder verwirft sie
+- Sie übersetzt private in öffentliche Adressen
+Falsch: Das macht NAT. Die Firewall lässt Pakete durch oder verwirft sie, verändert sie aber nicht.
+- Sie verschlüsselt alle Verbindungen ins Internet
+Falsch: Eine Firewall verschlüsselt nichts. Sie entscheidet nur nach Regeln, welche Pakete durchdürfen.
+- Sie verteilt Pakete auf mehrere Leitungen
+Falsch: Das wäre eine Lastverteilung. Eine Firewall kontrolliert Pakete, verteilt sie aber nicht.
+Erklärung: Eine Firewall vergleicht jedes Paket mit ihren Regeln und lässt es durch oder verwirft es, wie ein Türsteher mit einer Liste.
+
+### Wozu dient eine Portfreigabe?
+- ✓ Sie leitet einen Port des Heimrouters an ein Gerät im Heimnetz weiter
+- Sie öffnet alle Ports des Heimrouters nach außen
+Falsch: Eine Portfreigabe gilt nur für einen bestimmten Port. Alle anderen bleiben zu.
+- Sie gibt einem Gerät eine eigene öffentliche Adresse
+Falsch: Das Gerät behält seine private Adresse. Von außen nutzt man weiter die Adresse des Heimrouters.
+- Sie erlaubt dem Heimnetz den Zugang zum Internet
+Falsch: Den Zugang ins Internet hat das Heimnetz schon vorher über NAT. Die Freigabe regelt den Weg von außen hinein.
+Erklärung: Eine Portfreigabe leitet Anfragen an einen bestimmten Port des Heimrouters an ein Gerät im Heimnetz weiter. Sie ist ein fester Eintrag in der NAT-Tabelle.
+
+### Warum war das Blog vor der Portfreigabe von außen nicht erreichbar?
+- ✓ Der Heimrouter wusste nicht, an welches Gerät er weiterleiten soll
+- Die Firewall des Heimrouters blockierte Port 8080
+Falsch: Die Firewall war zu diesem Zeitpunkt noch gar nicht eingeschaltet. Der Heimrouter wusste schlicht nicht, wohin mit der Anfrage.
+- Der Blog-Server hatte kein Standard-Gateway
+Falsch: Der Blog-Server hatte den Heimrouter als Gateway. Im Heimnetz war das Blog ja auch erreichbar.
+- Der Webserver lauschte nicht auf Port 8080
+Falsch: Der Webserver lauscht auf Port 80, und das ist richtig so. Port 8080 gibt es nur außen am Heimrouter.
+Erklärung: Von außen kennt man nur die Adresse des Heimrouters, und NAT lässt nur Antworten herein.
+
+### Was bewirkt die Portfreigabe 8080 → 192.168.178.10:80?
+- ✓ Anfragen an Port 8080 des Heimrouters gehen an Port 80 des Blog-Servers
+- Der Blog-Server lauscht nun auf Port 8080
+Falsch: Am Blog-Server ändert sich nichts. Er lauscht weiter auf Port 80, den Port 8080 übersetzt der Heimrouter.
+- Der Heimrouter zeigt das Blog auf Port 80 an
+Falsch: Die Freigabe gilt für Port 8080 außen. Über Port 80 des Heimrouters ist das Blog nicht zu erreichen.
+- Das Heimnetz darf nur noch über Port 8080 surfen
+Falsch: Die Freigabe betrifft nur Anfragen von außen hinein. Das Surfen aus dem Heimnetz bleibt, wie es war.
+Erklärung: Außen und innen dürfen verschiedene Ports sein, der Heimrouter übersetzt auch den Port.
+
+### Unter welcher Adresse erreichen deine Mitschüler das Blog?
+- ✓ http://203.0.113.3:8080
+- http://192.168.178.10:8080
+Falsch: Das ist die private Adresse des Blog-Servers. Sie ist von außen nicht erreichbar, und außerdem lauscht er auf Port 80, nicht 8080.
+- http://192.168.178.1:8080
+Falsch: Das ist die LAN-Adresse des Heimrouters. Sie gilt nur im Heimnetz.
+- http://203.0.113.3
+Falsch: Ohne Port nimmt der Browser Port 80. Freigegeben ist aber Port 8080.
+Erklärung: Von außen erreicht man das Heimnetz nur über die öffentliche Adresse des Heimrouters, 203.0.113.3. Dazu kommt der freigegebene Port 8080.
+
+### In welcher Reihenfolge werden Firewall-Regeln geprüft?
+- ✓ Von oben nach unten, die erste passende entscheidet
+- Alle gleichzeitig, die strengste gewinnt
+Falsch: Die Firewall vergleicht die Regeln der Reihe nach. Es gewinnt die erste passende Regel, nicht die strengste.
+- Von unten nach oben, die letzte entscheidet
+Falsch: Die Prüfung beginnt oben bei der ersten Regel, nicht unten.
+- Erst alle Verbote, dann alle Erlaubnisse
+Falsch: Die Art der Regel spielt für die Reihenfolge keine Rolle, nur ihr Platz in der Liste.
+Erklärung: Die Firewall geht die Regeln von oben nach unten durch, und die erste passende entscheidet. Deshalb kommt eine spezielle Regel vor eine allgemeine.
+
+### Was legt die Standardaktion einer Firewall fest?
+- ✓ Was mit Paketen passiert, auf die keine Regel passt
+- Welche Regel als erste geprüft wird
+Falsch: Die Reihenfolge ergibt sich aus der Liste von oben nach unten. Die Standardaktion gilt erst, wenn keine Regel passt.
+- Was mit Paketen passiert, auf die mehrere Regeln passen
+Falsch: Passen mehrere Regeln, entscheidet die erste passende. Die Standardaktion kommt dabei nicht zum Zug.
+- Ob die Firewall beim Start aktiviert ist
+Falsch: Ob die Firewall aktiv ist, stellst du mit „Firewall aktivieren“ ein. Das ist etwas anderes als die Standardaktion.
+Erklärung: Die Standardaktion gilt für alle Pakete, auf die keine Regel passt. „Verwerfen“ sperrt dann alles außer dem Erlaubten, „akzeptieren“ erlaubt alles außer dem Verbotenen.
+
+### Welche Angaben kann eine Firewall-Regel in Filius enthalten?
+- ✓ Quell- und Zieladresse mit Netzmaske, Protokoll, Port, Aktion
+- Gerätename, Domainname und Aktion
+Falsch: Namen stehen nicht in den Paketen. Eine Firewall-Regel arbeitet mit Adressen und Ports.
+- MAC-Adresse, Port und Uhrzeit
+Falsch: MAC-Adressen gelten nur im eigenen Netz, und Regeln nach Uhrzeit kennt die Firewall in Filius nicht.
+- Benutzername, Passwort und Aktion
+Falsch: Die Firewall kennt keine Benutzer. Sie prüft Pakete, keine Anmeldungen.
+Erklärung: Eine Regel nennt Quell- und Zieladresse mit Netzmaske, Protokoll und Port, denn genau das steht im Paket. Dazu legst du die Aktion fest.
+
+### Warum sperrt die Regel das Tablet über seine IPv4-Adresse und nicht über seinen Namen?
+- ✓ Die Firewall sieht in den Paketen Adressen und Ports, keine Namen
+- Namen kann jeder im Heimnetz ändern
+Falsch: Das stimmt zwar, ist aber nicht der Grund. Selbst ein fester Name stünde gar nicht in den Paketen.
+- Groß- und Kleinschreibung würde stören
+Falsch: Mit der Schreibweise hat das nichts zu tun. Namen kommen in den Paketen schlicht nicht vor.
+- Die Firewall kennt nur Namen von Servern
+Falsch: Die Firewall kennt überhaupt keine Namen, weder von Servern noch von anderen Geräten.
+Erklärung: Der Name „Tablet“ steht nur in Filius, nicht in den Paketen.
+
+### Warum brauchte das Tablet dafür eine feste Adresse?
+- ✓ Damit die Regel immer das Tablet trifft
+- Weil Firewall-Regeln nur für feste Adressen gelten
+Falsch: Eine Regel prüft jede Adresse im Paket, egal woher sie stammt. Sie muss nur zum richtigen Gerät gehören.
+- Weil NAT sonst die Adresse versteckt
+Falsch: NAT ändert nur Pakete, die das Heimnetz verlassen. Die Firewall sieht innen die private Adresse, mit oder ohne feste Zuweisung.
+- Weil DHCP-Geräte die Firewall umgehen
+Falsch: Auch Geräte mit DHCP müssen durch den Heimrouter und seine Firewall. Nur ihre Adresse kann sich ändern.
+Erklärung: Per DHCP könnte es eine andere Adresse bekommen, und die Regel würde ins Leere gehen.
+
+## Glossar
+
+- **Portfreigabe** – leitet Anfragen an einen Port des Heimrouters an ein Gerät im Heimnetz weiter. Ohne sie lässt NAT nur Antworten auf eigene Anfragen herein, Anfragen von außen landen nirgends. Ein Eintrag nennt Protokoll, Port außen sowie Adresse und Port innen, zum Beispiel TCP 8080 → 192.168.178.10:80. So wird ein Server im Heimnetz, etwa das Blog, von außen erreichbar.
+- **Port in der URL** – Zahl nach dem Doppelpunkt, zum Beispiel :8080 in http://203.0.113.3:8080. Ohne Angabe nimmt der Browser bei http Port 80. Man braucht sie, wenn ein Dienst nicht auf seinem Standardport erreichbar ist. Ein DNS-Eintrag kennt keinen Port, er gehört immer in die URL.
+- **Firewall** – prüft Pakete anhand von Regeln und lässt sie durch oder verwirft sie. Sie sitzt an der Grenze zwischen Netzen, in unserem Netz im Heimrouter. Die Pakete selbst verändert sie nicht, sie entscheidet nur. Damit kann man gezielt Verbindungen sperren, zum Beispiel vom Tablet zum Shop.
+- **Firewall-Regel** – Eintrag mit Quelle, Ziel, Protokoll, Port und Aktion. Die erste passende Regel entscheidet. Quelle und Ziel stehen als Adresse mit Netzmaske, eine einzelne Adresse braucht die Maske 255.255.255.255. Die Aktion ist „akzeptieren“ oder „verwerfen“.
+- **Standardaktion** – was mit Paketen geschieht, auf die keine Regel passt. Mit „verwerfen“ ist alles gesperrt, was keine Regel erlaubt (Whitelist). Mit „akzeptieren“ ist alles erlaubt, was keine Regel verbietet (Blacklist). Ab Werk steht sie in Filius auf „verwerfen“, darum blockiert eine frisch eingeschaltete Firewall auch DHCP und DNS.
+- **Log** – Liste, in der die Firewall festhält, welche Regel gegriffen hat. Beim Heimrouter findest du es auf seiner Verwaltungsseite, also unter http://192.168.178.1/log. Jeder Eintrag nennt das Paket und die Regel, die es verworfen hat. So siehst du, ob eine Regel wirklich so wirkt wie geplant.

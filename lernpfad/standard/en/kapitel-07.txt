@@ -1,0 +1,168 @@
+# Automatic addresses: DHCP
+Goal: A DHCP server hands out the settings to the laptops in the school network automatically. Instead of setting up every laptop by hand, you only set a tick.
+
+## Read
+
+### Addresses by hand are tiring
+So far you gave every laptop its IPv4 address, netmask, gateway and DNS server by hand. With 30 laptops in a classroom this takes long, and a typing mistake happens quickly.
+
+**DHCP** solves this: when a laptop starts, it announces itself in the network and asks for its settings. A **DHCP server** answers and gives it everything it needs.
+
+DHCP stands for Dynamic Host Configuration Protocol: a protocol with which devices (hosts) get their settings automatically and when they need them (dynamically).
+
+[Picture: s07-dhcp-idee.png | The laptop asks for its settings, the DHCP server answers]
+
+### The address range
+The DHCP server hands out addresses from an **address range**, for us from 192.168.0.100 to 192.168.0.150. The fixed addresses of router and servers are outside of it. This way no address is given out twice.
+
+[Picture: s07-dhcp-server.png | The DHCP server hands out addresses from .100 to .150]
+
+The DHCP server passes on gateway and DNS server as they are entered at its own PC.
+
+At the laptop you only set the tick "Use DHCP for configuration". The fields turn grey. The values come when the simulation starts.
+
+[Picture: s07-haekchen.png | Laptop-1 gets its settings with DHCP]
+
+### Always the same address
+Some devices should always get the same address, for example the teacher laptop or a server. For this there is the **static assignment**: in the DHCP server you enter the MAC address of the device and its fixed IPv4 address. The DHCP server recognises the device by its MAC address.
+
+[Picture: s07-statisch.png | Static assignment: the teacher laptop always gets 192.168.0.13]
+
+> Note: Routers and servers get fixed addresses by hand. Laptops get their addresses with DHCP.
+
+## Practice
+
+### 7.1
+Add a DHCP server to the school network:
+| Setting | Value |
+|---|---|
+| PC at the school switch | "DHCP server" |
+| IPv4 address | 192.168.0.16 |
+| Netmask | 255.255.255.0 |
+| Gateway | 192.168.0.1 |
+| DNS server | 192.168.2.10 |
+Tip: It will pass on the gateway and DNS server of this PC to the laptops later.
+
+### 7.2
+Set up the DHCP server and activate it:
+| Field | Value |
+|---|---|
+| Lower bound of address | 192.168.0.100 |
+| Upper bound of address | 192.168.0.150 |
+Tip: Button "DHCP server setup" in the settings of the PC, then the tick "Activate DHCP".
+
+### 7.3
+Switch Laptop-1 to Laptop-4 to "Use DHCP for configuration".
+Tip: One tick per laptop.
+
+### 7.4
+Start the simulation and check the settings of Laptop-2 with `ipconfig`.
+Question: Which IPv4 address did Laptop-2 get?
+Input: IPv4 address
+Tip: You may have to install the command line on Laptop-2 first.
+
+### 7.5
+Laptop-4 is the teacher laptop and should always get 192.168.0.13:
+- Rename Laptop-4 to "Teacher laptop".
+- Set up a static assignment with 192.168.0.13 for the teacher laptop in the DHCP server.
+Tip: Tab "Static Address Assignment". The MAC address of the teacher laptop is in its settings.
+
+### 7.6
+Start the simulation again and test:
+- The teacher laptop has the address 192.168.0.13.
+- Laptop-1 opens www.ravensberger24.de.
+- Anna fetches her mails on Laptop-1.
+Tip: If the name does not work, the DNS server may be missing at the PC DHCP server.
+
+### 7.7
+In documentation mode, add a text field below the label in the structure field of the school network: "DHCP: 192.168.0.100 – 192.168.0.150".
+Tip: Write both bounds as complete IPv4 addresses.
+
+## Quiz
+
+### What is DHCP for?
+- ✓ Laptops get their settings automatically
+- Names are translated into IPv4 addresses
+Wrong: DNS does that.
+- Different networks are connected with each other
+Wrong: The router connects networks.
+- Mails are delivered to the right mailboxes
+Wrong: The mail server delivers mails.
+Explanation: With DHCP a laptop asks for its settings when it starts, and the DHCP server answers.
+
+### Which settings does a laptop get from the DHCP server?
+- ✓ IPv4 address, netmask, gateway and DNS server
+- Only the IPv4 address, you enter the rest by hand
+Wrong: It gets everything it needs for the network, also gateway and DNS server.
+- Only its name, for example "Laptop-2"
+Wrong: You give the name yourself in Filius. DHCP hands out addresses.
+- MAC address, netmask, gateway and DNS server
+Wrong: The network card has the MAC address from the factory. The DHCP server hands out the IPv4 address.
+Explanation: The DHCP server gives the laptop all four values. That is why you only set a tick at the laptop.
+
+### What is the address range?
+- ✓ The addresses that the DHCP server may hand out
+- All addresses that exist in the internet at all
+Wrong: The range is small and in the own network, for us .100 to .150.
+- The fixed addresses of router and servers
+Wrong: These fixed addresses are exactly outside the range.
+- The list of names and addresses in the DNS server
+Wrong: These are the entries of the DNS server. The address range belongs to the DHCP server.
+Explanation: The DHCP server only gives out addresses from its range, for us from 192.168.0.100 to 192.168.0.150.
+
+### Why is the web server 192.168.0.14 outside the address range?
+- ✓ So that its address is not given to a laptop once more
+- Because a web server needs no IPv4 address in the network
+Wrong: Every server needs an IPv4 address, otherwise nobody finds it.
+- Because the range only applies to devices in the RGG network
+Wrong: The DHCP server and its range belong to the school network.
+- Because even numbers like 14 are not handed out with DHCP
+Wrong: Even or odd does not matter.
+Explanation: Servers have fixed addresses. If they were in the range, the DHCP server could give the same address to a laptop.
+
+### What do you set at the laptop for DHCP?
+- ✓ The tick "Use DHCP for configuration"
+- The DHCP server's address in the field Gateway
+Wrong: The gateway is the router. The laptop finds the DHCP server by itself.
+- The address range from 192.168.0.100 to .150
+Wrong: You set the address range at the DHCP server.
+- Nothing, DHCP runs on the laptop by itself
+Wrong: Without the tick the laptop keeps its fixed values.
+Explanation: One tick is enough. The fields turn grey, and the values come when the simulation starts.
+
+### How does the DHCP server recognise the teacher laptop for the static assignment?
+- ✓ By the MAC address of the teacher laptop
+- By its new name "Teacher laptop"
+Wrong: The name exists only in Filius. The messages contain the MAC address.
+- By the old IPv4 address of the teacher laptop
+Wrong: With DHCP the laptop has no IPv4 address at all when it starts.
+- By the cable that links it to the school switch
+Wrong: All cables look the same. What is recognised is the network card.
+Explanation: The MAC address belongs to the network card for good. That is why the DHCP server reliably recognises the teacher laptop.
+
+### The laptops get an address, but names like www.ravensberger24.de do not work. What is missing?
+- ✓ The DNS server in the settings of the PC DHCP server
+- The cable between the school switch and the router
+Wrong: Then nothing would arrive with IPv4 addresses either. This is only about names.
+- The static assignment for the teacher laptop in the DHCP server
+Wrong: The static assignment only concerns the teacher laptop. But all laptops have the problem.
+- The netmask in the settings of the web server
+Wrong: The web server is not the problem, the names are not translated at all.
+Explanation: The DHCP server passes on what is entered at its PC. If the DNS server is missing there, it is missing at the laptops as well.
+
+### Which devices get their address by hand?
+- ✓ Routers and servers, for example the web server
+- All laptops, for example Laptop-1 and Laptop-2
+Wrong: Laptops now get their addresses with DHCP.
+- Only the DHCP server, all others with DHCP
+Wrong: Router, web server, mail server and DNS server have fixed addresses as well.
+- No device, everything in the network runs with DHCP
+Wrong: Servers and routers must always be reachable at the same address.
+Explanation: Servers and routers need fixed addresses so that they can always be found. Laptops get theirs with DHCP.
+
+## Glossary
+
+- **DHCP** – Dynamic Host Configuration Protocol: method with which devices get their settings automatically. The laptop asks when it starts, the DHCP server answers. At the laptop you only set the tick "Use DHCP for configuration".
+- **DHCP server** – PC that hands out IPv4 address, netmask, gateway and DNS server to the laptops. Our DHCP server has the address 192.168.0.16. It passes on gateway and DNS server as they are entered at its PC.
+- **Address range** – addresses that the DHCP server may hand out, for us 192.168.0.100 to 192.168.0.150. Fixed addresses of router and servers are outside of it. This way no address is given out twice.
+- **Static assignment** – fixed address for one particular device in the DHCP server. The DHCP server recognises the device by its MAC address. This way the teacher laptop always gets 192.168.0.13.

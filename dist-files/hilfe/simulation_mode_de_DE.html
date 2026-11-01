@@ -1,0 +1,64 @@
+<html><head><meta charset="UTF-8"><style type="text/css">
+body { font-family: 'Atkinson Hyperlegible', sans-serif; font-size: 13pt; color: #1C2B3A; margin-top: 8px; margin-left: 6px; margin-right: 6px; margin-bottom: 30px; }
+p { margin-top: 0px; margin-bottom: 10px; }
+h1 { font-size: 21pt; color: #1C2B3A; margin-top: 10px; margin-bottom: 4px; }
+h2 { font-size: 15pt; color: #1C2B3A; margin-top: 22px; margin-bottom: 8px; border-left-width: 4px; border-left-style: solid; border-left-color: #13A35A; padding-left: 8px; }
+p.lead { color: #4A5B6C; font-size: 13.5pt; margin-bottom: 2px; }
+td.chip { color: #FFFFFF; font-size: 11pt; font-weight: bold; }
+td.shot { border-width: 1px; border-style: solid; border-color: #DDE4EB; }
+p.cap { color: #8796A5; font-size: 11.5pt; text-align: center; margin-top: 5px; margin-bottom: 16px; }
+p.gap { margin-top: 0px; margin-bottom: 12px; }
+td.tip { color: #1C2B3A; }
+p.ic { margin-top: 2px; margin-right: 10px; margin-bottom: 0px; }
+p.it { margin-top: 0px; margin-bottom: 14px; }
+p.mi { margin-top: 0px; margin-right: 10px; margin-bottom: 10px; }
+p.mt { margin-top: 0px; margin-bottom: 10px; }
+span.key { font-family: 'JetBrains Mono', monospace; font-size: 11pt; background-color: #EAEFF4; }
+span.name { font-weight: bold; }
+span.tg-server { color: #6B3FC2; background-color: #EFEAF8; font-weight: bold; font-size: 11pt; }
+span.tg-client { color: #2A5FC4; background-color: #E8EDF9; font-weight: bold; font-size: 11pt; }
+span.tg-p2p { color: #0A6C66; background-color: #E3EEED; font-weight: bold; font-size: 11pt; }
+span.tg-tool { color: #4A5B6C; background-color: #EBEDEF; font-weight: bold; font-size: 11pt; }
+</style></head><body>
+<table cellspacing="0" cellpadding="4" border="0"><tr><td class="chip" bgcolor="#0E8045">&nbsp;SIMULATION&nbsp;</td></tr></table><h1>Simulationsmodus</h1><p class="lead">Jetzt läuft dein Netz: Du bedienst die Geräte und beobachtest, wie die Daten fließen.</p>
+<h2>PCs und Laptops bedienen</h2>
+<p>Ein Klick auf einen PC oder Laptop öffnet seinen Desktop. Mit der <b>Software-Installation</b> oben links installierst und entfernst du Programme. Das Fenster kannst du am Rand größer ziehen oder mit dem Knopf oben rechts auf Vollbild schalten.</p>
+<table width="100%" cellspacing="0" cellpadding="10" border="0"><tr><td align="center" bgcolor="#F2F5F8"><img src="hilfe/gfx/icon_softwareinstallation.png" width="130" height="96" border="0"></td></tr></table><p class="gap"></p>
+<p>Jedes Programm trägt ein Etikett, das seine Rolle im Netz zeigt:</p>
+<table width="100%" cellspacing="0" cellpadding="0" border="0"><tr><td valign="top" nowrap><p class="mi"><span class="tg-server">&nbsp;Server&nbsp;</span></p></td><td valign="top"><p class="mt">bietet anderen Geräten einen Dienst an, z. B. Webseiten oder E-Mail-Postfächer.</p></td></tr><tr><td valign="top" nowrap><p class="mi"><span class="tg-client">&nbsp;Client&nbsp;</span></p></td><td valign="top"><p class="mt">nutzt den Dienst eines Servers, z. B. ruft er Webseiten ab.</p></td></tr><tr><td valign="top" nowrap><p class="mi"><span class="tg-p2p">&nbsp;Peer-to-Peer&nbsp;</span></p></td><td valign="top"><p class="mt">ist Client und Server zugleich.</p></td></tr><tr><td valign="top" nowrap><p class="mi"><span class="tg-tool">&nbsp;Werkzeug&nbsp;</span></p></td><td valign="top"><p class="mt">ist weder Client noch Server, z. B. zum Bearbeiten von Dateien oder zum Testen des Netzes.</p></td></tr></table>
+<table width="100%" cellspacing="0" cellpadding="0" border="0"><tr><td align="center" class="shot"><img src="hilfe/gfx/softwareinstallation.png" width="274" height="270" border="0"></td></tr></table><p class="cap">Verfügbare Programme mit ihren Etiketten</p>
+<p>Ein Doppelklick auf ein Symbol öffnet das Programm. Ob sein Fenster offen oder geschlossen ist, ändert nichts an seiner Arbeit. Das ist besonders für Server-Programme wichtig.</p>
+<h2>Eigene Webseiten</h2>
+<p>Der Webbrowser Waterwolf zeigt Webseiten wie ein aktueller Browser an: HTML5, CSS (z. B. Flexbox, Grid, Variablen, Animationen) und JavaScript (z. B. Ereignisse, DOM, fetch, canvas, localStorage).</p>
+<p>Lege die Dateien in den Ordner <b>webserver</b> eines PCs mit Webserver: mit dem Text-Editor (Farben für HTML, CSS und JavaScript, Zeilennummern, Suche mit <b>Strg+F</b>, Speichern mit <b>Strg+S</b>) oder per Import im Datei-Explorer. Jede Datei, die die Seite nachlädt (Stylesheet, Skript, Bild), ist eine eigene Anfrage im simulierten Netz.</p>
+<table width="100%" cellspacing="0" cellpadding="0" border="0"><tr><td width="4" bgcolor="#13A35A"></td><td bgcolor="#E6F5EC"><table width="100%" cellspacing="0" cellpadding="9" border="0"><tr><td class="tip"><b>Tipp:</b> Öffne den Datenaustausch des Laptops mit dem Browser und lade die Seite neu: Du siehst jede einzelne Datei als HTTP-Anfrage.</td></tr></table></td></tr></table>
+<h2>Verschlüsselung mit HTTPS</h2>
+<p>Im Fenster des Webservers schaltest du unter <b>Verschlüsselung (HTTPS)</b> HTTPS an Port 443 ein und auf Wunsch HTTP an Port 80 ab. Unter <b>Zertifikat für</b> stehen die Namen und Adressen, für die das Zertifikat gilt, durch Kommas getrennt; steht dort nichts, gilt es für keinen Server. Die Filius-Zertifizierungsstelle unterschreibt es; mit <b>Selbst signiert</b> fehlt die Unterschrift, und Browser warnen.</p>
+<p>Im Webbrowser zeigt ein Schloss vor der Adresse, ob die Seite verschlüsselt kam (grün), mit einem Zertifikat, dem der Browser nicht vertraut (rot), oder unverschlüsselt (grau). Ein Klick zeigt das Zertifikat. Im Datenaustausch heißen die Nachrichten TLS; Absender und Empfänger sehen dort zusätzlich den entschlüsselten Inhalt, alle anderen Geräte nur Zeichensalat.</p>
+<h2>VPN: Homeoffice</h2>
+<p>Die Programme <b>VPN-Server</b> und <b>VPN-Client</b> bauen einen verschlüsselten Tunnel durchs Internet. Im VPN-Server legst du Benutzer mit Passwort an und startest ihn; er wartet an UDP-Port 1194. Unter <b>VPN-Adressen</b> steht das Netz für die Adressen im Tunnel (10.8.0.0), unter <b>Netz im Tunnel</b> das Netz, das die Clients erreichen. Leer heißt: das Netz des VPN-Servers.</p>
+<p>Im VPN-Client trägst du die IPv4-Adresse des VPN-Servers, Benutzer und Passwort ein und klickst auf <b>Verbinden</b>. Danach gehen alle Pakete für das Netz im Tunnel verschlüsselt an den VPN-Server, der sie mit seiner eigenen Adresse weiterschickt. <b>ipconfig</b> zeigt den VPN-Adapter, im Datenaustausch heißen die Pakete VPN. Beim Beenden der Simulation wird die Verbindung getrennt.</p>
+<h2>IP-Konfiguration ansehen</h2>
+<p>Das Symbol rechts unten in der Leiste des Desktops zeigt die IP-Konfiguration des Geräts. Ein zweiter Klick auf das Symbol oder ein Klick auf den Desktop schließt sie wieder.</p>
+<table width="100%" cellspacing="0" cellpadding="10" border="0"><tr><td align="center" bgcolor="#F2F5F8"><img src="hilfe/gfx/netzwek_aus.png" width="150" height="30" border="0"></td></tr></table><p class="gap"></p>
+<h2>Datenaustausch beobachten</h2>
+<p>Fließt ein Paket durch ein Kabel, füllt sich das Kabel vom Sender aus blau und leert sich dann in Richtung Empfänger – das Blau fließt also mit dem Paket. Im WLAN gehen vom Sender Funkwellen aus, und beim Empfänger leuchtet ein Signalpunkt auf, sobald das Paket angekommen ist.</p>
+<table width="100%" cellspacing="0" cellpadding="0" border="0"><tr><td align="center" class="shot"><img src="hilfe/gfx/kabel_aktiv.png" width="300" height="120" border="0"></td></tr></table><p class="cap">Ein Paket fließt vom PC zum Switch.</p>
+<p>Mit dem Regler <b>Tempo</b> oben verlangsamst oder beschleunigst du den Datenaustausch.</p>
+<table width="100%" cellspacing="0" cellpadding="10" border="0"><tr><td align="center" bgcolor="#F2F5F8"><img src="hilfe/gfx/tempo.png" width="195" height="36" border="0"></td></tr></table><p class="gap"></p>
+<p>Alle Daten, die ein Gerät sendet und empfängt, zeigt <b>Datenaustausch anzeigen</b> in seinem Kontextmenü (rechte Maustaste).</p>
+<table width="100%" cellspacing="0" cellpadding="0" border="0"><tr><td align="center" class="shot"><img src="hilfe/gfx/kontextmenue_simulation.png" width="340" height="120" border="0"></td></tr></table><p class="gap"></p>
+<p>In der Tabelle steht jede Nachricht in einer oder mehreren Zeilen. Die Farben zeigen, zu welcher Schicht die Angaben gehören. Ein Klick auf eine Zeile zeigt darunter alle Schichten dieser Nachricht.</p>
+<h2>TCP/IP- oder OSI-Modell</h2>
+<p>Oben rechts im Fenster Datenaustausch wählst du das Schichtenmodell. Zu Beginn ist das TCP/IP-Modell mit vier Schichten eingestellt.</p>
+<table width="100%" cellspacing="0" cellpadding="10" border="0"><tr><td align="center" bgcolor="#F2F5F8"><img src="hilfe/gfx/schichtmodell.png" width="164" height="44" border="0"></td></tr></table><p class="gap"></p>
+<p>Im OSI-Modell siehst du alle sieben Schichten mit Nummer. Daneben steht, zu welcher TCP/IP-Schicht sie gehören. Für die Schichten 1, 5 und 6 gibt es in Filius keine eigenen Daten; dort steht eine Erklärung.</p>
+<table width="100%" cellspacing="0" cellpadding="0" border="0"><tr><td align="center" class="shot"><img src="hilfe/gfx/osi_stapel.png" width="292" height="296" border="0"></td></tr></table><p class="cap">Eine Webseiten-Anfrage im OSI-Modell</p>
+<table width="100%" cellspacing="0" cellpadding="0" border="0"><tr><td width="4" bgcolor="#13A35A"></td><td bgcolor="#E6F5EC"><table width="100%" cellspacing="0" cellpadding="9" border="0"><tr><td class="tip"><b>Tipp:</b> Vergleiche beide Modelle an derselben Nachricht: Welche OSI-Schichten stecken in der TCP/IP-Schicht Anwendung?</td></tr></table></td></tr></table>
+<h2>Firewall des Vermittlungsrechners</h2>
+<p>Installiere auf einem angeschlossenen Laptop einen Webbrowser und gib in die Adresszeile eine IPv4-Adresse des Vermittlungsrechners ein. Auf dieser Seite schaltest du die Firewall ein und aus, stellst sie ein und siehst ihr Protokoll.</p>
+<h2>Switch-Tabelle ansehen</h2>
+<p>Ein Switch merkt sich, über welchen Anschluss er welche MAC-Adresse erreicht (Source Address Table, SAT). Ein Klick auf den Switch zeigt diese Tabelle.</p>
+<h2>Modus wechseln</h2>
+<table width="100%" cellspacing="0" cellpadding="0" border="0"><tr><td valign="middle" width="110"><p class="mi"><img src="hilfe/gfx/entwurfsmodus.png" width="98" height="38" border="0"></p></td><td valign="middle"><p class="mt">Netz aufbauen und Geräte einstellen</p></td></tr><tr><td valign="middle" width="155"><p class="mi"><img src="hilfe/gfx/dokumodus.png" width="143" height="38" border="0"></p></td><td valign="middle"><p class="mt">Netz beschriften und als Bild oder Report ausgeben</p></td></tr></table>
+</body></html>

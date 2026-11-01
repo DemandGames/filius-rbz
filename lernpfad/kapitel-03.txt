@@ -1,0 +1,223 @@
+# Webserver und eigene Website
+Ziel: Ein PC im Schulnetz wird zum Webserver der Schule. Du veränderst die Website und siehst im Datenaustausch, wie TCP und HTTP zusammenarbeiten.
+
+## Lesen
+
+### Wer bietet, wer fragt?
+Im Netz gibt es zwei Rollen: Ein **Server** bietet einen Dienst an, ein **Client** nutzt ihn. Der Webbrowser ist ein Client, der Webserver ein Server.
+
+[Bild: k03-client-server.png | Der Client fragt an, der Server antwortet]
+
+[Bild: k03-etiketten.png | Die Software-Installation zeigt die Rolle jedes Programms]
+
+Server und Client sind Rollen von Programmen. In unserem Netz laufen Server auf PCs, Clients auf Laptops.
+
+### Den Webserver starten
+Installiere auf dem PC die Software „Webserver“ und öffne sie. Mit „Starten“ nimmt der Server Anfragen an.
+
+[Bild: k03-webserver.png | Das Fenster des Webservers]
+
+Die Seiten liegen auf dem PC im Ordner `webserver`. Webseiten sind in **HTML** geschrieben, einer Sprache, die Überschriften, Texte, Bilder und Links beschreibt. Die Startseite heißt `index.html`. Du bearbeitest sie mit dem „Text-Editor“.
+
+### Die Seite im Browser
+Auf einem Laptop installierst du den „Webbrowser“. In die Adresszeile tippst du die **URL**, zum Beispiel `http://192.168.10.10/kontakt.html`.
+
+[Bild: k03-browser.png | Die Startseite im Browser eines Laptops]
+
+[Bild: k03-url.png | Die drei Teile einer URL]
+
+- `http` ist das Protokoll,
+- `192.168.10.10` der Server,
+- `/kontakt.html` die Datei auf dem Server. Fehlt sie, liefert der Server `index.html`.
+
+### Was im Netz passiert
+Zuerst baut der Browser mit **TCP** eine Verbindung zum Server auf. Damit eine Nachricht beim richtigen Programm auf dem Server ankommt, trägt sie eine Nummer, den **Port**. Ein Webserver wartet an Port 80. Im Datenaustausch siehst du erst den Verbindungsaufbau, dann die Anfrage und die Antwort.
+
+[Bild: k03-handschlag.png | Handschlag, Anfrage und Antwort im Datenaustausch]
+
+### Der Drei-Wege-Handschlag
+TCP baut jede Verbindung in drei Schritten auf, dem **Drei-Wege-Handschlag**. Erst danach fließen Daten:
+
+1. SYN: Der Browser fragt beim Server an: „Ich möchte eine Verbindung zu Port 80.“ SYN kommt von synchronisieren.
+2. SYN-ACK: Der Server antwortet: „Einverstanden, und ich möchte auch eine Verbindung zu dir.“ ACK heißt bestätigt (englisch acknowledge).
+3. ACK: Der Browser bestätigt die Antwort. Jetzt steht die Verbindung in beide Richtungen.
+
+[Bild: k03-drei-wege.png | Der Drei-Wege-Handschlag zwischen Laptop-1 und Webserver]
+
+Warum drei Schritte? Beide Seiten wollen sicher sein, dass der andere erreichbar ist und antwortet, bevor sie Daten schicken. Dabei vereinbaren sie auch Startnummern, mit denen sie alle weiteren Nachrichten durchzählen. So merkt TCP, wenn eine Nachricht fehlt, und schickt sie noch einmal.
+
+Steht die Verbindung, schickt der Browser die **HTTP**-Anfrage `GET /kontakt.html`. Der Server antwortet mit einem **Statuscode**: `200` heißt „OK“, `404` heißt „nicht gefunden“.
+
+### Schichten
+Jede Nachricht besteht aus Schichten. Im **TCP/IP-Modell** gibt es vier: Anwendung (HTTP), Transport (TCP), Vermittlung (IP) und Netzzugang (Ethernet).
+
+[Bild: k03-schichten.png | Eine HTTP-Nachricht im OSI-Modell]
+
+Oben rechts im Datenaustausch schaltest du auf das **OSI-Modell** mit sieben Schichten um. Die Transportschicht ist dort Schicht 4, die Anwendung liegt in den Schichten 5 bis 7.
+
+## Praxis
+
+### 3.1
+Stelle den Webserver auf:
+- PC mit dem Namen „Webserver“
+- IPv4-Adresse 192.168.10.10, Netzmaske 255.255.255.0
+- angeschlossen an den Switch Schule
+Tipp: Server sind in unserem Netz PCs. Ihre festen Adressen liegen unter denen der Laptops.
+
+### 3.2
+Installiere auf dem Webserver die Software „Webserver“ und starte sie in der Simulation.
+Tipp: Das Programm hat einen Knopf „Starten“.
+
+### 3.3
+Installiere auf Laptop-2 den Webbrowser und rufe http://192.168.10.10 auf.
+Tipp: Die Adresse tippst du oben in die Adresszeile des Browsers.
+
+### 3.4
+Gib der Startseite eine eigene Überschrift:
+- Installiere auf dem Webserver den Text-Editor.
+- Öffne `webserver/index.html`.
+- Ersetze die Überschrift „Herzlich willkommen am RBZ Wirtschaft . Kiel“ durch eine eigene.
+- Speichere die Datei.
+Tipp: Ändere nur den Text zwischen `<h1>` und `</h1>`. Mit Strg+F und „h1“ findest du die Stelle schnell.
+
+### 3.5
+Lade die Seite im Browser von Laptop-2 neu, sodass deine neue Überschrift erscheint.
+Tipp: Knopf zum Neuladen neben der Adresszeile oder die Adresse noch einmal aufrufen.
+
+### 3.6
+Lege eine zweite Seite an:
+- Datei `webserver/kontakt.html` mit einer Überschrift und einem Satz über deine Klasse
+- ein Link auf der Startseite, der zu `kontakt.html` führt
+Rufe die Kontaktseite dann im Browser von Laptop-2 auf.
+Tipp: Ein Link sieht so aus: `<a href="kontakt.html">Kontakt</a>`. Eine neue Datei legst du im Text-Editor mit „Speichern unter“ an.
+
+### 3.7
+Rufe absichtlich http://192.168.10.10/gibtsnicht.html auf.
+Frage: Welchen Statuscode schickt der Server zurück?
+Eingabe: Statuscode
+Tipp: Der Code steht im Datenaustausch in der HTTP-Zeile.
+
+### 3.8
+Öffne den Datenaustausch von Laptop-2, schalte oben rechts auf OSI um und suche den Verbindungsaufbau vor einer HTTP-Anfrage.
+Frage: In welcher Reihenfolge kommen die drei TCP-Nachrichten?
+- SYN, ACK, SYN-ACK
+- ✓ SYN, SYN-ACK, ACK
+- ACK, SYN, SYN-ACK
+- SYN-ACK, SYN, ACK
+Tipp: Bei der zweiten Nachricht stehen SYN und ACK zusammen in den Bemerkungen.
+
+## Quiz
+
+### Was ist ein Server?
+- ✓ Ein Programm, das anderen einen Dienst anbietet
+- Ein Gerät mit besonders viel Leistung
+Falsch: Im Alltag nennt man so auch leistungsstarke Rechner. Gemeint ist hier aber die Rolle: Ein Server bietet einen Dienst an, das kann auch ein ganz normaler PC.
+- Ein Programm, das die Dienste anderer nutzt
+Falsch: Das ist genau das Gegenteil: Ein Programm, das Dienste nutzt, ist ein Client, zum Beispiel der Webbrowser.
+- Ein Gerät, das mehrere Netze verbindet
+Falsch: Netze verbindet ein Vermittlungsrechner (Router). Mit der Rolle Server hat das nichts zu tun.
+Erklärung: Server und Client sind Rollen der Software. In der Software-Installation zeigen das die Etiketten.
+
+### Welches Etikett trägt der Webbrowser in der Software-Installation?
+- ✓ Client
+- Server
+Falsch: Der Browser bietet nichts an, er fragt Seiten an. Server ist der Webserver, der die Seiten liefert.
+- Peer-to-Peer
+Falsch: Bei Peer-to-Peer sind alle Programme gleichberechtigt und bieten und nutzen zugleich. Der Browser fragt nur an.
+- Werkzeug
+Falsch: Werkzeuge wie die Befehlszeile oder der Text-Editor helfen bei der Arbeit am Gerät. Der Browser nutzt dagegen einen Dienst im Netz.
+Erklärung: Der Browser nutzt einen Dienst: Er fragt eine Seite an, der Webserver liefert sie. Programme, die einen Dienst nutzen, sind Clients.
+
+### Welcher Port gehört standardmäßig zu HTTP?
+- ✓ 80
+- 25
+Falsch: Port 25 gehört zu SMTP, also zum Versenden von E-Mails (Kapitel 9).
+- 53
+Falsch: Port 53 gehört zu DNS, der Namensauflösung (Kapitel 6).
+- 143
+Falsch: Port 143 gehört zu IMAP, dem Abrufen von E-Mails (Kapitel 9).
+Erklärung: Webserver warten standardmäßig an Port 80 auf HTTP-Anfragen. Über den Port findet eine Anfrage das richtige Programm auf dem Server.
+
+### In welcher Reihenfolge baut TCP eine Verbindung auf?
+- ✓ SYN, SYN-ACK, ACK
+- SYN, ACK, SYN-ACK
+Falsch: Nach dem SYN antwortet zuerst der Server. Diese Antwort ist das SYN-ACK, das ACK des Clients kommt erst danach.
+- ACK, SYN, SYN-ACK
+Falsch: Ein ACK bestätigt etwas. Am Anfang gibt es aber noch nichts zu bestätigen: Der Aufbau beginnt immer mit SYN.
+- SYN-ACK, SYN, ACK
+Falsch: Das SYN-ACK ist die Antwort des Servers. Es kann nicht vor der Anfrage (SYN) des Clients kommen.
+Erklärung: Das ist der Drei-Wege-Handschlag. Erst danach schickt der Browser seine HTTP-Anfrage.
+
+### Was schickt der Browser, um eine Seite anzufordern?
+- ✓ Eine HTTP-Anfrage mit GET
+- Eine HTTP-Antwort mit 200
+Falsch: Die Antwort mit 200 schickt der Webserver zurück, nachdem der Browser angefragt hat.
+- Eine DNS-Anfrage mit dem Dateinamen
+Falsch: DNS fragt nach der IPv4-Adresse zu einem Namen. Dateinamen kennt DNS nicht.
+- Eine TCP-Nachricht mit FIN
+Falsch: FIN beendet eine TCP-Verbindung. Damit fordert man keine Seite an.
+Erklärung: Eine Seite fordert der Browser mit einer HTTP-Anfrage an. GET /kontakt.html heißt: Bitte schick mir diese Datei.
+
+### Was bedeutet der Statuscode 404?
+- ✓ Die angeforderte Datei gibt es nicht
+- Der Server ist nicht erreichbar
+Falsch: Dann käme gar keine Antwort und damit auch kein Statuscode. Eine 404 schickt der Server selbst.
+- Der Zugriff ist nicht erlaubt
+Falsch: Dafür gibt es den Code 403 (Forbidden). 404 heißt nur: Diese Datei gibt es nicht.
+- Im Server ist ein Fehler aufgetreten
+Falsch: Ein Fehler im Server hat den Code 500. Bei 404 liegt es an der angefragten Adresse.
+Erklärung: 404 bedeutet „Not Found“. Ein nicht erreichbarer Server könnte gar keinen Code schicken.
+
+### Was bedeutet der Statuscode 200?
+- ✓ Die Anfrage war erfolgreich
+- Die TCP-Verbindung ist aufgebaut
+Falsch: Den Verbindungsaufbau erledigt TCP mit SYN, SYN-ACK und ACK. Statuscodes gehören zu HTTP.
+- Die Seite wurde umgeleitet
+Falsch: Umleitungen haben Codes, die mit 3 beginnen, zum Beispiel 301 oder 302.
+- Die Anfrage wird noch bearbeitet
+Falsch: Zwischenstände melden Codes, die mit 1 beginnen. Die 200 kommt mit der fertigen Antwort.
+Erklärung: 200 bedeutet „OK“, die Antwort enthält die Seite. Den Verbindungsaufbau regelt TCP vorher.
+
+### Welche Datei liefert der Webserver, wenn nur http://192.168.10.10/ aufgerufen wird?
+- ✓ index.html
+- start.html
+Falsch: Eine Datei mit diesem Namen liefert der Webserver nur, wenn man sie ausdrücklich aufruft. Für den Ordner selbst sucht er index.html.
+- default.html
+Falsch: Manche andere Webserver nutzen solche Namen. Der Webserver in Filius sucht nach index.html.
+- home.html
+Falsch: Diese Datei liefert der Webserver nur bei ausdrücklichem Aufruf. Die Startseite eines Ordners heißt index.html.
+Erklärung: Ohne Dateinamen liefert der Webserver die Startseite des Ordners, und die heißt index.html.
+
+### Zu welcher Schicht des TCP/IP-Modells gehört HTTP?
+- ✓ Anwendungsschicht
+- Transportschicht
+Falsch: Dort arbeitet TCP und sorgt für die Verbindung. HTTP nutzt TCP, liegt aber darüber.
+- Vermittlungsschicht
+Falsch: Dort arbeitet IP mit den IPv4-Adressen. HTTP kümmert sich um Seiten und Anfragen, nicht um Wege.
+- Netzzugangsschicht
+Falsch: Dort geht es um MAC-Adressen und Kabel. HTTP liegt ganz oben bei den Programmen.
+Erklärung: HTTP regelt, was Browser und Webserver einander sagen. TCP darunter sorgt für die Verbindung.
+
+### Welcher OSI-Schicht entspricht die Transportschicht mit TCP?
+- ✓ Schicht 4
+- Schicht 3
+Falsch: Schicht 3 ist die Vermittlungsschicht mit IP. TCP liegt eine Schicht darüber.
+- Schicht 5
+Falsch: Schicht 5 ist die Sitzungsschicht. Sie gehört im TCP/IP-Modell schon zur Anwendungsschicht.
+- Schicht 7
+Falsch: Schicht 7 ist die Anwendungsschicht, zum Beispiel mit HTTP. TCP liegt weiter unten.
+Erklärung: Im OSI-Modell ist die Transportschicht Schicht 4, die Anwendung liegt in den Schichten 5 bis 7.
+
+## Glossar
+
+- **Server** – Programm, das einen Dienst anbietet, zum Beispiel der Webserver. Es wartet auf Anfragen und beantwortet sie. Den PC, auf dem ein Server läuft, nennt man oft selbst Server; in unserem Netz sind das PCs mit fester Adresse. Ein PC kann auch mehrere Server-Programme gleichzeitig ausführen.
+- **Client** – Programm, das einen Dienst nutzt, zum Beispiel der Webbrowser. Der Client stellt Anfragen, der Server antwortet darauf. Welche Programme Clients sind, zeigt in Filius das Etikett in der Software-Installation. Auch das E-Mail-Programm ist ein Client.
+- **HTML** – Sprache, in der Webseiten geschrieben sind. HTML beschreibt mit Tags wie <h1> oder <p>, was Überschrift und was Absatz ist. Der Webserver schickt die HTML-Datei, der Browser macht daraus die Seite, die du siehst. Die Startseite des Webservers ist die Datei index.html.
+- **URL** – vollständige Adresse einer Ressource, zum Beispiel http://192.168.10.10/kontakt.html. Sie besteht aus dem Protokoll (http), dem Server (Adresse oder Name) und dem Pfad zur Datei. Fehlt der Pfad, liefert der Webserver die Startseite index.html. Statt der IPv4-Adresse kann auch ein Name stehen (Kapitel 6).
+- **TCP** – Transportprotokoll, das eine Verbindung aufbaut und dafür sorgt, dass alles vollständig ankommt. Es nummeriert die Daten, lässt sich den Empfang bestätigen und schickt Verlorenes noch einmal. Bevor Daten fließen, gibt es den Drei-Wege-Handschlag. HTTP und die E-Mail-Protokolle nutzen TCP.
+- **Port** – Nummer, über die eine Nachricht das richtige Programm auf einem Gerät erreicht. Webserver warten an Port 80. Die IPv4-Adresse führt zum Gerät, der Port zum Programm, so wie Hausnummer und Wohnungsnummer. Weitere Beispiele: DNS nutzt Port 53, SMTP Port 25.
+- **Drei-Wege-Handschlag** – Verbindungsaufbau bei TCP mit SYN, SYN-ACK und ACK. Der Client fragt mit SYN an, der Server antwortet mit SYN-ACK, und der Client bestätigt mit ACK. Danach wissen beide, dass die Verbindung steht. Erst dann schickt zum Beispiel der Browser seine HTTP-Anfrage.
+- **HTTP** – Protokoll, mit dem Browser Webseiten anfordern und Webserver sie liefern. Der Browser schickt eine Anfrage wie GET /kontakt.html, der Server antwortet mit einem Statuscode und der Datei. HTTP liegt in der Anwendungsschicht und nutzt TCP für den Transport. Der Standardport ist 80.
+- **Statuscode** – dreistellige Zahl in der HTTP-Antwort, zum Beispiel 200 (OK) oder 404 (nicht gefunden). Die erste Ziffer zeigt die Art: 2 bedeutet Erfolg, 3 Umleitung, 4 einen Fehler in der Anfrage, 5 einen Fehler im Server. Du findest den Code im Datenaustausch in der HTTP-Zeile. Er hilft bei der Fehlersuche, weil er sagt, woran es lag.
+- **TCP/IP-Modell** – Schichtenmodell des Internets mit vier Schichten: Anwendung, Transport, Vermittlung und Netzzugang. Jede Schicht hat eine eigene Aufgabe und nutzt die Schicht darunter. Beispiel: HTTP (Anwendung) nutzt TCP (Transport), TCP nutzt IP (Vermittlung), und IP nutzt Ethernet mit MAC-Adressen (Netzzugang). Im Datenaustausch siehst du diese Schichten für jede Nachricht.
+- **OSI-Modell** – Schichtenmodell mit sieben Schichten. Die Transportschicht ist dort Schicht 4, die Anwendung liegt in den Schichten 5 bis 7. Es teilt dieselben Aufgaben feiner auf als das TCP/IP-Modell, zum Beispiel trennt es den Netzzugang in Bitübertragung (Schicht 1) und Sicherung (Schicht 2). Im Datenaustausch kannst du oben rechts auf OSI umschalten.

@@ -1,0 +1,214 @@
+# Names instead of numbers: DNS
+Goal: A DNS server is added to the provider network. After that, you can reach the school website and the Shop at www.rbz-wirtschaft-kiel.de and www.ravensberger24.de: from the school and from the RGG.
+
+## Read
+
+### Why names?
+Nobody remembers 198.51.100.80. A name like www.ravensberger24.de is easier. But to send data, a device always needs an IPv4 address.
+
+[Picture: k06-adresszeile.png | The Shop in the browser, opened by its name]
+
+The **DNS** (Domain Name System) translates names into addresses. It works like a phone book: you know the name and look up the number. If the Shop ever moves, you only change the entry in the phone book. The name stays the same.
+
+### Parts of a domain name
+You read a **domain name** like www.rbz-wirtschaft-kiel.de from right to left:
+
+- `de` is the **top-level domain**,
+- `rbz-wirtschaft-kiel` is the domain that the school has registered,
+- `www` is the name of a computer in this domain.
+
+[Picture: k06-domainname.png | www.rbz-wirtschaft-kiel.de in three parts]
+
+For DNS, www.rbz-wirtschaft-kiel.de and rbz-wirtschaft-kiel.de are two different names. Each one needs its own entry.
+
+### Setting up the DNS server
+A **DNS server** answers requests for names. You install the software "DNS server" on a PC and create entries there. An **A record** links a name to an IPv4 address.
+
+[Picture: k06-dns-server.png | The DNS server with two A records]
+
+Every device must know which DNS server to ask. With fixed settings, it is in the field "Domain Name Server". Devices with DHCP get it from the DHCP server (chapter 7).
+
+### First ask, then connect
+When you type www.ravensberger24.de into the browser, a DNS request happens first: "What is the address of www.ravensberger24.de?". Only with the answer can the browser set up the TCP connection to the Shop.
+
+[Picture: k06-dns-ablauf.png | DNS request and reply, then SYN and GET to the Shop]
+
+DNS requests are short and fit into one packet. That is why they do not use TCP. They use the simple **UDP** without connection setup, on port 53.
+
+With the command **nslookup** you can make a DNS request yourself in the Command Line, for example `nslookup www.ravensberger24.de`.
+
+### Names in the certificate
+Since chapter 4 the school website is encrypted with HTTPS. But its certificate is only valid for what is written in it, so far only for 192.168.10.10. If you open the page by its name, the browser warns you: it cannot check whether www.rbz-wirtschaft-kiel.de is really the real server.
+
+[Picture: k06-zertifikatsname.png | The warning: the certificate is not valid for the name]
+
+That is why you also enter the names at the web server under "Certificate for". Real websites have a certificate for all names under which you can reach them.
+
+## Practice
+
+### 6.1
+In the provider network, set up a DNS server:
+- a PC called "DNS server" on the Provider switch
+- IPv4 address 203.0.113.53, netmask 255.255.255.0
+- gateway 203.0.113.1
+- install the software "DNS server"
+Tip: The address .53 reminds you of the DNS port 53.
+
+### 6.2
+In the DNS server, create an A record for both websites and start it:
+- www.rbz-wirtschaft-kiel.de
+- www.ravensberger24.de
+Tip: You know the addresses of the two web servers from chapters 3 and 5.
+
+### 6.3
+Enter the DNS server 203.0.113.53 on all laptops:
+- at school: Laptop-1 to Laptop-4
+- at the RGG: Office laptop
+Tip: The field is called "Domain Name Server". You find it in the settings of each laptop.
+
+### 6.4
+On Laptop-1, use `nslookup` to find out which address belongs to www.ravensberger24.de.
+Tip: If the DNS server does not answer, maybe it is not running yet.
+
+### 6.5
+Open the websites by their names:
+| Device | Address in the browser |
+|---|---|
+| Laptop-2 | http://www.ravensberger24.de |
+| Office laptop | https://www.rbz-wirtschaft-kiel.de |
+For the school website the browser warns you. You take care of this in 6.7.
+Tip: If a name does not work, use `nslookup` on this laptop to check whether the DNS server answers.
+
+### 6.6
+Find the DNS request in the data exchange of Laptop-2.
+Question: Which transport protocol and which port does it use?
+- TCP, port 53
+- ✓ UDP, port 53
+- UDP, port 67
+- TCP, port 80
+Tip: Click on the DNS line and look at the Transport layer.
+
+### 6.7
+On the Office laptop, click the red lock at https://www.rbz-wirtschaft-kiel.de. Then, at the school web server, also enter www.rbz-wirtschaft-kiel.de and rbz-wirtschaft-kiel.de under "Certificate for" and reload the page.
+Question: Why did the browser warn you?
+- ✓ The certificate was only valid for 192.168.10.10, not for the name
+- The DNS server did not know the name
+- The web server had no certificate
+- The Filius Certificate Authority could not be reached
+Tip: Write all names and addresses into the field, separated by commas, for example "192.168.10.10, www.rbz-wirtschaft-kiel.de, rbz-wirtschaft-kiel.de".
+
+### 6.8
+https://rbz-wirtschaft-kiel.de without "www" should also show the school website. Find out what is still missing for this and fix it. Then test it in the browser.
+Tip: For the DNS server, the name without www is a separate name.
+
+## Quiz
+
+### What does a DNS server do?
+- ✓ It translates domain names into IPv4 addresses
+- It hands out IPv4 addresses to devices
+Wrong: Addresses are handed out by the DHCP server (chapter 7). The DNS server only tells you the address that belongs to a name.
+- It stores the web pages of a domain
+Wrong: The web pages are on the web server. The DNS server only knows the name and the address.
+- It forwards packets between networks
+Wrong: Routers forward packets. The DNS server only answers questions about names.
+Explanation: The DNS server translates names like www.ravensberger24.de into IPv4 addresses. It is something like the phone book of the network.
+
+### What must happen before the browser can set up a TCP connection to www.ravensberger24.de?
+- ✓ The device asks the DNS server for the IPv4 address
+- The browser asks the web server for its IPv4 address
+Wrong: To ask the web server, the browser would already need its address. That is exactly what it does not have yet.
+- The device uses ARP to ask for the MAC address of the Shop
+Wrong: The Shop is in another network. ARP only works in your own network and would here at most ask for the gateway, and only once the IPv4 address is known.
+- The router looks up the name in its table
+Wrong: Routers do not know names, only networks and IPv4 addresses.
+Explanation: TCP needs an IPv4 address, and the DNS server knows it. After that, the device uses ARP only to ask for the MAC address of its gateway, because the Shop is in a different network.
+
+### What is in an A record?
+- ✓ A name and its IPv4 address
+- A domain and its mail server
+Wrong: That is in an MX record (chapter 9).
+- An IPv4 address and its MAC address
+Wrong: ARP knows this pairing, not DNS.
+- A name and its default gateway
+Wrong: The gateway is in the network settings of a device, not in DNS.
+Explanation: An A record links a name to an IPv4 address, for example www.ravensberger24.de → 198.51.100.80.
+
+### Which transport protocol and which port do DNS requests use in Filius?
+- ✓ UDP, port 53
+- TCP, port 53
+Wrong: The port is right, but for a short question and answer, DNS in Filius uses UDP. Setting up a TCP connection would be unnecessary effort here.
+- UDP, port 67
+Wrong: Port 67 belongs to the DHCP server (chapter 7).
+- TCP, port 80
+Wrong: That is HTTP for web pages.
+Explanation: A DNS question fits into a single packet, so the simple UDP is enough.
+
+### What is the top-level domain in www.rbz-wirtschaft-kiel.de?
+- ✓ de
+- www
+Wrong: www is on the far left. It is the name of a service inside the domain, not the top-level domain.
+- rbz-wirtschaft-kiel
+Wrong: This is the second-level domain, the name the school chose. The top-level domain is to the right of it.
+- rbz-wirtschaft-kiel.de
+Wrong: This is the whole domain of the school. The top-level domain is only its last part.
+Explanation: The top-level domain is the last part of the name and is on the far right, here de.
+
+### How does a device know which DNS server to ask?
+- ✓ From its network settings, entered by hand or received via DHCP
+- It asks all devices in the network with a broadcast
+Wrong: DNS has no search by broadcast. The device asks exactly the address that is in its settings.
+- It always uses its default gateway
+Wrong: Gateway and DNS server are two different entries. In the practice network the DNS server is a PC of its own in the provider network.
+- It reads it from the domain name
+Wrong: The name does not contain the address of a DNS server. That is exactly why you need the setting.
+Explanation: The address of the DNS server is in the network settings of the device. It is entered by hand, as in this chapter, or comes via DHCP (chapter 7).
+
+### Which command shows which IPv4 address belongs to a name?
+- ✓ nslookup
+- arp
+Wrong: arp shows pairs of IPv4 address and MAC address in your own network. arp has nothing to do with names.
+- route
+Wrong: route shows the forwarding table, that is, routes into networks.
+- ipconfig
+Wrong: ipconfig shows your own settings, including the DNS server. But it does not look up a name.
+Explanation: nslookup sends a DNS request itself and shows the answer.
+
+### You can open the Shop with 198.51.100.80, but not with www.ravensberger24.de. Where is the error most likely?
+- ✓ In the DNS entry or in the DNS settings
+- In the web server of the Shop
+Wrong: The page opens via 198.51.100.80. So the web server is running.
+- In the route in R1
+Wrong: The packets arrive via the IPv4 address. So the route is correct.
+- In the gateway of the laptop
+Wrong: With a wrong gateway the laptop would not reach the Shop via the IPv4 address either.
+Explanation: It works via the IPv4 address, so the route and the web server work. Only the translation of the name is missing, so the fault is in DNS.
+
+### Why do we use domain names instead of IPv4 addresses?
+- ✓ They are easier to remember and stay the same when the address changes
+- Packets with names are forwarded faster
+Wrong: Routers only forward by IPv4 addresses. The name is translated beforehand and does not make anything faster, if anything the DNS request is added.
+- Browsers are not allowed to show IPv4 addresses
+Wrong: Yes, they are: you typed http://198.51.100.80 into the address bar yourself.
+- Names replace the default gateway
+Wrong: A device still needs its gateway. Names only help people to remember.
+Explanation: Names are easier to remember than numbers. And if the Shop moves to another address, you only change the A record, and the name stays.
+
+### On Laptop-3, nslookup gets no answer. On Laptop-2 it works. What do you check first?
+- ✓ The entry "Domain Name Server" in the settings of Laptop-3
+- The A records in the DNS server
+Wrong: Laptop-2 gets an answer from the same DNS server. So the records are there.
+- The web server of the Shop
+Wrong: nslookup only asks the DNS server. The web server does not play a part here yet.
+- The forwarding table of R1
+Wrong: Laptop-2 reaches the DNS server through the same router R1. So the route works.
+Explanation: The same DNS server answers Laptop-2, so the error is on Laptop-3 itself. Usually the DNS server is missing in its settings or it is entered wrongly.
+
+## Glossary
+
+- **DNS** – Domain Name System: translates names into IPv4 addresses. People remember names like www.ravensberger24.de, but devices need addresses like 198.51.100.80. That is why the device asks a DNS server before a browser sets up a connection. DNS requests use UDP and port 53.
+- **Domain name** – readable name of a computer in the network, for example www.ravensberger24.de. It consists of parts separated by dots that get more exact from right to left: top-level domain, domain, computer. A name stays the same even if the address behind it changes. Then only the entry in DNS has to be adjusted.
+- **Top-level domain** – last part of a domain name, for example de. It is on the far right and often names a country or a kind, like de for Germany or com for companies. To the left of it is the name that a school or company chooses. In www.rbz-wirtschaft-kiel.de, de is the top-level domain.
+- **DNS server** – server that answers DNS requests. It has a list of entries, for example A records and MX records. Every device must know the address of its DNS server, entered by hand or received via DHCP. In our network it is in the provider network, with 203.0.113.53.
+- **A record** – DNS entry that links a name to an IPv4 address. Example: www.ravensberger24.de → 198.51.100.80. Every website that should be reachable by a name needs an entry like this. A name without www, like rbz-wirtschaft-kiel.de, is a name of its own and needs its own entry.
+- **UDP** – transport protocol without connection setup, good for short requests like DNS. It sends single packets without a handshake beforehand and without confirming receipt. This is fast, but lost packets are not sent again automatically. DHCP uses UDP, too.
+- **nslookup** – command that looks up a name at the DNS server. Example: nslookup www.ravensberger24.de shows the address 198.51.100.80. With it you can check name resolution without a browser. If the DNS server does not answer, usually the DNS setting is wrong or the server is not running.

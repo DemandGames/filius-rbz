@@ -1,0 +1,193 @@
+# Web server and website
+Goal: A PC in the school network becomes the web server. You open the school page in the browser, change it yourself and see how browser and server talk to each other.
+
+## Read
+
+### Server and client
+A **server** is a device that provides something for others, for example web pages. A **client** is a device that uses this service, for example a laptop with a web browser.
+
+[Picture: s03-client-server.png | The client asks, the server answers]
+
+In our network, servers are PCs and clients are laptops. The software "Webserver" runs on the PC "Web server". It must be started, otherwise nobody answers.
+
+[Picture: s03-webserver.png | The software Webserver with the button "Start"]
+
+### Client programs, server programs and tools
+Every program in Filius is a **client program** or a **server program**, too. The web browser is a client program: it asks for web pages. The web server is a server program: it provides the web pages. The two belong together, like question and answer.
+
+In the software installation you see for every program what it is: "Client", "Server", "Peer-to-peer" or "Tool". **Tools** are helper programs that you use on the device itself, for example the command line or the text editor. They offer no service to other devices.
+
+[Picture: s03-software.png | The software installation: every program is marked as client, server, peer-to-peer or tool]
+
+With **peer-to-peer** there is no fixed server. All devices are equal: each one is client and server at the same time. Gnutella is such a program. Every computer with Gnutella offers its files to the others and downloads files from them itself. That is why Gnutella is marked as peer-to-peer.
+
+### The address of a web page
+In the browser you type a **URL**, the address of a web page. It has several parts:
+
+[Picture: s03-url.png | The parts of the URL http://192.168.0.14/index.html]
+
+- http:// says how browser and server talk to each other,
+- 192.168.0.14 is the server,
+- /index.html is the file on the server. If it is missing, the server sends its start page.
+
+### HTTP and HTML
+Browser and server talk with **HTTP**. The browser sends a request: "Give me the page." The server sends the page back as a response.
+
+The page itself is written in **HTML**. HTML uses commands in angle brackets to describe what is on the page: `<h1>` is a big heading, `<p>` a paragraph.
+
+[Picture: s03-editor.png | The start page in the text editor: HTML with heading and paragraph]
+
+The files of the web server are in the folder `webserver`. You change them with the text editor. Then you reload the page in the browser.
+
+[Picture: s03-browser.png | The changed school page in the browser of Laptop-2]
+
+### TCP makes sure everything arrives
+So that a web page arrives completely, HTTP uses a transport protocol: **TCP**. TCP first sets up a connection to the server. Then it makes sure that all parts arrive and are put together in the right order.
+
+[Picture: s03-datenaustausch.png | In the data exchange TCP first sets up the connection, then HTTP follows]
+
+> Note: HTTP is the language of browser and server. TCP is the transport that makes sure everything arrives.
+
+## Practice
+
+### 3.1
+Set up the web server:
+| Setting | Value |
+|---|---|
+| PC at the school switch | "Web server" |
+| IPv4 address | 192.168.0.14 |
+| Netmask | 255.255.255.0 |
+Tip: In our network, servers are PCs. A new PC also has 192.168.0.10 first, change the address right away.
+
+### 3.2
+Install the software "Webserver" on the web server and start it in the simulation.
+Tip: The program has a button "Start".
+
+### 3.3
+Install the web browser on Laptop-2 and open http://192.168.0.14.
+Tip: You type the address into the address bar at the top of the browser.
+
+### 3.4
+Give the start page a heading of your own:
+- Install the text editor on the web server.
+- Open `webserver/index.html`.
+- Press Ctrl+F to search and look for the tag `<h1>`.
+- Replace the text between `<h1>` and `</h1>` with a heading of your own.
+- Save the file.
+Tip: With F3 the search jumps to the next place. You save with the button "Save" or Ctrl+S.
+
+### 3.5
+Write a paragraph below the heading, for example `<p>Have fun with Filius.</p>`. Save and reload the page in the browser of Laptop-2.
+Tip: Reload with the button next to the address bar.
+
+### 3.6
+Open the data exchange of Laptop-2 and open the page once more.
+Question: What happens before the HTTP request goes out?
+- The server sends the page without a request
+- ✓ TCP sets up a connection to the server
+- Laptop-2 gets a new IPv4 address
+- The switch checks the web page
+Tip: Look at the rows above the first HTTP row. To find the packets, you can also look at the time. This way you find out which packets were sent first.
+
+### 3.7
+Find the HTTP response with the web page in the data exchange.
+Question: Which device does it come from?
+- From Laptop-2 (192.168.0.11)
+- ✓ From the web server (192.168.0.14)
+- From the school switch
+- From Laptop-1 (192.168.0.10)
+Tip: Look at the column "Source".
+
+## Quiz
+
+### What is a server?
+- ✓ A device that provides a service for others, for example web pages
+- A device that only shows web pages, for example a laptop with a web browser
+Wrong: Showing web pages is what the client does with its browser. It only uses the service.
+- A cable that connects two devices, for example Laptop-2 and the switch
+Wrong: A cable is only a connection. A server is a device with a service.
+- Another word for the switch that connects the devices in the school network
+Wrong: The switch connects devices. A server provides a service.
+Explanation: A server provides something, for example web pages. In our network, servers are PCs.
+
+### Which device is a client in our network?
+- ✓ Laptop-2 with the web browser
+- The PC web server with the pages
+Wrong: The web server provides the pages, it is the server.
+- The school switch in the middle
+Wrong: The switch only connects the devices. It does not use a service.
+- The cable to the PC web server
+Wrong: A cable is not a device that uses a service.
+Explanation: A client uses a service. Laptop-2 asks the web server for the page with its browser.
+
+### Which part of the URL http://192.168.0.14/index.html names the server?
+- ✓ The part "192.168.0.14"
+- The part "http://"
+Wrong: http:// says how browser and server talk.
+- The part "/index.html"
+Wrong: This is the file on the server.
+- The part ".html"
+Wrong: This is only the ending of the file. It shows that it is an HTML page.
+Explanation: After http:// comes the server, here with its IPv4 address. Then comes the file.
+
+### What is HTTP?
+- ✓ The rules by which browser and server talk to each other
+- The language that the web page on the server is written in
+Wrong: That is HTML. HTTP rules the talk between browser and server.
+- The address at which the browser finds the web server in the network
+Wrong: That is the IPv4 address of the web server, here 192.168.0.14.
+- A tool with which you change the web pages in the folder webserver
+Wrong: That is the text editor. HTTP is not a program, but rules.
+Explanation: With HTTP the browser asks for a page, and the server sends it back.
+
+### What does `<h1>` stand for in an HTML page?
+- ✓ For a big heading on the page
+- For a paragraph of text on the page
+Wrong: A paragraph is between `<p>` and `</p>`.
+- For a link to another page
+Wrong: A link starts with `<a`.
+- For the IPv4 address of the server
+Wrong: The address of the server is in the URL, not in the page.
+Explanation: HTML uses commands in angle brackets to describe what is on the page. `<h1>` is the big heading.
+
+### Why does HTTP need the protocol TCP?
+- ✓ So that all parts of the page arrive completely and in the right order
+- So that headings and paragraphs of the page look nicer in the browser
+Wrong: HTML decides how it looks. TCP takes care of the transport.
+- So that Laptop-2 automatically gets an IPv4 address when it opens the page
+Wrong: You enter the IPv4 address in the settings. TCP transports data.
+- So that the school switch knows the MAC addresses of Laptop-2 and the web server
+Wrong: The switch learns the MAC addresses itself. That has nothing to do with TCP.
+Explanation: TCP first sets up a connection and then makes sure that everything arrives. HTTP uses TCP as transport.
+
+### Where are the files of the school page?
+- ✓ In the folder webserver on the PC web server
+- On Laptop-2, which shows the school page
+Wrong: Laptop-2 only shows the page. The files are on the server.
+- On the school switch, which connects all devices
+Wrong: A switch only connects the devices. It does not store files.
+- In the web browser that you open the page with
+Wrong: The browser is a client program. It only fetches the page.
+Explanation: The web server sends the files from its folder webserver. You change them there with the text editor.
+
+### The PC web server answers ping, but the page does not load. What do you check?
+- ✓ Whether the software Webserver is started
+- Whether the cable to the web server is plugged in
+Wrong: ping works, so the connection including the cable is fine.
+- Whether Laptop-2 has a MAC address
+Wrong: Every network card has a MAC address. That is not the problem.
+- Whether the netmask is 255.255.255.0
+Wrong: With a wrong netmask, ping would usually fail as well.
+Explanation: The PC can be reached. But for a page to come, the software Webserver must run as well.
+
+## Glossary
+
+- **Server** – device that provides a service for others, for example web pages. In our network, servers are PCs. On the PC web server the software Webserver must be started.
+- **Client** – device that uses a service. Laptop-2 with its web browser is a client. It asks the server for a page.
+- **URL** – address of a web page, for example http://192.168.0.14/index.html. It names how to talk (http://), the server and the file. If the file is missing, the server sends its start page.
+- **HTTP** – rules by which browser and server talk to each other. The browser sends a request, the server sends the page back. In the data exchange you see both as HTTP rows.
+- **HTML** – language that web pages are written in. Commands in angle brackets say what is on the page, for example `<h1>` for a heading and `<p>` for a paragraph. You change HTML with the text editor.
+- **Client program / server program** – every program is one of the two. A client program like the web browser asks for a service, a server program like the web server provides it. The software installation shows for every program what it is.
+- **Tool** – helper program that you use on the device itself, for example the command line or the text editor. A tool offers no service to other devices.
+- **Peer-to-peer** – network without a fixed server in which all devices are equal: each one is client and server at the same time. An example is Gnutella, with which computers offer files to each other and download them.
+- **TCP** – transport protocol that HTTP uses. TCP first sets up a connection to the server. Then it makes sure that all parts arrive completely and in the right order.

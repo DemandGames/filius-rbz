@@ -1,0 +1,166 @@
+# Names instead of numbers: DNS
+Goal: The network of a DNS provider with a DNS server is built at the third card of the router. Then the school page and the shop open by their names www.rbz-wirtschaft-kiel.de and www.ravensberger24.de.
+
+## Read
+
+### Names are easier than numbers
+People remember names better than numbers. That is why servers have a **domain name**, for example www.ravensberger24.de. The **DNS** (Domain Name System) translates the name into the IPv4 address. Only with the IPv4 address can the browser get the page.
+
+### The parts of a domain name
+A domain name consists of parts with dots in between. You read it from right to left:
+
+[Picture: s05-domainname.png | The parts of www.ravensberger24.de]
+
+- de is the **top-level domain**, the highest level. de stands for Germany, com for example for companies all over the world.
+- ravensberger24 is the company or the name that someone has chosen.
+- www is the name of the web server.
+
+### The DNS server
+The list with names and addresses is on a **DNS server**. Ours is in the network of a DNS provider. That is someone, for example a company, who translates names into addresses for others. The network of the DNS provider is the third network at our router. Each line in the address list of the DNS provider in which domain names are matched to IPv4 addresses is called an **A record**.
+
+[Picture: s05-dns-server.png | The DNS server with two A records]
+
+So that a laptop can ask, you enter the address of the DNS server in its settings. The field is called "Domain Name Server".
+
+### How a name lookup works
+[Picture: s05-dns-ablauf.png | 1. The laptop asks the DNS server, 2. the DNS server answers with the IPv4 address, 3. the laptop gets the page]
+
+With the command `nslookup` you ask the DNS server yourself.
+
+[Picture: s05-nslookup.png | nslookup www.ravensberger24.de on Laptop-1]
+
+> Note: If a page works by its IPv4 address but not by its name, the problem is DNS.
+
+## Practice
+
+### 5.1
+Build the network of the DNS provider at the third card of the router:
+- Switch "DNS provider switch", connected to the router (3rd card, 192.168.2.1)
+- PC "DNS server" at the DNS provider switch
+Addresses, netmask 255.255.255.0:
+| Device | IPv4 address | Gateway |
+|---|---|---|
+| DNS server | 192.168.2.10 | 192.168.2.1 |
+Tip: The third card has had its address since chapter 4. Check in the tab of the third card that "Connected to" shows the DNS provider switch.
+
+### 5.2
+Install the software "DNS server" on the DNS server. Add two A records and start the server:
+| Host / domain name | IPv4 address |
+|---|---|
+| www.rbz-wirtschaft-kiel.de | 192.168.0.14 |
+| www.ravensberger24.de | 192.168.1.10 |
+Tip: The records belong in the tab "Address (A)".
+
+### 5.3
+Enter the DNS server 192.168.2.10 at all laptops:
+- in the school: Laptop-1 to Laptop-4
+- at the RGG: office laptop
+Tip: The field is called "Domain Name Server".
+
+### 5.4
+Ask the DNS server on Laptop-1 with `nslookup www.ravensberger24.de`.
+Question: Which IPv4 address does the DNS server give?
+Input: IPv4 address
+Tip: If the DNS server does not answer, it may not be running yet.
+
+### 5.5
+Open the websites by their names:
+| Device | Address in the browser |
+|---|---|
+| Laptop-2 | www.ravensberger24.de |
+| Office laptop | www.rbz-wirtschaft-kiel.de |
+Tip: You have to install the web browser on the office laptop first.
+
+### 5.6
+Label the network of the DNS provider in the documentation mode: a structure field around DNS provider switch and DNS server, at the top left the label "DNS provider 192.168.2.0".
+Tip: As for the school network and the RGG network. The router stays between the fields.
+
+## Quiz
+
+### What is DNS for?
+- ✓ It translates names like www.ravensberger24.de into IPv4 addresses
+- It hands out IPv4 addresses automatically to the laptops in the network
+Wrong: DHCP hands out addresses, that comes in chapter 7.
+- It connects networks like the school network and the RGG network
+Wrong: The router connects networks.
+- It shows web pages like www.ravensberger24.de on the laptop
+Wrong: The browser shows web pages.
+Explanation: DNS translates a name into an IPv4 address. Only then can the browser get the page.
+
+### Which part of www.ravensberger24.de is the top-level domain?
+- ✓ de, the part on the very right after the last dot
+- www, the part on the very left before the first dot
+Wrong: www is the name of the web server. The top-level domain is on the very right.
+- ravensberger24, the part in the middle between the dots
+Wrong: That is the company, the name someone has chosen. The top-level domain is on the very right.
+- www.ravensberger24, all parts before the last dot
+Wrong: The top-level domain is only the last part on the very right.
+Explanation: The top-level domain is on the very right after the last dot. de stands for Germany.
+
+### What is an A record?
+- ✓ A line in the DNS server that links a name to an IPv4 address
+- The address of the router that a laptop has entered as its gateway
+Wrong: The address of the router is the gateway. A records are in the DNS server.
+- An account on the mail server with user name and password
+Wrong: Accounts are on the mail server. A records are in the DNS server.
+- The first row in the data exchange when a laptop gets a page
+Wrong: The data exchange shows messages, not A records.
+Explanation: An A record says for example: www.ravensberger24.de belongs to 192.168.1.10.
+
+### Where is our DNS server?
+- ✓ In the network of the DNS provider, with the address 192.168.2.10
+- In the network of the school, with the address 192.168.0.14
+Wrong: 192.168.0.14 is the web server of the school.
+- In the network of the RGG, with the address 192.168.1.10
+Wrong: 192.168.1.10 is the shop.
+- In the router, at the third card with the address 192.168.2.1
+Wrong: The router connects the networks. 192.168.2.1 is its third card, the DNS server is a PC of its own.
+Explanation: The DNS server is at the DNS provider in the network 192.168.2.0 and has the address 192.168.2.10.
+
+### What must be entered at a laptop so that it can use names?
+- ✓ The address of the DNS server in the field "Domain Name Server"
+- The name of the laptop in the field "Name", for example Laptop-1
+Wrong: Its own name does not help to translate other names.
+- The MAC address of the DNS server in the field "Domain Name Server"
+Wrong: The field needs the IPv4 address of the DNS server, not the MAC address.
+- The domain name of the shop, that is www.ravensberger24.de
+Wrong: You type the domain name into the browser. The settings hold the DNS server.
+Explanation: The laptop must know whom to ask. That is why its settings hold the DNS server 192.168.2.10.
+
+### The shop opens with 192.168.1.10, but not with www.ravensberger24.de. What is the reason?
+- ✓ DNS: the record is missing or wrong, or the laptop does not know the DNS server
+- The cable: the shop is not connected to the RGG switch with a cable
+Wrong: It works with the IPv4 address. So the cable is fine.
+- The web server: the software Webserver on the shop is not started
+Wrong: The web server is running, otherwise no page would come with the IPv4 address either.
+- The gateway: the shop does not have 192.168.1.1 entered as its gateway
+Wrong: The way works with the IPv4 address, so the gateway is right.
+Explanation: If the IPv4 address works but the name does not, only the translation is missing. That is the job of DNS.
+
+### What does the command nslookup www.ravensberger24.de show?
+- ✓ The IPv4 address that the DNS server knows for this name
+- The start page of the shop, just as the browser shows it too
+Wrong: The browser shows web pages. nslookup only asks for the address.
+- The way that the packets take through all routers to the shop
+Wrong: nslookup only asks the DNS server for the name.
+- The MAC address that the DNS server knows for this name
+Wrong: The DNS server knows names and IPv4 addresses, no MAC addresses.
+Explanation: With nslookup you ask the DNS server yourself. It answers with the IPv4 address from its A record.
+
+### The DNS server is switched off. What still works?
+- ✓ Opening web pages by their IPv4 address
+- Opening web pages by their domain name
+Wrong: Without a DNS server nobody translates the names.
+- Asking for the IPv4 address with nslookup
+Wrong: nslookup asks the DNS server. If it is off, no answer comes.
+- Nothing at all, the whole network stops
+Wrong: IPv4 addresses do not need DNS. ping and pages by their IPv4 address keep working.
+Explanation: DNS only translates names. Whoever knows the IPv4 address reaches the target without a DNS server, too.
+
+## Glossary
+
+- **Domain name** – name of a server in the network, for example www.ravensberger24.de. It is easier to remember than an IPv4 address. You read it from right to left.
+- **DNS** – translates domain names into IPv4 addresses (Domain Name System). Only with the IPv4 address can the browser get the page. Without DNS, only IPv4 addresses work.
+- **Top-level domain** – last part of a domain name, on the very right after the last dot. For www.ravensberger24.de it is de. de stands for Germany, com for example for companies all over the world.
+- **DNS server** – PC with the list of names and IPv4 addresses. Our DNS server is in the network of the DNS provider and has the address 192.168.2.10. Every laptop needs it in the field "Domain Name Server".
+- **A record** – line in the DNS server that links a name to an IPv4 address. Example: www.ravensberger24.de → 192.168.1.10. You add it in the tab "Address (A)".
