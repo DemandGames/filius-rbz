@@ -2,8 +2,8 @@ package filius.modern;
 
 /**
  * Exam edition ("Klausurversion") of Filius (RBZ Wirtschaft Kiel Version): the same program, but without the
- * learning path. No button, no panel, no progress from project files, no glossary, quiz or hints; the help
- * of the exam package has no learning path parts either (tools/klausur.sh).
+ * learning path. No button, no panel, no progress from project files, no glossary, quiz or hints; and no
+ * help either (HelpPanel, GUIMainMenu), because it explains client, server, gateway and so on.
  *
  * <p>The switch is the resource {@code filius/modern/klausur.flag} inside filius-rbz.jar, which only the exam
  * package contains. It is deliberately not a setting in config/filius.ini, so students cannot switch the

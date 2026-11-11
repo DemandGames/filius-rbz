@@ -238,13 +238,76 @@ jobs:
           Test-Setup "pakete\Filius-RBZ-Setup.exe" "$env:LOCALAPPDATA\Programs\Filius RBZ"
           Test-Setup "pakete\Filius-RBZ-Setup-AlleBenutzer.exe" "$env:ProgramFiles\Filius RBZ"
 
-      - name: Klausurversion starten (Aufgabenordner, Projekt mit Lernpfad-Fortschritt)
+      - name: Klausurversion starten (Aufgabenordner, Projekt mit Lernpfad-Fortschritt, Sprachwechsel)
         shell: pwsh
         run: |
           $ordner = "$env:RUNNER_TEMP\Aufgabe 1"
           New-Item -ItemType Directory -Force $ordner | Out-Null
           Copy-Item "pakete\Filius-RBZ-Klausur.exe" $ordner
           Write-Output ("Signatur: " + (Get-AuthenticodeSignature "$ordner\Filius-RBZ-Klausur.exe").Status)
+          # window 1024 x 740 at the top left, dark mode (like many teachers use it)
+          $f = "$env:USERPROFILE\.filius"
+          New-Item -ItemType Directory -Force $f | Out-Null
+          Set-Content -Path "$f\filius-modern.properties" -Value "modern.dunkel=true" -Encoding ASCII
+          $k = @"
+          <?xml version="1.0" encoding="UTF-8"?>
+          <java version="21.0.8" class="java.beans.XMLDecoder">
+           <array class="java.lang.Object" length="8">
+            <void index="0"><object class="java.awt.Rectangle"><int>0</int><int>0</int><int>1024</int><int>740</int></object></void>
+            <void index="2"><string>de</string></void>
+            <void index="3"><string>DE</string></void>
+            <void index="6"><string>DEFAULT</string></void>
+           </array>
+          </java>
+          "@
+          Set-Content -Path "$f\konfig.xml" -Value $k -Encoding UTF8
+          Add-Type -AssemblyName System.Windows.Forms, System.Drawing
+          Add-Type @"
+          using System; using System.Text; using System.Runtime.InteropServices;
+          public static class Fenster {
+            public delegate bool CB(IntPtr h, IntPtr p);
+            [DllImport("user32.dll")] static extern bool EnumWindows(CB cb, IntPtr p);
+            [DllImport("user32.dll")] static extern bool IsWindowVisible(IntPtr h);
+            [DllImport("user32.dll")] static extern int GetWindowThreadProcessId(IntPtr h, out int pid);
+            [DllImport("user32.dll")] static extern int GetWindowText(IntPtr h, StringBuilder s, int n);
+            [DllImport("user32.dll")] static extern int GetClassName(IntPtr h, StringBuilder s, int n);
+            [StructLayout(LayoutKind.Sequential)] public struct R { public int l, t, r, b; }
+            [DllImport("user32.dll")] static extern bool GetWindowRect(IntPtr h, out R r);
+            [DllImport("user32.dll")] static extern bool SetCursorPos(int x, int y);
+            [DllImport("user32.dll")] static extern void mouse_event(int f, int x, int y, int d, int e);
+            public static void Klick(int x, int y) { SetCursorPos(x, y); System.Threading.Thread.Sleep(200);
+              mouse_event(2, 0, 0, 0, 0); System.Threading.Thread.Sleep(80); mouse_event(4, 0, 0, 0, 0); }
+            // visible windows of the process: "class|title|width|height|left|top"
+            public static string[] Liste(int pid) {
+              var l = new System.Collections.Generic.List<string>();
+              EnumWindows((h, p) => { int w; GetWindowThreadProcessId(h, out w);
+                if (w == pid && IsWindowVisible(h)) { var t = new StringBuilder(256); var c = new StringBuilder(256);
+                  GetWindowText(h, t, 256); GetClassName(h, c, 256); R r; GetWindowRect(h, out r);
+                  l.Add(c + "|" + t + "|" + (r.r - r.l) + "|" + (r.b - r.t) + "|" + r.l + "|" + r.t); }
+                return true; }, IntPtr.Zero);
+              return l.ToArray(); } }
+          "@
+          function Foto($name) {
+            $b = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
+            $bmp = New-Object System.Drawing.Bitmap $b.Width, $b.Height
+            [System.Drawing.Graphics]::FromImage($bmp).CopyFromScreen($b.Location, [System.Drawing.Point]::Empty, $b.Size)
+            $klein = New-Object System.Drawing.Bitmap $bmp, ([int]($b.Width / 2)), ([int]($b.Height / 2))
+            $klein.Save("$PWD\$name.png", [System.Drawing.Imaging.ImageFormat]::Png)
+            Write-Output "::group::Bildschirmfoto $name (PNG, Base64)"
+            Write-Output ([Convert]::ToBase64String([IO.File]::ReadAllBytes("$PWD\$name.png")))
+            Write-Output "::endgroup::"
+          }
+          # besides the main window no other big window may stay (the start window must be gone)
+          function Nur-Hauptfenster($wann) {
+            $p = Get-Process javaw -ErrorAction SilentlyContinue
+            if (-not $p -or @($p).Count -ne 1) { throw "$wann`: nicht genau ein Filius ($(@($p).Count))" }
+            $fenster = [Fenster]::Liste($p.Id)
+            $fenster | ForEach-Object { Write-Output "  $_" }
+            $gross = $fenster | Where-Object { $_ -notlike "SunAwtFrame|*" -and [int]($_.Split('|')[3]) -gt 100 }
+            if ($gross) { Foto "fehler"; throw "$wann`: Startfenster bleibt stehen: $gross" }
+            return $p
+          }
+
           # project file with progress in the standard learning path: a normal Filius would open the learning path
           Copy-Item "lernpfad\standard\start\kapitel-02.fls" "$ordner\mit lernpfad.fls"
           Add-Type -AssemblyName System.IO.Compression, System.IO.Compression.FileSystem
@@ -261,16 +324,24 @@ jobs:
           if ($j.CommandLine -notlike "*Filius-RBZ-Klausur-*") { throw "nicht aus dem Temp-Ordner gestartet" }
           if ($j.CommandLine -notlike "*-Dfilius.speicherort=$ordner*") { throw "Speicherort fehlt" }
           Start-Sleep -Seconds 40
-          if (-not (Get-Process javaw -ErrorAction SilentlyContinue)) { throw "Filius läuft nicht" }
-          Add-Type -AssemblyName System.Windows.Forms, System.Drawing
-          $b = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
-          $bmp = New-Object System.Drawing.Bitmap $b.Width, $b.Height
-          [System.Drawing.Graphics]::FromImage($bmp).CopyFromScreen($b.Location, [System.Drawing.Point]::Empty, $b.Size)
-          $klein = New-Object System.Drawing.Bitmap $bmp, ([int]($b.Width / 2)), ([int]($b.Height / 2))
-          $klein.Save("$PWD\klausur.png", [System.Drawing.Imaging.ImageFormat]::Png)
-          Write-Output "::group::Bildschirmfoto Klausurversion Windows (PNG, Base64)"
-          Write-Output ([Convert]::ToBase64String([IO.File]::ReadAllBytes("$PWD\klausur.png")))
-          Write-Output "::endgroup::"
+          $p = Nur-Hauptfenster "Start"
+          Foto "Klausurversion Windows"
+
+          # language switch DE -> EN -> DE: Filius starts again, the start window must go each time
+          foreach ($sprache in "EN", "DE") {
+            $haupt = [Fenster]::Liste($p.Id) | Where-Object { $_ -like "SunAwtFrame|*" } | Select-Object -First 1
+            $t = $haupt.Split('|')
+            $rechts = [int]$t[4] + [int]$t[2]
+            [Fenster]::Klick($(if ($sprache -eq "EN") { $rechts - 114 } else { $rechts - 148 }), [int]$t[5] + 60)
+            Start-Sleep -Seconds 2
+            [System.Windows.Forms.SendKeys]::SendWait("{ENTER}")
+            Start-Sleep -Seconds 20
+            Write-Output "Sprachwechsel nach $sprache"
+            $p = Nur-Hauptfenster "nach $sprache"
+            $titel = ([Fenster]::Liste($p.Id) | Where-Object { $_ -like "SunAwtFrame|*" }).Split('|')[1]
+            if ($titel -notlike $(if ($sprache -eq "EN") { "*Exam*" } else { "*Klausur*" })) { Foto "fehler"; throw "Sprache nicht gewechselt: $titel" }
+          }
+          Foto "Klausurversion nach Sprachwechsel"
           Stop-Process -Name javaw -Force
           Start-Sleep -Seconds 3
           # second start: the unpacked folder is used again

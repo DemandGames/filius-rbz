@@ -70,6 +70,30 @@ implements I18n {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         Dimension size = this.getSize();
         this.setLocation(screenSize.width / 2 - size.width / 2, screenSize.height / 2 - size.height / 2);
+        // safety net: the start window never stays longer than 30 seconds, whatever happens during the start
+        javax.swing.Timer notfall = new javax.swing.Timer(30000, e -> this.schliessen());
+        notfall.setRepeats(false);
+        notfall.start();
+    }
+
+    private volatile boolean geschlossen;
+
+    /** Hides the start window for good: right away and once more on the event thread (safe to call twice). */
+    public void schliessen() {
+        if (this.geschlossen) {
+            return;
+        }
+        this.geschlossen = true;
+        try {
+            this.setAlwaysOnTop(false);
+            this.setVisible(false);
+        } catch (RuntimeException e) {
+            // the event thread below does it
+        }
+        javax.swing.SwingUtilities.invokeLater(() -> {
+            this.setVisible(false);
+            this.dispose();
+        });
     }
 
     private static void einstellungenFestlegen() {

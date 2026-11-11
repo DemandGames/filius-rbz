@@ -2,8 +2,8 @@
 # Start test of the exam edition (out/klausur/Filius-RBZ-Klausur, run installer/build-klausur.sh first) on a
 # virtual screen. Uses the Java runtime of the Linux package (out/installer/deb, installer/build-deb.sh) or
 # the java on PATH. Opens a project file WITH learning path progress (a normal Filius would open the learning
-# path) and fails if Filius ended by itself, wrote an exception, did not report the exam edition, or wrote
-# the learning path folder. Writes out/starttest-klausur.log and out/starttest-klausur.png.
+# path) and fails if Filius ended by itself, wrote an exception, did not report the exam edition, or if the
+# package has learning path, help or example folders. Writes out/starttest-klausur.log and out/starttest-klausur.png.
 set -uo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 K="$ROOT/out/klausur/Filius-RBZ-Klausur"
@@ -44,7 +44,7 @@ if grep -E "Exception|^\s+at |Error:" "$LOG" | grep -v "^WARNING" > /dev/null; t
   echo "Fehlermeldungen gefunden"; ERG=1
 fi
 grep -q "Klausurversion ohne Lernpfad" "$LOG" || { echo "Klausurversion nicht erkannt"; ERG=1; }
-if [ -e "$K/lernpfad" ]; then echo "Ordner lernpfad vorhanden"; ERG=1; fi
+for d in lernpfad hilfe beispiele; do if [ -e "$K/$d" ]; then echo "Ordner $d vorhanden"; ERG=1; fi; done
 rm -rf "$TEST"
 [ $ERG = 0 ] && echo "Starttest Klausurversion ok"
 exit $ERG

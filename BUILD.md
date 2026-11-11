@@ -56,8 +56,8 @@ Grafiken neu rendern (Python 3, Playwright mit Chromium, Pillow): `cd design && 
   `FxSupport.prepareJvm`), damit alle Seitenaufrufe über das simulierte Netz laufen.
 * Klausurversion: `filius-rbz.jar` enthält die Datei `filius/modern/klausur.flag` (setzt
   `installer/build-klausur.sh`). Dann ist der Lernpfad ganz abgeschaltet (`filius.modern.Klausur`): kein
-  Knopf, keine Leiste, kein Fortschritt aus Projektdateien; die Hilfe ist ohne Lernpfad und Tipp-Kästen
-  (`tools/klausur-hilfe.py`). Absichtlich keine Einstellung in `filius.ini`, damit Schüler den Lernpfad
+  Knopf, keine Leiste, kein Fortschritt aus Projektdateien; auch keine Hilfe (kein „?“, keine Leiste am
+  rechten Rand, kein Ordner `hilfe/`). Absichtlich keine Einstellung in `filius.ini`, damit Schüler den Lernpfad
   nicht wieder einschalten können. `installer/klausur.nsi` packt den Programmordner in eine Datei, entpackt
   ihn beim ersten Start nach `%TEMP%\Filius-RBZ-Klausur-<Stand>-<Prüfsumme>` (sind Programme dort gesperrt,
   neben die exe in den versteckten Ordner `Filius-Klausur-Dateien`) und startet Filius mit

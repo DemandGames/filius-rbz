@@ -105,32 +105,35 @@ public class Main implements I18n {
         splashScreen.setAlwaysOnTop(true);
         long splashTime = System.currentTimeMillis();
         try {
-            if (null != szenarioDatei) {
-                SzenarioVerwaltung.getInstance().laden(szenarioDatei, GUIContainer.getGUIContainer().getKnotenItems(),
-                        GUIContainer.getGUIContainer().getCableItems(), GUIContainer.getGUIContainer().getDocuItems());
-            }
-        } catch (Exception e) {
-            LOG.debug("", e);
-        }
-        GUIContainer.getGUIContainer().setProperty(null);
-        GUIContainer.getGUIContainer().updateViewport();
-        try {
-            Thread.sleep(10L);
-        } catch (Exception exception) {
-            LOG.error("Caught an unexpected exception.", exception);
-        }
-        GUIContainer.getGUIContainer().updateCables();
-        splashTime = System.currentTimeMillis() - splashTime;
-        LOG.debug("Splash Screen shown for " + splashTime + " ms");
-        if (splashTime < 1000L) {
             try {
-                Thread.sleep(1000L - splashTime);
+                if (null != szenarioDatei) {
+                    SzenarioVerwaltung.getInstance().laden(szenarioDatei, GUIContainer.getGUIContainer().getKnotenItems(),
+                            GUIContainer.getGUIContainer().getCableItems(), GUIContainer.getGUIContainer().getDocuItems());
+                }
+            } catch (Exception e) {
+                LOG.debug("", e);
+            }
+            GUIContainer.getGUIContainer().setProperty(null);
+            GUIContainer.getGUIContainer().updateViewport();
+            try {
+                Thread.sleep(10L);
             } catch (Exception exception) {
                 LOG.error("Caught an unexpected exception.", exception);
             }
+            GUIContainer.getGUIContainer().updateCables();
+            splashTime = System.currentTimeMillis() - splashTime;
+            LOG.debug("Splash Screen shown for " + splashTime + " ms");
+            if (splashTime < 1000L) {
+                try {
+                    Thread.sleep(1000L - splashTime);
+                } catch (Exception exception) {
+                    LOG.error("Caught an unexpected exception.", exception);
+                }
+            }
+        } finally {
+            // the start window always goes, also if something above went wrong
+            splashScreen.schliessen();
         }
-        splashScreen.setAlwaysOnTop(false);
-        splashScreen.setVisible(false);
         // macOS: a file double-clicked in the Finder may have arrived while Filius was starting
         filius.modern.MacOeffnen.bereit();
     }

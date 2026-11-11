@@ -65,6 +65,11 @@ public class HelpPanel extends ControlPanel implements I18n {
         super(0, 350);
         this.reInit();
         this.minimieren();
+        if (filius.modern.Klausur.AKTIV) {
+            // exam edition: no help panel at all, not even the handle at the right edge
+            super.setVisible(false);
+            return;
+        }
         filius.modern.DunkelModus.addListener(() -> {
             if (this.letzterModus >= 0) {
                 Point p = this.scrollPane.getViewport().getViewPosition();
@@ -111,7 +116,26 @@ public class HelpPanel extends ControlPanel implements I18n {
         return out.toString();
     }
 
+    /** Exam edition: the help never opens. */
+    @Override
+    public void maximieren() {
+        if (filius.modern.Klausur.AKTIV) {
+            return;
+        }
+        super.maximieren();
+    }
+
+    /** Exam edition: the help panel stays invisible. */
+    @Override
+    public void setVisible(boolean sichtbar) {
+        super.setVisible(sichtbar && !filius.modern.Klausur.AKTIV);
+    }
+
     public void loadContext(int mode) {
+        if (filius.modern.Klausur.AKTIV) {
+            // the exam package has no help pages
+            return;
+        }
         this.letzterModus = mode;
         File file;
         switch (mode) {

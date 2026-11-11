@@ -171,7 +171,12 @@ I18n {
         this.header.setModeButtons(this.btEntwurfsmodus, this.btAktionsmodus, this.btDokumodus);
         this.header.setSpeed(this.simulationSpeedInPercent, this.geschwindigkeit);
         // light/dark mode, right of the language switch
-        this.header.setToolButtons(this.btHilfe, this.btInfo, this.btSettings, new HeaderBar.DunkelKnopf());
+        if (filius.modern.Klausur.AKTIV) {
+            // exam edition: no help (it explains client, server, gateway ...)
+            this.header.setToolButtons(this.btInfo, this.btSettings, new HeaderBar.DunkelKnopf());
+        } else {
+            this.header.setToolButtons(this.btHilfe, this.btInfo, this.btSettings, new HeaderBar.DunkelKnopf());
+        }
     }
 
     private void updateLatency() {
