@@ -526,7 +526,8 @@ public final class Enhancer implements AWTEventListener {
     private static void retitle(JMainFrame frame) {
         String t = frame.getTitle();
         if (t != null && t.startsWith("FILIUS")) {
-            frame.setTitle(PRODUCT + t.substring(6));
+            // exam edition: visible in the title bar and the taskbar, so supervisors see which version runs
+            frame.setTitle(PRODUCT + (Klausur.AKTIV ? " \u2013 " + Texts.get("klausur") : "") + t.substring(6));
         }
     }
 

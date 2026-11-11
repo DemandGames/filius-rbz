@@ -37,9 +37,11 @@ tools/deps.sh                   # FlatLaf, OpenJFX, Temurin und Liberica laden, 
 tools/runtimes.sh               # Java-Laufzeiten mit jlink: Windows, Linux, macOS (Apple-Chip, Intel)
 ./package.sh                    # baut filius-rbz.jar und den Programmordner out/Filius-RBZ-Wirtschaft-Kiel
 installer/build-setup.sh        # Windows: Starter „Filius RBZ.exe“, Filius-RBZ-Setup.exe, …-AlleBenutzer.exe
+installer/build-klausur.sh      # Windows: Klausurversion Filius-RBZ-Klausur.exe (eine Datei, ohne Lernpfad)
 installer/build-mac.sh          # macOS: Filius-RBZ-2.9.3-macOS-AppleSilicon.zip und …-Intel.zip
 installer/build-deb.sh          # Linux: filius-rbz_2.9.3+rbz<Stand>_amd64.deb
 tools/starttest.sh              # startet das Linux-Paket auf einem virtuellen Bildschirm
+tools/starttest-klausur.sh      # startet die Klausurversion mit einem Projekt mit Lernpfad-Fortschritt
 ```
 
 Hilfeseiten neu erzeugen (Python 3, Pillow): `cd design && python3 help.py ../dist-files`
@@ -52,6 +54,14 @@ Grafiken neu rendern (Python 3, Playwright mit Chromium, Pillow): `cd design && 
   für HTML-Felder das ursprüngliche Swing-Verhalten wieder her.
 * WebKit muss `java.net.URLConnection` nutzen (`-Dcom.sun.webkit.useHTTP2Loader=false`, setzt
   `FxSupport.prepareJvm`), damit alle Seitenaufrufe über das simulierte Netz laufen.
+* Klausurversion: `filius-rbz.jar` enthält die Datei `filius/modern/klausur.flag` (setzt
+  `installer/build-klausur.sh`). Dann ist der Lernpfad ganz abgeschaltet (`filius.modern.Klausur`): kein
+  Knopf, keine Leiste, kein Fortschritt aus Projektdateien; die Hilfe ist ohne Lernpfad und Tipp-Kästen
+  (`tools/klausur-hilfe.py`). Absichtlich keine Einstellung in `filius.ini`, damit Schüler den Lernpfad
+  nicht wieder einschalten können. `installer/klausur.nsi` packt den Programmordner in eine Datei, entpackt
+  ihn beim ersten Start nach `%TEMP%\Filius-RBZ-Klausur-<Stand>-<Prüfsumme>` (sind Programme dort gesperrt,
+  neben die exe in den versteckten Ordner `Filius-Klausur-Dateien`) und startet Filius mit
+  `-Dfilius.speicherort=<Ordner der exe>`.
 * Einstellungen für Lehrkräfte in `config/filius.ini`, z. B. `modern-lernpfad-auswahl=standard|fortgeschritten|beide`,
   `modern-schichtmodell=osi`, `modern-browser=klassisch`, `modern-speicherort=…`, `locale=de_DE`.
 

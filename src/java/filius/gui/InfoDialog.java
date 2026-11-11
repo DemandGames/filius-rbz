@@ -49,7 +49,7 @@ public class InfoDialog extends JDialog implements I18n {
     /** editor of Filius (RBZ Wirtschaft Kiel Version) as shown in the info window: name and e-mail */
     public static final String BEARBEITER = "Thorben Demand\nthorben.demand@rbz-wirtschaft-kiel.de";
     /** date of this version (shown after the version number instead of the build date of Filius 2.9.3) */
-    public static final String STAND = "21.10.2026";
+    public static final String STAND = "11.11.2026";
     private static final int BREITE = 470;
 
     private static InfoDialog offen;
@@ -86,7 +86,7 @@ public class InfoDialog extends JDialog implements I18n {
         wurzel.add(kopf(), BorderLayout.NORTH);
 
         Inhalt inhalt = new Inhalt();
-        abschnitt(inhalt, "Filius (RBZ Wirtschaft Kiel Version)", Texts.format("info.about", version()), BEARBEITER);
+        abschnitt(inhalt, "Filius (RBZ Wirtschaft Kiel Version)", Texts.format(filius.modern.Klausur.AKTIV ? "info.about.klausur" : "info.about", version()), BEARBEITER);
         abschnitt(inhalt, Texts.get("info.original"), ohneHtml(messages.getString("infodialog_msg2")), null);
         abschnitt(inhalt, messages.getString("infodialog_msg3"),
                 "André Asschoff, Johannes Bade, Carsten Dittich, Thomas Gerding, Nadja Haßler, Ernst Johannes Klebert, Michell Weyer", null);

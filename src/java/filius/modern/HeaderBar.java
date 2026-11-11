@@ -46,6 +46,8 @@ public class HeaderBar extends JBackgroundPanel {
     private final JLabel speedTitle = new JLabel();
     /** prominent button next to the mode switch: start, continue or hide the learning path */
     private final LernpfadKnopf missionsButton = new LernpfadKnopf();
+    /** exam edition: label "Klausur" where the learning path button would be, so supervisors see the version */
+    private final KlausurSchild klausurSchild = Klausur.AKTIV ? new KlausurSchild() : null;
 
     private AbstractButton[] fileButtons = new AbstractButton[0];
     private AbstractButton[] toolButtons = new AbstractButton[0];
@@ -80,11 +82,17 @@ public class HeaderBar extends JBackgroundPanel {
 
         add(modeSwitch);
 
-        missionsButton.addActionListener(e -> filius.modern.lernpfad.Lernpfad.umschalten());
-        updateMissions();
-        filius.modern.lernpfad.Lernpfad.addListener(this::updateMissions);
+        // the exam edition has no learning path at all: no button, no progress ring
+        if (!Klausur.AKTIV) {
+            missionsButton.addActionListener(e -> filius.modern.lernpfad.Lernpfad.umschalten());
+            updateMissions();
+            filius.modern.lernpfad.Lernpfad.addListener(this::updateMissions);
+        }
         if (Prefs.missionsEnabled()) {
             add(missionsButton);
+        }
+        if (klausurSchild != null) {
+            add(klausurSchild);
         }
 
         stripTimer = new Timer(16, e -> {
@@ -175,6 +183,9 @@ public class HeaderBar extends JBackgroundPanel {
     }
 
     private void updateMissions() {
+        if (Klausur.AKTIV) {
+            return;
+        }
         missionsButton.aktualisieren();
         revalidate();
         repaint();
@@ -196,13 +207,14 @@ public class HeaderBar extends JBackgroundPanel {
         boolean modeLabels = true;
         int lpStufe = 0;
         boolean lp = missionsButton.getParent() == this;
+        int kw = klausurSchild != null ? klausurSchild.getPreferredSize().width : 0;
         for (int stufe = 0; stufe <= 5; stufe++) {
             brandText = stufe < 1;
             speedLabel = stufe < 2;
             lpStufe = stufe < 3 ? 0 : stufe < 5 ? 1 : 2;
             modeLabels = stufe < 4;
             int need = pad + brandWidth(brandText) + 18 + groupWidth(fileButtons, gap) + 24 + modeSwitch.preferredWidth(modeLabels)
-                    + (lp ? lpGap + missionsButton.breite(lpStufe) : 0) + 24 + rightGroupWidth(speedLabel) + pad;
+                    + (lp ? lpGap + missionsButton.breite(lpStufe) : 0) + (kw > 0 ? lpGap + kw : 0) + 24 + rightGroupWidth(speedLabel) + pad;
             if (need <= w) {
                 break;
             }
@@ -270,7 +282,7 @@ public class HeaderBar extends JBackgroundPanel {
         missionsButton.setStufe(lpStufe);
         int mw = modeSwitch.preferredWidth(modeLabels);
         int lw = lp ? missionsButton.breite(lpStufe) : 0;
-        int gw = mw + (lp ? lpGap + lw : 0);
+        int gw = mw + (lp ? lpGap + lw : 0) + (kw > 0 ? lpGap + kw : 0);
         int mh = 40;
         int gx = (w - gw) / 2;
         if (gx < leftEnd + 20) {
@@ -282,6 +294,10 @@ public class HeaderBar extends JBackgroundPanel {
         modeSwitch.setBounds(gx, (h - mh) / 2, mw, mh);
         if (lp) {
             missionsButton.setBounds(gx + mw + lpGap, (h - mh) / 2, lw, mh);
+        }
+        if (klausurSchild != null) {
+            int kh = klausurSchild.getPreferredSize().height;
+            klausurSchild.setBounds(gx + mw + (lp ? lpGap + lw : 0) + lpGap, (h - kh) / 2, kw, kh);
         }
     }
 
@@ -565,6 +581,43 @@ public class HeaderBar extends JBackgroundPanel {
     private static final Color LERNPFAD_HELL_2 = Theme.farbe(0xE2DBFA, 0x362C66);
     /** text of the open (light) button */
     private static final Color LERNPFAD_TEXT = Theme.farbe(0x5638C4, 0xC9BCFF);
+
+    /** Exam edition: an amber outlined label "Klausur" / "Exam" next to the mode switch, not clickable. */
+    static final class KlausurSchild extends JComponent {
+        private static final long serialVersionUID = 1L;
+
+        KlausurSchild() {
+            setOpaque(false);
+            setFont(Theme.font(Font.BOLD, 13f));
+            setToolTipText(Texts.get("klausur.tooltip"));
+        }
+
+        @Override
+        public Dimension getPreferredSize() {
+            java.awt.FontMetrics fm = getFontMetrics(getFont());
+            return new Dimension(fm.stringWidth(Texts.get("klausur")) + 40, 30);
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setRenderingHint(java.awt.RenderingHints.KEY_TEXT_ANTIALIASING, java.awt.RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+            int w = getWidth(), h = getHeight();
+            g2.setColor(Theme.alpha(Theme.MARKER_AMBER, Theme.dunkel() ? 0.18 : 0.12));
+            g2.fillRoundRect(0, 0, w - 1, h - 1, h, h);
+            g2.setColor(Theme.MARKER_AMBER);
+            g2.setStroke(new java.awt.BasicStroke(1.5f));
+            g2.drawRoundRect(1, 1, w - 3, h - 3, h - 2, h - 2);
+            // small dot as in a status light
+            g2.fillOval(13, h / 2 - 3, 7, 7);
+            g2.setFont(getFont());
+            java.awt.FontMetrics fm = g2.getFontMetrics();
+            g2.setColor(Theme.dunkel() ? Theme.MARKER_AMBER : Theme.farbe(0x9A6200, 0xF2AE30));
+            g2.drawString(Texts.get("klausur"), 26, (h + fm.getAscent() - fm.getDescent()) / 2);
+            g2.dispose();
+        }
+    }
 
     /**
      * Filled pill button: "Start learning path", "Continue learning path" when a chapter has been

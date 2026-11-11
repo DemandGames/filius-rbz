@@ -22,6 +22,10 @@ public final class ModernFilius {
 
     public static void main(String[] args) {
         argumente = args == null ? new String[0] : args.clone();
+        if (Klausur.AKTIV) {
+            // also checked by the start tests of the exam edition
+            System.out.println("Filius (RBZ Wirtschaft Kiel Version): Klausurversion ohne Lernpfad");
+        }
         // Windows: draw without Direct3D. With two screens (often with different scaling) the Direct3D pipeline of
         // Java garbled the view when a window was dragged to the other screen (version 31). A value given on the
         // command line (-Dsun.java2d.d3d=true) still wins. Other systems ignore the setting.

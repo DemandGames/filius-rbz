@@ -1,5 +1,6 @@
 # Builds Filius (RBZ Wirtschaft Kiel Version) from source on GitHub-hosted runners:
-#   Windows: starter "Filius RBZ.exe", Filius-RBZ-Setup.exe, Filius-RBZ-Setup-AlleBenutzer.exe
+#   Windows: starter "Filius RBZ.exe", Filius-RBZ-Setup.exe, Filius-RBZ-Setup-AlleBenutzer.exe,
+#            Filius-RBZ-Klausur.exe (exam edition without learning path, one file, no installation)
 #   macOS:   Filius-RBZ-2.9.3-macOS-AppleSilicon.zip, Filius-RBZ-2.9.3-macOS-Intel.zip
 #   Linux:   filius-rbz_2.9.3+rbz<date>_amd64.deb
 # A release is made by starting the workflow by hand (Actions → Build → Run workflow) with a version such as
@@ -107,6 +108,11 @@ jobs:
       - name: Windows-Installer
         run: installer/build-setup.sh setup
 
+      - name: Klausurversion für Windows (eine Datei, ohne Lernpfad)
+        run: |
+          installer/build-klausur.sh
+          cp out/klausur/Filius-RBZ-Klausur.exe out/installer/
+
       - name: macOS- und Linux-Pakete
         run: |
           installer/build-mac.sh
@@ -115,12 +121,19 @@ jobs:
       - name: Starttest (Linux-Paket auf virtuellem Bildschirm)
         run: tools/starttest.sh
 
+      - name: Starttest Klausurversion (Projekt mit Lernpfad-Fortschritt, Lernpfad darf nicht erscheinen)
+        run: tools/starttest-klausur.sh
+
       - name: Bildschirmfoto des Starttests
         if: always()
         run: |
           if [ -f out/starttest.png ]; then
             convert out/starttest.png -resize 50% out/starttest-klein.png
             echo "::group::Bildschirmfoto (PNG, Base64)"; base64 -w 0 out/starttest-klein.png; echo; echo "::endgroup::"
+          fi
+          if [ -f out/starttest-klausur.png ]; then
+            convert out/starttest-klausur.png -resize 50% out/starttest-klausur-klein.png
+            echo "::group::Bildschirmfoto Klausurversion (PNG, Base64)"; base64 -w 0 out/starttest-klausur-klein.png; echo; echo "::endgroup::"
           fi
 
       - name: Installer zum Signieren hochladen
@@ -132,6 +145,7 @@ jobs:
           path: |
             out/installer/Filius-RBZ-Setup.exe
             out/installer/Filius-RBZ-Setup-AlleBenutzer.exe
+            out/installer/Filius-RBZ-Klausur.exe
           if-no-files-found: error
 
       - name: Installer signieren (SignPath)
@@ -154,7 +168,7 @@ jobs:
           if [ "$SIGN" = true ]; then
             cp out/signiert/installer/*.exe out/release/
           else
-            cp out/installer/Filius-RBZ-Setup.exe out/installer/Filius-RBZ-Setup-AlleBenutzer.exe out/release/
+            cp out/installer/Filius-RBZ-Setup.exe out/installer/Filius-RBZ-Setup-AlleBenutzer.exe out/installer/Filius-RBZ-Klausur.exe out/release/
           fi
           cp out/installer/*.zip out/installer/*.deb out/release/
           (cd out/release && sha256sum * > SHA256SUMS.txt && cat SHA256SUMS.txt)
@@ -176,12 +190,16 @@ jobs:
             --notes "Downloads und Installationshinweise: https://www.demand-unterricht.de/projekte/filius – Prüfsummen in SHA256SUMS.txt."
 
   # Installs both Windows installers on a GitHub-hosted Windows runner, starts Filius, takes a screenshot
-  # (in the log as Base64) and uninstalls again.
+  # (in the log as Base64) and uninstalls again. Then starts the exam edition from a task folder with a
+  # project file that has learning path progress (screenshot: no learning path).
   windows-test:
     name: Test unter Windows
     needs: build
     runs-on: windows-2025
     steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: lernpfad/standard/start
       - uses: actions/download-artifact@v4
         with:
           name: filius-rbz-pakete
@@ -219,3 +237,48 @@ jobs:
           }
           Test-Setup "pakete\Filius-RBZ-Setup.exe" "$env:LOCALAPPDATA\Programs\Filius RBZ"
           Test-Setup "pakete\Filius-RBZ-Setup-AlleBenutzer.exe" "$env:ProgramFiles\Filius RBZ"
+
+      - name: Klausurversion starten (Aufgabenordner, Projekt mit Lernpfad-Fortschritt)
+        shell: pwsh
+        run: |
+          $ordner = "$env:RUNNER_TEMP\Aufgabe 1"
+          New-Item -ItemType Directory -Force $ordner | Out-Null
+          Copy-Item "pakete\Filius-RBZ-Klausur.exe" $ordner
+          Write-Output ("Signatur: " + (Get-AuthenticodeSignature "$ordner\Filius-RBZ-Klausur.exe").Status)
+          # project file with progress in the standard learning path: a normal Filius would open the learning path
+          Copy-Item "lernpfad\standard\start\kapitel-02.fls" "$ordner\mit lernpfad.fls"
+          Add-Type -AssemblyName System.IO.Compression, System.IO.Compression.FileSystem
+          $zip = [System.IO.Compression.ZipFile]::Open("$ordner\mit lernpfad.fls", 'Update')
+          $w = New-Object System.IO.StreamWriter(($zip.CreateEntry('projekt/lernpfad.properties')).Open())
+          $w.Write("pfad=standard`nstandard.version=3`nstandard.aktiv=2`nstandard.k2.seite=1`nstandard.k2.gelesen=true`n")
+          $w.Close(); $zip.Dispose()
+          $start = Get-Date
+          Start-Process "$ordner\Filius-RBZ-Klausur.exe" -ArgumentList "`"$ordner\mit lernpfad.fls`""
+          $j = $null
+          for ($i = 0; $i -lt 120 -and -not $j; $i++) { Start-Sleep -Seconds 1; $j = Get-CimInstance Win32_Process -Filter "Name='javaw.exe'" }
+          if (-not $j) { throw "Klausurversion startet nicht" }
+          Write-Output ("javaw nach {0:N0} s: {1}" -f ((Get-Date) - $start).TotalSeconds, $j.CommandLine)
+          if ($j.CommandLine -notlike "*Filius-RBZ-Klausur-*") { throw "nicht aus dem Temp-Ordner gestartet" }
+          if ($j.CommandLine -notlike "*-Dfilius.speicherort=$ordner*") { throw "Speicherort fehlt" }
+          Start-Sleep -Seconds 40
+          if (-not (Get-Process javaw -ErrorAction SilentlyContinue)) { throw "Filius läuft nicht" }
+          Add-Type -AssemblyName System.Windows.Forms, System.Drawing
+          $b = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
+          $bmp = New-Object System.Drawing.Bitmap $b.Width, $b.Height
+          [System.Drawing.Graphics]::FromImage($bmp).CopyFromScreen($b.Location, [System.Drawing.Point]::Empty, $b.Size)
+          $klein = New-Object System.Drawing.Bitmap $bmp, ([int]($b.Width / 2)), ([int]($b.Height / 2))
+          $klein.Save("$PWD\klausur.png", [System.Drawing.Imaging.ImageFormat]::Png)
+          Write-Output "::group::Bildschirmfoto Klausurversion Windows (PNG, Base64)"
+          Write-Output ([Convert]::ToBase64String([IO.File]::ReadAllBytes("$PWD\klausur.png")))
+          Write-Output "::endgroup::"
+          Stop-Process -Name javaw -Force
+          Start-Sleep -Seconds 3
+          # second start: the unpacked folder is used again
+          $start = Get-Date
+          Start-Process "$ordner\Filius-RBZ-Klausur.exe"
+          $j = $null
+          for ($i = 0; $i -lt 60 -and -not $j; $i++) { Start-Sleep -Milliseconds 500; $j = Get-Process javaw -ErrorAction SilentlyContinue }
+          if (-not $j) { throw "zweiter Start fehlgeschlagen" }
+          Write-Output ("zweiter Start: javaw nach {0:N1} s" -f ((Get-Date) - $start).TotalSeconds)
+          Stop-Process -Name javaw -Force
+          Get-ChildItem $ordner -Force | Format-Table Name, Length

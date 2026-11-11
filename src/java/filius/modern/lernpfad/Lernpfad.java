@@ -22,6 +22,7 @@ import javax.swing.Timer;
 import filius.gui.GUIContainer;
 import filius.gui.JMainFrame;
 import filius.hardware.knoten.Knoten;
+import filius.modern.Klausur;
 import filius.modern.Overlay;
 import filius.modern.Prefs;
 import filius.modern.Texts;
@@ -274,7 +275,8 @@ public final class Lernpfad {
 
     /** Called once the main window is open. */
     public static void install(JMainFrame frame) {
-        if (timer != null) {
+        // exam edition: no panel, no timer, nothing is read from the lernpfad folder or from project files
+        if (Klausur.AKTIV || timer != null) {
             return;
         }
         installiert = System.currentTimeMillis();
@@ -306,7 +308,7 @@ public final class Lernpfad {
     }
 
     public static void umschalten() {
-        if (panel == null) {
+        if (Klausur.AKTIV || panel == null) {
             return;
         }
         panel.setVisible(!panel.isVisible());
@@ -326,7 +328,7 @@ public final class Lernpfad {
 
     /** Opens the learning path where the student stopped (after loading a project with progress). */
     static void zeigen() {
-        if (panel == null) {
+        if (Klausur.AKTIV || panel == null) {
             return;
         }
         if (panel.isVisible()) {
@@ -338,6 +340,9 @@ public final class Lernpfad {
 
     /** The learning path was started in this project: some progress or a chapter that is checked. */
     public static boolean begonnen() {
+        if (Klausur.AKTIV) {
+            return false;
+        }
         Fortschritt f = fortschritt();
         return gewaehlt() && (f.aktiv > 0 || !f.leer());
     }
@@ -368,6 +373,9 @@ public final class Lernpfad {
 
     /** A command typed into a command line. */
     public static void befehl(Knoten k, String befehl, List<String> parameter) {
+        if (Klausur.AKTIV) {
+            return;
+        }
         Ereignis e = new Ereignis(Ereignis.Art.BEFEHL, k, System.currentTimeMillis());
         e.name = befehl == null ? "" : befehl.trim().toLowerCase();
         if (parameter != null) {
@@ -386,6 +394,9 @@ public final class Lernpfad {
 
     /** The data exchange window of a device was opened or its tab selected. */
     public static void datenaustausch(SystemSoftware s) {
+        if (Klausur.AKTIV) {
+            return;
+        }
         if (s != null && s.getKnoten() != null) {
             beobachter.fenster(Ereignis.Art.DATENAUSTAUSCH, s.getKnoten(), System.currentTimeMillis());
         }
@@ -393,6 +404,10 @@ public final class Lernpfad {
 
     /** A project was opened: its progress is used; a file without progress keeps the current one. */
     public static void projektGeladen(String datei) {
+        if (Klausur.AKTIV) {
+            // the progress stored in the file is not even read
+            return;
+        }
         Properties p = ProjektSpeicher.lesen(datei);
         startGelesen = true;
         if (p != null) {
@@ -410,6 +425,9 @@ public final class Lernpfad {
 
     /** New project: the learning path starts from the beginning, progress belongs to its project file. */
     public static void projektNeu() {
+        if (Klausur.AKTIV) {
+            return;
+        }
         startGelesen = true;
         // a new project starts the chosen path from the beginning
         Pfad gewaehlt = pfad;
@@ -432,6 +450,9 @@ public final class Lernpfad {
     }
 
     public static void projektGespeichert(String datei) {
+        if (Klausur.AKTIV) {
+            return;
+        }
         ProjektSpeicher.schreiben(datei, alsProperties());
     }
 

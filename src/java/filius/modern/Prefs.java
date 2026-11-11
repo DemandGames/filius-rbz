@@ -130,8 +130,9 @@ public final class Prefs {
         return lernpfadAuswahl;
     }
 
+    /** False if config/filius.ini hides the learning path, and always in the exam edition. */
     public static boolean missionsEnabled() {
-        return missionsAllowedGlobally;
+        return missionsAllowedGlobally && !Klausur.AKTIV;
     }
 
     /** False if config/filius.ini asks for the classic page view in the web browser. */
@@ -152,8 +153,18 @@ public final class Prefs {
     /**
      * The folder that "Open" and "Save" show first, from config/filius.ini (modern-speicherort), with
      * environment variables replaced (%USERNAME%, %HOMESHARE%, ${HOME}, a leading ~). Null if not set.
+     * The system property filius.speicherort comes first: the starter of the exam edition sets it to the
+     * folder the starter lies in (the task folder).
      */
     public static String speicherort() {
+        String start = System.getProperty("filius.speicherort");
+        if (start != null && !start.isBlank()) {
+            try {
+                return java.nio.file.Paths.get(start.trim()).normalize().toString();
+            } catch (RuntimeException e) {
+                return start.trim();
+            }
+        }
         if (speicherort == null) {
             return null;
         }

@@ -13,6 +13,10 @@ von der ersten IP-Adresse bis zu HTTPS, Firewall und VPN führt – auf Deutsch 
   und unter [Releases](https://github.com/DemandGames/filius-rbz/releases)
 - Windows 10/11, macOS 11 oder neuer (Apple-Chip und Intel), Linux (.deb), jeweils 64 Bit;
   eine Java-Installation ist nicht nötig, jedes Paket bringt seine eigene Laufzeit mit.
+- **Klausurversion für Windows:** `Filius-RBZ-Klausur.exe` – eine einzige Datei, ohne Installation, die
+  z. B. im Aufgabenordner liegt. Gleiches Programm, aber ohne Lernpfad (auch nicht aus Projektdateien mit
+  Fortschritt), ohne Beispiele und ohne Tipps in der Hilfe. „Laden“ und „Speichern“ zeigen zuerst den Ordner
+  der Datei.
 
 ## Was ist neu gegenüber Filius 2.9.3?
 
@@ -57,10 +61,11 @@ Free code signing provided by [SignPath.io](https://about.signpath.io), certific
 - Committers and reviewers: [DemandGames](https://github.com/DemandGames)
 - Approvers: [DemandGames](https://github.com/DemandGames)
 
-Signiert werden nur die Windows-Dateien (Starter „Filius RBZ.exe“ und die beiden Installer), die der
-Workflow dieses Repositorys aus dem Quellcode baut. Jede Signatur wird von Hand freigegeben.
-Only the Windows files (starter and installers) built by this repository's workflow are signed; every
-signing request is approved manually.
+Signiert werden nur die Windows-Dateien (Starter „Filius RBZ.exe“, die beiden Installer und die
+Klausurversion „Filius-RBZ-Klausur.exe“), die der Workflow dieses Repositorys aus dem Quellcode baut. Jede
+Signatur wird von Hand freigegeben.
+Only the Windows files (starter, installers and exam edition) built by this repository's workflow are
+signed; every signing request is approved manually.
 
 ## Datenschutz / Privacy policy
 
@@ -87,6 +92,8 @@ to HTTPS, firewalls and VPN – in German and English.
   [Releases](https://github.com/DemandGames/filius-rbz/releases)
 - Windows 10/11, macOS 11 or later (Apple silicon and Intel), Linux (.deb), 64 bit; no Java installation
   needed.
+- **Exam edition for Windows:** `Filius-RBZ-Klausur.exe` – one file, no installation, without the learning
+  path (also not from project files with progress), examples and help tips.
 - Build: see [BUILD.md](BUILD.md) and the workflow in `.github/workflows/build.yml`.
 - Licence: GNU GPL v2 or v3, like Filius. The original `filius.jar` stays unchanged; `filius-rbz.jar` is
   loaded in front of it.
