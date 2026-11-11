@@ -1,0 +1,99 @@
+# Temporary: start test of the exam edition in English (dark mode) on Windows, with screenshots and a
+# thread dump. Uses the packages of an earlier build run.
+name: Klausur-Test
+on:
+  push:
+    branches: [klausur-test]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  test:
+    runs-on: windows-2025
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: filius-rbz-pakete
+          path: pakete
+          run-id: ${{ vars.KLAUSUR_RUN || '43072881842' }}
+          github-token: ${{ github.token }}
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Englisch und dunkel starten
+        shell: pwsh
+        run: |
+          $f = "$env:USERPROFILE\.filius"
+          New-Item -ItemType Directory -Force $f | Out-Null
+          $ordner = "$env:RUNNER_TEMP\Aufgabe 1"
+          New-Item -ItemType Directory -Force $ordner | Out-Null
+          Copy-Item "pakete\Filius-RBZ-Klausur.exe" $ordner
+          $k = @"
+          <?xml version="1.0" encoding="UTF-8"?>
+          <java version="21.0.8" class="java.beans.XMLDecoder">
+           <array class="java.lang.Object" length="8">
+            <void index="0">
+             <object class="java.awt.Rectangle">
+              <int>0</int><int>0</int><int>1024</int><int>740</int>
+             </object>
+            </void>
+            <void index="2"><string>en</string></void>
+            <void index="3"><string>GB</string></void>
+            <void index="4"><string>$ordner</string></void>
+            <void index="5"><boolean>false</boolean></void>
+            <void index="6"><string>DEFAULT</string></void>
+            <void index="7"><boolean>false</boolean></void>
+           </array>
+          </java>
+          "@
+          Set-Content -Path "$f\konfig.xml" -Value $k -Encoding UTF8
+          Set-Content -Path "$f\filius-modern.properties" -Value "modern.dunkel=true" -Encoding ASCII
+          Add-Type -AssemblyName System.Windows.Forms, System.Drawing
+          Add-Type @"
+          using System; using System.Text; using System.Runtime.InteropServices;
+          public static class Fenster {
+            public delegate bool CB(IntPtr h, IntPtr p);
+            [DllImport("user32.dll")] public static extern bool EnumWindows(CB cb, IntPtr p);
+            [DllImport("user32.dll")] public static extern bool IsWindowVisible(IntPtr h);
+            [DllImport("user32.dll")] public static extern int GetWindowThreadProcessId(IntPtr h, out int pid);
+            [DllImport("user32.dll")] public static extern int GetWindowText(IntPtr h, StringBuilder s, int n);
+            [DllImport("user32.dll")] public static extern int GetClassName(IntPtr h, StringBuilder s, int n);
+            [StructLayout(LayoutKind.Sequential)] public struct R { public int l, t, r, b; }
+            [DllImport("user32.dll")] public static extern bool GetWindowRect(IntPtr h, out R r);
+            public static string Liste(int pid) {
+              var sb = new StringBuilder();
+              EnumWindows((h, p) => { int w; GetWindowThreadProcessId(h, out w);
+                if (w == pid && IsWindowVisible(h)) { var t = new StringBuilder(256); var c = new StringBuilder(256);
+                  GetWindowText(h, t, 256); GetClassName(h, c, 256); R r; GetWindowRect(h, out r);
+                  sb.AppendLine(string.Format("  {0} '{1}' {2}x{3} @ {4},{5}", c, t, r.r - r.l, r.b - r.t, r.l, r.t)); }
+                return true; }, IntPtr.Zero);
+              return sb.ToString(); } }
+          "@
+          function Foto($name) {
+            $b = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
+            $bmp = New-Object System.Drawing.Bitmap $b.Width, $b.Height
+            [System.Drawing.Graphics]::FromImage($bmp).CopyFromScreen($b.Location, [System.Drawing.Point]::Empty, $b.Size)
+            $klein = New-Object System.Drawing.Bitmap $bmp, ([int]($b.Width / 2)), ([int]($b.Height / 2))
+            $klein.Save("$PWD\$name.png", [System.Drawing.Imaging.ImageFormat]::Png)
+            Write-Output "::group::Foto $name"
+            Write-Output ([Convert]::ToBase64String([IO.File]::ReadAllBytes("$PWD\$name.png")))
+            Write-Output "::endgroup::"
+          }
+          function Lauf($name) {
+            Start-Process "$ordner\Filius-RBZ-Klausur.exe"
+            $j = $null
+            for ($i = 0; $i -lt 120 -and -not $j; $i++) { Start-Sleep -Seconds 1; $j = Get-Process javaw -ErrorAction SilentlyContinue }
+            foreach ($s in 5, 15, 40) {
+              Start-Sleep -Seconds $(if ($s -eq 5) { 5 } elseif ($s -eq 15) { 10 } else { 25 })
+              Write-Output "=== $name nach $s s, Fenster von javaw:"
+              Write-Output ([Fenster]::Liste($j.Id))
+              Foto "$name-$s"
+            }
+            & "$env:JAVA_HOME\bin\jstack.exe" $j.Id | Select-String -Pattern '"main"|"AWT-EventQueue' -Context 0,25 | Out-String -Width 300
+            Stop-Process -Name javaw -Force
+            Start-Sleep -Seconds 3
+          }
+          Lauf "englisch"
+          (Get-Content "$f\konfig.xml") -replace '<string>en</string>','<string>de</string>' -replace '<string>GB</string>','<string>DE</string>' | Set-Content "$f\konfig.xml"
+          Lauf "deutsch"
