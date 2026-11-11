@@ -11,6 +11,9 @@ jobs:
   test:
     runs-on: windows-2025
     steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: test
       - uses: actions/download-artifact@v4
         with:
           name: filius-rbz-pakete
@@ -117,10 +120,36 @@ jobs:
             foreach ($p in Get-Process javaw -ErrorAction SilentlyContinue) {
               & "$env:JAVA_HOME\bin\jstack.exe" $p.Id | Select-String -Pattern '"main"|"AWT-EventQueue|"filius' -Context 0,30 | Out-String -Width 300 }
           }
-          # German start, then switch to English and back, like a teacher would do
+          # unpack the earlier exe once, then put the NEW filius-rbz.jar (help removed, start window fix) into it
           Start-Process "$ordner\Filius-RBZ-Klausur.exe"
-          Start-Sleep -Seconds 40
-          Fenster-Alle "deutsch gestartet"
-          Umschalten "nach-englisch" 910
-          Umschalten "nach-deutsch" 876
+          for ($i = 0; $i -lt 120 -and -not (Get-Process javaw -ErrorAction SilentlyContinue); $i++) { Start-Sleep -Seconds 1 }
+          Start-Sleep -Seconds 5
+          Stop-Process -Name javaw -Force
+          Start-Sleep -Seconds 3
+          $ziel = Get-ChildItem "$env:TEMP" -Directory -Filter "Filius-RBZ-Klausur-*" | Select-Object -First 1
+          Copy-Item "test\filius-rbz.jar" "$($ziel.FullName)\filius-rbz.jar" -Force
+          Write-Output "neues Jar in $($ziel.FullName)"
+          function Pruefen($wann) {
+            $p = Get-Process javaw -ErrorAction SilentlyContinue
+            Write-Output "=== $wann ($(@($p).Count) javaw)"
+            $fehler = $false
+            foreach ($q in @($p)) { foreach ($z in ([Fenster]::Liste($q.Id) -split "`r?`n")) { if ($z.Trim()) {
+              Write-Output $z
+              if ($z -notlike "*SunAwtFrame*" -and $z -match ' (\d+)x(\d+) @' -and [int]$Matches[2] -gt 100) { $fehler = $true } } } }
+            if ($fehler) { Write-Output "FEHLER: Startfenster bleibt stehen ($wann)"; Foto "fehler-$wann" }
+          }
+          Start-Process "$ordner\Filius-RBZ-Klausur.exe"
+          Start-Sleep -Seconds 30
+          Pruefen "start"
+          Foto "start-neu"
+          foreach ($runde in 1, 2, 3) {
+            foreach ($x in 910, 876) {
+              [Fenster]::Klick($x, 60)
+              Start-Sleep -Seconds 2
+              [System.Windows.Forms.SendKeys]::SendWait("{ENTER}")
+              Start-Sleep -Seconds 15
+              Pruefen "runde $runde nach $x"
+            }
+          }
+          Foto "ende"
           Stop-Process -Name javaw -Force -ErrorAction SilentlyContinue
