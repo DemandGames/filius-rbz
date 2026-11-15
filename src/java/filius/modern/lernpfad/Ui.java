@@ -19,6 +19,7 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.RoundRectangle2D;
 import java.io.File;
+import java.text.BreakIterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,10 +35,16 @@ import javax.swing.JTextPane;
 import javax.swing.Scrollable;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.text.AbstractDocument;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.Element;
+import javax.swing.text.LabelView;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
+import javax.swing.text.StyledEditorKit;
+import javax.swing.text.View;
+import javax.swing.text.ViewFactory;
 
 import filius.modern.Theme;
 
@@ -120,6 +127,102 @@ final class Ui {
 
     private static final Pattern MARKUP = Pattern.compile("\\*\\*(.+?)\\*\\*|`(.+?)`");
 
+    /**
+     * Editor kit of the wrapping texts. Swing would end a line in front of a German closing quotation mark
+     * (“ is an opening mark in English, so Java allows a break before it): „DHCP aktivieren / “ setzen.
+     * With this kit the mark stays with its word.
+     */
+    private static final class Satz extends StyledEditorKit {
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        public ViewFactory getViewFactory() {
+            ViewFactory normal = super.getViewFactory();
+            return elem -> AbstractDocument.ContentElementName.equals(elem.getName()) ? new Stueck(elem) : normal.create(elem);
+        }
+    }
+
+    /** a run of text that knows where a line may end (like GlyphView, without the break before a closing “) */
+    private static final class Stueck extends LabelView {
+
+        Stueck(Element elem) {
+            super(elem);
+        }
+
+        /** the last position behind p0 and up to p1 where the line may end, or -1 */
+        private int bruch(int p0, int p1) {
+            try {
+                int end = getEndOffset();
+                Element absatz = getElement().getParentElement();
+                int a0 = absatz == null ? getStartOffset() : absatz.getStartOffset();
+                int a1 = absatz == null ? end : absatz.getEndOffset();
+                String s = getDocument().getText(a0, a1 - a0);
+                // like Swing: texts with characters beyond Latin-1 are broken by the rules of the language,
+                // all others only at white space
+                BreakIterator b = null;
+                if (Boolean.TRUE.equals(getDocument().getProperty("multiByte"))) {
+                    java.awt.Container c = getContainer();
+                    b = BreakIterator.getLineInstance(c == null ? java.util.Locale.getDefault() : c.getLocale());
+                    b.setText(s);
+                }
+                int von = Math.min(p1, end) - a0;
+                // the end edge of the run counts only if the paragraph goes on behind it
+                int pos = vorher(b, s, a1 > end || von < s.length() ? von + 1 : von);
+                while (pos != BreakIterator.DONE && a0 + pos > p0) {
+                    boolean vorSchlusszeichen = pos > 0 && pos < s.length() && s.charAt(pos) == '\u201C' && !Character.isWhitespace(s.charAt(pos - 1));
+                    if (!vorSchlusszeichen) {
+                        return a0 + pos;
+                    }
+                    pos = vorher(b, s, pos);
+                }
+            } catch (BadLocationException | RuntimeException e) {
+                // no break spot
+            }
+            return -1;
+        }
+
+        /** the last place before offset where a line may end: by the rules of the language (b) or after white space */
+        private static int vorher(BreakIterator b, String s, int offset) {
+            if (b != null) {
+                return b.preceding(offset);
+            }
+            for (int i = Math.min(offset - 1, s.length()); i > 0; i--) {
+                if (i == s.length() || Character.isWhitespace(s.charAt(i - 1)) && !Character.isWhitespace(s.charAt(i))) {
+                    return i;
+                }
+            }
+            return offset > 0 ? 0 : BreakIterator.DONE;
+        }
+
+        @Override
+        public int getBreakWeight(int axis, float pos, float len) {
+            if (axis != View.X_AXIS) {
+                return super.getBreakWeight(axis, pos, len);
+            }
+            checkPainter();
+            int p0 = getStartOffset();
+            int p1 = getGlyphPainter().getBoundedPosition(this, p0, pos, len);
+            return p1 == p0 ? View.BadBreakWeight : bruch(p0, p1) != -1 ? View.ExcellentBreakWeight : View.GoodBreakWeight;
+        }
+
+        @Override
+        public View breakView(int axis, int p0, float pos, float len) {
+            if (axis != View.X_AXIS) {
+                return this;
+            }
+            checkPainter();
+            int p1 = getGlyphPainter().getBoundedPosition(this, p0, pos, len);
+            int spot = bruch(p0, p1);
+            if (spot != -1) {
+                p1 = spot;
+            }
+            if (p0 == getStartOffset() && p1 == getEndOffset()) {
+                return this;
+            }
+            return createFragment(p0, p1);
+        }
+    }
+
     /** Read-only, wrapping text. **bold** and `code` are formatted. */
     static final class Text extends JTextPane {
         private static final long serialVersionUID = 1L;
@@ -141,6 +244,7 @@ final class Ui {
             setMargin(new Insets(0, 0, 0, 0));
             setAlignmentX(Component.LEFT_ALIGNMENT);
             setHighlighter(null);
+            setEditorKit(new Satz());
             StyledDocument doc = getStyledDocument();
             SimpleAttributeSet normal = new SimpleAttributeSet();
             StyleConstants.setFontFamily(normal, mono ? Theme.mono(Font.PLAIN, groesse).getFamily() : Theme.font(Font.PLAIN, groesse).getFamily());
