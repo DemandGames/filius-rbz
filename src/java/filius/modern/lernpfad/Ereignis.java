@@ -71,6 +71,8 @@ public final class Ereignis {
     public final Art art;
     public long zeit;
     public final Knoten knoten;
+    /** the device at the other end, where it is known (IMAP: the device that had the client address) */
+    public Knoten gegenstelle;
     public String quelle = "";
     public String ziel = "";
     public int port;

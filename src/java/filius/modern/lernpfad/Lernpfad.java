@@ -46,7 +46,10 @@ public final class Lernpfad {
     private static Pfad pfad = vorgegeben();
     private static final Ereignisse ereignisse = new Ereignisse();
     private static final Beobachter beobachter = new Beobachter(ereignisse);
+    /** per task: the time from which evidence counts (set when the state the evidence waits for became true) */
     private static final Map<String, Long> seit = new HashMap<>();
+    /** per task: the last time that state was seen false, as long as it was never true */
+    private static final Map<String, Long> vorher = new HashMap<>();
     private static final List<Runnable> hoerer = new ArrayList<>();
     private static final Random zufall = new Random();
 
@@ -55,6 +58,10 @@ public final class Lernpfad {
     private static long installiert;
     private static boolean startGelesen;
     private static int letzterModus;
+    /** start of the running simulation */
+    private static long simulationSeit;
+    /** chapter whose final check waits until DHCP has handed out the addresses (0: none) */
+    private static int abschlussWartet;
     private static long praxisPruefungAb;
 
     private Lernpfad() {}
@@ -125,6 +132,7 @@ public final class Lernpfad {
         pfad = p;
         ereignisse.leeren();
         seit.clear();
+        vorher.clear();
         praxisPruefungAb = System.currentTimeMillis();
         gespeichertMarkieren();
         geaendert();
@@ -138,6 +146,12 @@ public final class Lernpfad {
     /** the rule of a task of the current path */
     public static Regel regel(String id) {
         return pfad().regel(id);
+    }
+
+    /** true if the rule of the task is made of steps, so its hint can show what is done and what comes next */
+    static boolean hatSchritte(String id) {
+        Regel r = regel(id);
+        return r != null && !r.schritte.isEmpty();
     }
 
     /**
@@ -352,11 +366,23 @@ public final class Lernpfad {
     }
 
     static void geaendert() {
-        for (Runnable r : hoerer) {
-            r.run();
+        try {
+            hoererRufen();
+        } finally {
+            // whatever a listener does: the panel shows what is done
+            if (panel != null) {
+                panel.aktualisieren();
+            }
         }
-        if (panel != null) {
-            panel.aktualisieren();
+    }
+
+    private static void hoererRufen() {
+        for (Runnable r : hoerer) {
+            try {
+                r.run();
+            } catch (RuntimeException e) {
+                // a listener (header, overlay) must not stop the others
+            }
         }
     }
 
@@ -418,6 +444,7 @@ public final class Lernpfad {
         } else {
             ereignisse.leeren();
             seit.clear();
+        vorher.clear();
             praxisPruefungAb = System.currentTimeMillis();
             geaendert();
         }
@@ -444,6 +471,7 @@ public final class Lernpfad {
         staende.put(pfad(), new Fortschritt(pfad()));
         ereignisse.leeren();
         seit.clear();
+        vorher.clear();
         praxisPruefungAb = System.currentTimeMillis();
         geaendert();
         gespeichertMarkieren();
@@ -483,6 +511,7 @@ public final class Lernpfad {
         pfad = vorgegeben() != null ? vorgegeben() : gespeichert;
         ereignisse.leeren();
         seit.clear();
+        vorher.clear();
         praxisPruefungAb = System.currentTimeMillis();
         geaendert();
     }
@@ -511,6 +540,7 @@ public final class Lernpfad {
             s.gelesen = true;
             neu = true;
             seit.clear();
+        vorher.clear();
             praxisPruefungAb = System.currentTimeMillis();
         }
         if (neu) {
@@ -567,6 +597,7 @@ public final class Lernpfad {
         fortschritt().aktiv = nr;
         ereignisse.leeren();
         seit.clear();
+        vorher.clear();
         praxisPruefungAb = System.currentTimeMillis();
         gespeichertMarkieren();
         geaendert();
@@ -610,9 +641,7 @@ public final class Lernpfad {
             o.toast(text, Theme.LED_GREEN);
             o.celebrate();
         }
-        for (Runnable r : hoerer) {
-            r.run();
-        }
+        hoererRufen();
     }
 
     // ------------------------------------------------------------------ checking
@@ -643,8 +672,38 @@ public final class Lernpfad {
                 // ignore
             }
         }
+        if (modus == Theme.MODE_SIMULATION && letzterModus != Theme.MODE_SIMULATION) {
+            simulationSeit = System.currentTimeMillis();
+        }
         letzterModus = modus;
         pruefen();
+        if (panel != null && panel.isVisible()) {
+            try {
+                panel.hinweiseAuffrischen();
+            } catch (RuntimeException e) {
+                // the hints are refreshed with the next change
+            }
+        }
+    }
+
+    /**
+     * The time from which the evidence of a task counts: from the moment the state it waits for was true for
+     * the first time (the last check before that, so nothing in between is lost). Afterwards the time stays,
+     * also if the state is false for a while: DHCP hands out addresses anew at every start of the simulation,
+     * students try something out and change it back - a test that counted once is not asked for again.
+     * Long.MAX_VALUE as long as that state was never true.
+     */
+    private static long nachweisAb(String key, Regel r, Netz netz, long jetzt) {
+        Long ab = seit.get(key);
+        if (ab == null) {
+            if (!r.torOk(netz)) {
+                vorher.put(key, jetzt);
+                return Long.MAX_VALUE;
+            }
+            ab = vorher.getOrDefault(key, praxisPruefungAb);
+            seit.put(key, ab);
+        }
+        return Math.max(ab, praxisPruefungAb);
     }
 
     /** Checks the open tasks of the active chapter. */
@@ -669,52 +728,119 @@ public final class Lernpfad {
             if (r == null) {
                 continue;
             }
-            String key = nr + "|" + a.id;
-            if (!r.zustandOk(netz)) {
-                seit.put(key, jetzt);
-                continue;
-            }
-            long ab = Math.max(seit.getOrDefault(key, praxisPruefungAb), praxisPruefungAb);
-            if (!r.nachweisOk(netz, ereignisse, ab)) {
-                continue;
-            }
-            if (a.hatFrage()) {
-                String antwort = s.antworten.get(a.id);
-                boolean ok = a.hatAuswahl() ? String.valueOf(a.richtig).equals(antwort) : r.antwortOk(netz, ereignisse, antwort);
-                if (!ok) {
+            try {
+                long ab = nachweisAb(nr + "|" + a.id, r, netz, jetzt);
+                if (ab == Long.MAX_VALUE || !r.zustandOk(netz) || !r.nachweisOk(netz, ereignisse, ab)) {
                     continue;
                 }
+                if (a.hatFrage() && !antwortRichtig(a, r, netz, s.antworten.get(a.id))) {
+                    continue;
+                }
+            } catch (RuntimeException | LinkageError | StackOverflowError e) {
+                // a rule that cannot be checked right now must not stop the check of the other tasks
+                continue;
             }
             s.erledigt.add(a.id);
             neu.add(a.id);
         }
-        if (neu.isEmpty()) {
+        if (neu.isEmpty() && abschlussWartet != nr) {
             return;
         }
-        boolean alle = true;
-        for (Aufgabe a : aufgaben(nr)) {
-            alle &= s.erledigt.contains(a.id);
-        }
-        if (alle && !s.praxisFertig) {
-            List<String> nichtMehr = endkontrolle(nr, netz);
-            if (nichtMehr.isEmpty()) {
-                s.praxisFertig = true;
-                if (s.quizOffen == null || s.fertig) {
-                    quizBeginnen(nr);
+        // while the final check only waits, nothing changes for the panel
+        boolean aenderung = !neu.isEmpty();
+        try {
+            boolean alle = true;
+            for (Aufgabe a : aufgaben(nr)) {
+                alle &= s.erledigt.contains(a.id);
+            }
+            if (alle && !s.praxisFertig && adressenUnterwegs(netz, jetzt)) {
+                // right after the start of the simulation DHCP is still handing out the addresses: the final
+                // check of what depends on them waits until they are there, instead of taking tasks back
+                abschlussWartet = nr;
+                if (!neu.isEmpty()) {
+                    feiern(neu.size() == 1 ? Texts.format("lp.toast.task", anzeige(nr, neu.get(0))) : Texts.format("lp.toast.tasks", String.join(", ", anzeige(nr, neu))));
                 }
-                feiern(Texts.get("lp.toast.practice"));
+            } else if (alle && !s.praxisFertig) {
+                abschlussWartet = 0;
+                aenderung = true;
+                List<String> nichtMehr = endkontrolle(nr, netz);
+                if (nichtMehr.isEmpty()) {
+                    s.praxisFertig = true;
+                    if (s.quizOffen == null || s.fertig) {
+                        quizBeginnen(nr);
+                    }
+                    feiern(Texts.get("lp.toast.practice"));
+                } else {
+                    s.erledigt.removeAll(nichtMehr);
+                    Overlay o = Overlay.get();
+                    if (o != null) {
+                        o.toast(Texts.format("lp.toast.notanymore", String.join(", ", anzeige(nr, nichtMehr))), Theme.MARKER_AMBER);
+                    }
+                }
             } else {
-                s.erledigt.removeAll(nichtMehr);
-                Overlay o = Overlay.get();
-                if (o != null) {
-                    o.toast(Texts.format("lp.toast.notanymore", String.join(", ", anzeige(nr, nichtMehr))), Theme.MARKER_AMBER);
+                abschlussWartet = 0;
+                if (!neu.isEmpty()) {
+                    feiern(neu.size() == 1 ? Texts.format("lp.toast.task", anzeige(nr, neu.get(0))) : Texts.format("lp.toast.tasks", String.join(", ", anzeige(nr, neu))));
                 }
             }
-        } else {
-            feiern(neu.size() == 1 ? Texts.format("lp.toast.task", anzeige(nr, neu.get(0))) : Texts.format("lp.toast.tasks", String.join(", ", anzeige(nr, neu))));
+        } finally {
+            // whatever happens with the effects: the panel always shows what is done
+            if (aenderung) {
+                gespeichertMarkieren();
+                geaendert();
+            }
         }
-        gespeichertMarkieren();
-        geaendert();
+    }
+
+    /**
+     * The simulation was started less than 40 seconds ago and a device that takes its settings from a DHCP
+     * server has no address yet.
+     */
+    private static boolean adressenUnterwegs(Netz netz, long jetzt) {
+        if (letzterModus != Theme.MODE_SIMULATION || jetzt - simulationSeit > 40000) {
+            return false;
+        }
+        try {
+            for (Knoten k : netz.hosts()) {
+                String ip = Netz.ip(k);
+                if (Netz.dhcp(k) && (ip == null || ip.isBlank() || ip.equals("0.0.0.0"))) {
+                    return true;
+                }
+            }
+        } catch (RuntimeException e) {
+            // then the final check does not wait
+        }
+        return false;
+    }
+
+    private static boolean antwortRichtig(Aufgabe a, Regel r, Netz netz, String antwort) {
+        return a.hatAuswahl() ? String.valueOf(a.richtig).equals(antwort) : r.antwortOk(netz, ereignisse, antwort);
+    }
+
+    /**
+     * The steps of an open task as they stand right now, for its hint: what is done, what comes next. The
+     * question of the task is the last step. Null if the task is not being checked (chapter not started, part
+     * still locked) or its rule has no steps.
+     */
+    static List<Regel.Stand> stand(int nr, Aufgabe a) {
+        Fortschritt.Stand s = fortschritt().stand(nr);
+        Regel r = regel(a.id);
+        if (fortschritt().aktiv != nr || r == null || r.schritte.isEmpty() || !(s.gelesen || s.fertig) || !gruppeOffen(nr, a.gruppe)) {
+            return null;
+        }
+        Netz netz = new Netz();
+        long ab = nachweisAb(nr + "|" + a.id, r, netz, System.currentTimeMillis());
+        List<Regel.Stand> l = new ArrayList<>(r.stand(netz, ereignisse, ab, praxisPruefungAb));
+        if (a.hatFrage()) {
+            boolean ok;
+            try {
+                ok = antwortRichtig(a, r, netz, s.antworten.get(a.id));
+            } catch (RuntimeException e) {
+                ok = false;
+            }
+            l.add(new Regel.Stand(Texts.get("lp.step.answer"), ok, null, false));
+        }
+        return l;
     }
 
     /** At the end every task is checked again: what was right must still be right. */

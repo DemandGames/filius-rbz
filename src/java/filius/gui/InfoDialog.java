@@ -49,7 +49,7 @@ public class InfoDialog extends JDialog implements I18n {
     /** editor of Filius (RBZ Wirtschaft Kiel Version) as shown in the info window: name and e-mail */
     public static final String BEARBEITER = "Thorben Demand\nthorben.demand@rbz-wirtschaft-kiel.de";
     /** date of this version (shown after the version number instead of the build date of Filius 2.9.3) */
-    public static final String STAND = "11.11.2026";
+    public static final String STAND = "15.11.2026";
     private static final int BREITE = 470;
 
     private static InfoDialog offen;

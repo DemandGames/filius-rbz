@@ -21,6 +21,7 @@ von der ersten IP-Adresse bis zu HTTPS, Firewall und VPN führt – auf Deutsch 
 ## Was ist neu gegenüber Filius 2.9.3?
 
 - Lernpfad neben dem Netz: Lesen, Praxis, Quiz und Glossar; Filius prüft die Aufgaben im laufenden Netz
+  und zeigt im Tipp, welche Schritte erledigt sind und was als Nächstes fehlt
 - modernes Design (hell und dunkel), neue Symbole, Kopfleiste mit Neu/Laden/Speichern, Hilfe neu
 - HTTPS mit TLS und Zertifikaten, VPN-Server und -Client, E-Mail mit IMAP, Firewall und Portfreigabe
 - Webbrowser mit WebKit-Engine, Datenaustausch im TCP/IP- oder OSI-Modell, Text-Editor mit Syntaxfarben
@@ -84,7 +85,8 @@ simulated inside the program.
 Filius is learning software about computer networks: build your own network of laptops, switches, routers
 and servers and watch every packet. This version of **Filius 2.9.3** has a redesigned user interface and a
 **learning path** in two levels (standard with 8 and advanced with 12 chapters), from the first IP address
-to HTTPS, firewalls and VPN – in German and English.
+to HTTPS, firewalls and VPN – in German and English. Filius checks the practice tasks in the running
+network; the tip of a task shows which steps are done and what is missing next.
 
 ![The finished network of the advanced learning path](docs/netz.webp)
 

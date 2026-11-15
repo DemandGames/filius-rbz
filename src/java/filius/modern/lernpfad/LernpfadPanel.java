@@ -69,6 +69,8 @@ final class LernpfadPanel extends JPanel {
     private final Map<String, Boolean> rueckmeldungOk = new HashMap<>();
     private final Map<String, String> entwurf = new HashMap<>();
     private final Map<String, Boolean> tippOffen = new HashMap<>();
+    /** the hints that are open right now: task id -> its area in the panel and what it shows */
+    private final Map<String, Hinweis> hinweise = new HashMap<>();
     /** quiz question that was just answered: [question, chosen option, right?] */
     private int[] quizErgebnis;
     private final Random zufall = new Random();
@@ -309,6 +311,7 @@ final class LernpfadPanel extends JPanel {
     private void aufbauen(boolean nachOben) {
         int pos = scroll.getVerticalScrollBar().getValue();
         inhalt.removeAll();
+        hinweise.clear();
         if (ansicht != Ansicht.WAHL && !Lernpfad.gewaehlt()) {
             ansicht = Ansicht.WAHL;
         }
@@ -893,7 +896,7 @@ final class LernpfadPanel extends JPanel {
             spalte.add(Ui.abstand(8));
             spalte.add(frage(a, s, erledigt));
         }
-        if (!erledigt && !a.tipp.isEmpty()) {
+        if (!erledigt && (!a.tipp.isEmpty() || Lernpfad.hatSchritte(a.id))) {
             spalte.add(Ui.abstand(6));
             boolean offen = tippOffen.getOrDefault(a.id, false);
             JButton t = Ui.link(offen ? t("lp.tip.hide") : t("lp.tip.show"));
@@ -904,11 +907,123 @@ final class LernpfadPanel extends JPanel {
             });
             spalte.add(t);
             if (offen) {
-                spalte.add(new Text(a.tipp, 12.5f, Theme.farbe(0x8A5A00, 0xE8B060)));
+                // the hint follows the work of the student: what is done, what comes next (refreshed by the timer)
+                Hinweis h = new Hinweis(a, Ui.spalte());
+                hinweise.put(a.id, h);
+                fuelleHinweis(h, Lernpfad.stand(nr, a));
+                spalte.add(h.flaeche);
             }
         }
         karte.add(spalte, BorderLayout.CENTER);
         return karte;
+    }
+
+    // ------------------------------------------------------------------ hints
+
+    /** the open hint of a task: its area in the panel and the state of the steps it shows */
+    private static final class Hinweis {
+        final Aufgabe aufgabe;
+        final JPanel flaeche;
+        String gezeigt;
+
+        Hinweis(Aufgabe aufgabe, JPanel flaeche) {
+            this.aufgabe = aufgabe;
+            this.flaeche = flaeche;
+        }
+    }
+
+    /** what a hint shows, as a text: the hint is only built again when this changes */
+    private static String signatur(List<Regel.Stand> st) {
+        if (st == null) {
+            return "-";
+        }
+        StringBuilder b = new StringBuilder();
+        for (Regel.Stand x : st) {
+            b.append(x.ok ? '1' : '0').append(x.frueher ? 'f' : ' ').append(x.ist == null ? "" : x.ist).append('|');
+        }
+        return b.toString();
+    }
+
+    /**
+     * Fills the hint of a task. As long as nothing of the task is done it shows the tip of the chapter file and the
+     * first step. After that it shows the steps Filius checks: the ones that are done, the next one with what
+     * is set right now, and the ones after it. So the hint always says where the check is stuck.
+     */
+    private void fuelleHinweis(Hinweis h, List<Regel.Stand> st) {
+        Aufgabe a = h.aufgabe;
+        JPanel f = h.flaeche;
+        f.removeAll();
+        h.gezeigt = signatur(st);
+        java.awt.Color tippFarbe = Theme.farbe(0x8A5A00, 0xE8B060);
+        int fertig = 0;
+        int naechster = -1;
+        if (st != null) {
+            for (int i = 0; i < st.size(); i++) {
+                if (st.get(i).ok) {
+                    fertig++;
+                } else if (naechster < 0) {
+                    naechster = i;
+                }
+            }
+        }
+        if (st == null || naechster < 0 || fertig == 0) {
+            if (!a.tipp.isEmpty()) {
+                f.add(new Text(a.tipp, 12.5f, tippFarbe));
+            }
+            if (st != null && naechster >= 0) {
+                if (!a.tipp.isEmpty()) {
+                    f.add(Ui.abstand(6));
+                }
+                f.add(schrittZeile(st.get(naechster), 1));
+            }
+        } else {
+            f.add(Ui.label(t("lp.step.title"), 11.5f, true, Theme.INK_3));
+            for (int i = 0; i < st.size(); i++) {
+                f.add(Ui.abstand(4));
+                f.add(schrittZeile(st.get(i), st.get(i).ok ? 0 : i == naechster ? 1 : 2));
+            }
+            // the next step is the question: the tip of the chapter usually says where to look for the answer
+            if (a.hatFrage() && naechster == st.size() - 1 && !a.tipp.isEmpty()) {
+                f.add(Ui.abstand(6));
+                f.add(new Text(a.tipp, 12.5f, tippFarbe));
+            }
+        }
+        f.revalidate();
+        f.repaint();
+    }
+
+    /** one step of a hint: done (0), the next one (1) or a later one (2) */
+    private JComponent schrittZeile(Regel.Stand x, int art) {
+        Ui.Zeile zeile = new Ui.Zeile(7);
+        JLabel icon = new JLabel(new Kreis(art == 0 ? Status.FERTIG : art == 1 ? Status.AKTUELL : Status.OFFEN, "", 14));
+        icon.setVerticalAlignment(JLabel.TOP);
+        icon.setBorder(BorderFactory.createEmptyBorder(2, 0, 0, 0));
+        zeile.add(icon, BorderLayout.WEST);
+        String text = x.text;
+        if (art == 1) {
+            text = "**" + t("lp.step.next") + "** " + text;
+            if (x.ist != null && !x.ist.isBlank()) {
+                text += " " + t("lp.step.now", x.ist);
+            }
+        }
+        if (!x.ok && x.frueher) {
+            text += " " + t("lp.step.early");
+        }
+        zeile.add(new Text(text, 12.5f, art == 0 ? Theme.INK_3 : art == 1 ? Theme.INK : Theme.INK_2), BorderLayout.CENTER);
+        return zeile;
+    }
+
+    /** Called by the timer of the learning path: open hints follow what the student changes in the network. */
+    void hinweiseAuffrischen() {
+        if (hinweise.isEmpty() || ansicht != Ansicht.KAPITEL) {
+            return;
+        }
+        for (Hinweis h : hinweise.values()) {
+            List<Regel.Stand> st = Lernpfad.stand(nr, h.aufgabe);
+            if (!signatur(st).equals(h.gezeigt)) {
+                fuelleHinweis(h, st);
+            }
+        }
     }
 
     /** a part of a task text: paragraph, list or table */
@@ -1025,6 +1140,10 @@ final class LernpfadPanel extends JPanel {
         case RICHTIG_NOCH_OFFEN:
             rueckmeldung.put(a.id, t("lp.answer.right.open"));
             rueckmeldungOk.put(a.id, true);
+            // the hint shows which part of the task is still missing
+            if (Lernpfad.hatSchritte(a.id)) {
+                tippOffen.put(a.id, true);
+            }
             break;
         default:
             rueckmeldung.put(a.id, a.hatAuswahl() ? t("lp.answer.wrong.choice") : t("lp.answer.wrong.input"));

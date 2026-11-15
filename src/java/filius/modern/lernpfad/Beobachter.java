@@ -51,6 +51,8 @@ public final class Beobachter {
     private final Map<String, Ereignis> httpAntworten = new HashMap<>();
     private final Map<String, Sitzung> sitzungen = new HashMap<>();
     private final Map<String, Long> fensterZuletzt = new HashMap<>();
+    /** the simulation was running at the last tick */
+    private boolean lief;
 
     public Beobachter(Ereignisse ereignisse) {
         this.ereignisse = ereignisse;
@@ -61,11 +63,15 @@ public final class Beobachter {
     /** Reads new frames and checks timeouts and open windows. Called on the event thread. */
     public void tick(boolean simulationLaeuft) {
         long jetzt = System.currentTimeMillis();
-        if (simulationLaeuft) {
+        if (simulationLaeuft || lief) {
+            // also once right after the simulation stopped: the frames of its last half second
             leseLauscher();
+        }
+        if (simulationLaeuft) {
             pruefeFenster(jetzt);
         }
         pruefeZeitueberschreitungen(jetzt, simulationLaeuft);
+        lief = simulationLaeuft;
     }
 
     @SuppressWarnings("unchecked")
@@ -573,12 +579,34 @@ public final class Beobachter {
 
     private static Ereignis imapEreignis(Knoten k, long zeit, String client, String server, String konto, String typ, int anzahl) {
         Ereignis e = new Ereignis(Ereignis.Art.IMAP, k, zeit);
+        // the device that has the client address right now: with DHCP the address can be another one after the
+        // next start of the simulation, the device stays the same
+        e.gegenstelle = knotenMitIp(client);
         e.quelle = client;
         e.ziel = server;
         e.port = anzahl;
         e.name = konto == null ? "" : konto;
         e.typ = typ;
         return e;
+    }
+
+    /** the device of the current network that has this address, or null */
+    static Knoten knotenMitIp(String ip) {
+        try {
+            for (GUIKnotenItem item : GUIContainer.getGUIContainer().getKnotenItems()) {
+                Knoten k = item.getKnoten();
+                if (k instanceof InternetKnoten) {
+                    for (NetzwerkInterface nic : ((InternetKnoten) k).getNetzwerkInterfaces()) {
+                        if (ip.equals(nic.getIp())) {
+                            return k;
+                        }
+                    }
+                }
+            }
+        } catch (RuntimeException e) {
+            // not known
+        }
+        return null;
     }
 
     private static String adresse(String zeile) {
@@ -596,6 +624,10 @@ public final class Beobachter {
             offenePings.clear();
             offeneSyns.clear();
             httpVorgaenge.clear();
+            // all connections end with the simulation: a mail dialogue that was cut off must not be continued
+            // by the next connection that happens to use the same port
+            httpAntworten.clear();
+            sitzungen.clear();
             return;
         }
         long grenze = Math.max(9000L, 4L * Verbindung.holeRTT());

@@ -56,7 +56,8 @@ TEXT = {
         'd_mis_p': 'Der Knopf <b>Lernpfad starten</b> neben den Modi öffnet eine Leiste mit dem Lernpfad. Beim ersten Mal '
                    'wählst du zwischen <b>Standard</b> (8 Kapitel) und <b>Fortgeschritten</b> (12 Kapitel, mit HTTPS, '
                    'Heimnetz, WLAN, Portfreigabe, Firewall und VPN). Jedes Kapitel hat Lesen, Praxis, Quiz und Glossar. Filius prüft die '
-                   'Praxis-Aufgaben im laufenden Netz und hakt sie ab, sobald sie wirklich erledigt sind. Der Ring zeigt, '
+                   'Praxis-Aufgaben im laufenden Netz und hakt sie ab, sobald sie wirklich erledigt sind. Kommst du nicht weiter, '
+                   'zeigt „Tipp anzeigen“, welche Schritte der Aufgabe schon erledigt sind und was als Nächstes fehlt. Der Ring zeigt, '
                    'wie viele Kapitel du geschafft hast. Der Fortschritt beider Lernpfade wird mit deinem Projekt gespeichert; '
                    'öffnest du das Projekt wieder, geht es an derselben Stelle weiter. In der Übersicht kannst du den Lernpfad wechseln.',
         'd_file_h': 'Neu, Laden, Speichern',
@@ -206,7 +207,8 @@ TEXT = {
         'd_mis_p': 'The <b>Start learning path</b> button next to the modes opens the learning path. The first time, you '
                    'choose between <b>Standard</b> (8 chapters) and <b>Advanced</b> (12 chapters, with HTTPS, '
                    'home network, Wi-Fi, port forwarding, firewall and VPN). Every chapter has reading, practice, quiz and glossary. Filius checks the '
-                   'practice tasks in the running network and ticks them off as soon as they are really done. The ring shows '
+                   'practice tasks in the running network and ticks them off as soon as they are really done. If you are stuck, '
+                   '“Show tip” tells you which steps of the task are done and what is missing next. The ring shows '
                    'how many chapters you have finished. The progress of both learning paths is saved with your project; when '
                    'you open the project again, it continues at the same place. In the overview you can switch the learning path.',
         'd_file_h': 'New, Open, Save',
